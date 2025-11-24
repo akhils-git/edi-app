@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>General Life - Book Library</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#3b82f6", // blue-500
+              "background-light": "#f8fafc", // slate-50
+              "background-dark": "#1e293b",   // slate-800
+            },
+            fontFamily: {
+              display: ["Roboto", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "1rem", // 16px
+            },
+          },
+        },
+      };
+    </script>
+<style>
+      body {
+        font-family: 'Roboto', sans-serif;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased">
+<div class="h-screen flex flex-col max-w-sm mx-auto">
+<header class="flex items-center p-4">
+<a class="text-slate-900 dark:text-slate-100" href="#">
+<span class="material-icons text-3xl">arrow_back</span>
+</a>
+</header>
+<main class="flex-grow px-4 pb-4">
+<h1 class="text-4xl font-bold mb-6 text-slate-900 dark:text-slate-50">General Life</h1>
+<div class="grid grid-cols-2 gap-x-6 gap-y-8">
+<div class="flex flex-col items-center">
+<div class="bg-teal-600 rounded-2xl p-4 shadow-md mb-3">
+<img alt="The Art of Living book cover" class="w-full h-auto rounded-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsNDV8emdI2mf8F8gLmecfnPfrNEwSDPi7hm1OnwlwcSyWrTuRz39QZWS6RpgDNGt312JlF2JR9g8kkBOMbQsUekYmvPGubyOS3jZSHsgfJtMH5u3dImptfsN88WMJSKr4FliHTxiWcDiUjnj5Yk4BM-qG1-hYl5uq9v4edWwmi8NXFKgLl5BPeLDGnxW9Ay0gk2Y-4XiLtW8sSIyyW_ofGbTWMQrQRgSSuJxL5ohcSi3mav-7eZ7hMbs8NsE4KVtP7m4VNXyYpA0"/>
+</div>
+<p class="font-medium text-center text-slate-800 dark:text-slate-200">The Art of Living</p>
+</div>
+<div class="flex flex-col items-center">
+<div class="bg-teal-300 bg-opacity-50 rounded-2xl p-4 shadow-md mb-3">
+<img alt="Mindful Moments book cover" class="w-full h-auto rounded-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCV0fmm5rLFS7NfkF10ZWv_2x6KgFhqMFGU-Pt-y3R1POSy4tEuLJLGG7EWZoRyRoRIhE7cO3diF7aJ7IENImoX97AWl-ZxWIciAyMehOomRiSkVQ1iGNhvRnPkh9hm-4Q1pIgTCvx7h-ll1AxrzQoRZ8uWsPrS-0dZNMidoEU1GFsHCMO4gTd5RtZ5BRUoqkPkBJwPk70j5udERbANXDyW4fMrHon8XY9w0eLvp6IdrnVLc2emQLWbD4ZXPy1tGuZWlZe0W1viE5A"/>
+</div>
+<p class="font-medium text-center text-slate-800 dark:text-slate-200">Mindful Moments</p>
+</div>
+<div class="flex flex-col items-center">
+<div class="bg-teal-500 rounded-2xl p-4 shadow-md mb-3">
+<img alt="Financial Freedom book cover" class="w-full h-auto rounded-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPQOhv84OITOIlLM6JCiSiL6x-O8Xyu-78lod8VALK1ViPNbAh04BHTG40mi0bq6FDLC9inxoLwYCfZFAuw_n7ElZzf268KUR5b3bJW3W1uHvaSwXudqRPIdNjLVIktEBTLQzCNBJP5WBCNIzSc8y_aW6xP2vxpaMu4ITAOUTdDJE-YHqrBy1y3wRrYE_1Ez5QGWly_ertIMiVzdu3LzHruO5egOF1iteGpSplkBiKSwUKeoZZhHoQaB9ksLkmjCHXNeRO1i8kIFs"/>
+</div>
+<p class="font-medium text-center text-slate-800 dark:text-slate-200">Financial Freedom</p>
+</div>
+<div class="flex flex-col items-center">
+<div class="bg-background-light dark:bg-slate-700 rounded-2xl p-4 shadow-md mb-3">
+<img alt="Healthy Habits book cover" class="w-full h-auto" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZy3LiN_8vKT_eNJtjoSdbSNNOOSy7DuzSlmwKghKu3bNs3eushzkwmB_AEKggsIoMEY5JxhKIXl9m0EIWc6qsVN7kYjzBvJPQjKqQAeZQjeBtT_PPGY2XNOQM5rK0b4Fv9ah83rAAe7OPdFwBHo4U1VrGUHmBkAmQ5-NAMUzEAcs_hR4Gv6YiIam0K32jnQRl_rXU9dRpHzRUxwCZ5J6I0v3y7FUerRqoqQV7SxHXuKP5oipQHjiQa81-_udN9UQjA63CohjkViw"/>
+</div>
+<p class="font-medium text-center text-slate-800 dark:text-slate-200">Healthy Habits</p>
+</div>
+</div>
+</main>
+<footer class="bg-background-light dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 shadow-t-lg">
+<nav class="flex justify-around py-3">
+<a class="flex flex-col items-center text-primary space-y-1" href="#">
+<span class="material-icons">home</span>
+<span class="text-xs font-medium">Home</span>
+</a>
+<a class="flex flex-col items-center text-slate-500 dark:text-slate-400 space-y-1" href="#">
+<span class="material-icons">forum</span>
+<span class="text-xs font-medium">Community</span>
+</a>
+<a class="flex flex-col items-center text-slate-500 dark:text-slate-400 space-y-1" href="#">
+<span class="material-icons">person</span>
+<span class="text-xs font-medium">Profile</span>
+</a>
+</nav>
+</footer>
+</div>
+
+</body></html>
