@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'screens/start_screen_one.dart';
 import 'screens/start_screen_two.dart';
 import 'screens/start_screen_three.dart';
+import 'screens/login_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -36,6 +37,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
+    // Hide status and navigation bars for immersive onboarding
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   }
 
   @override
@@ -47,6 +50,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
+    // Restore system UI (status/navigation bars)
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     _controller.dispose();
     super.dispose();
   }
@@ -55,6 +60,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
     if (_controller.page != null && _controller.page! < 2) {
       _controller.nextPage(
           duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+      return;
+    }
+    // if we're on last page, navigate to login
+    if (mounted) {
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const LoginScreen()));
     }
   }
 
@@ -78,23 +89,23 @@ class _OnboardingPageState extends State<OnboardingPage> {
         physics: const BouncingScrollPhysics(),
         children: [
           StartScreenOne(
-            themeMode: widget.themeMode,
-            onThemeChanged: widget.onThemeChanged,
-            onNext: _next,
-            onPrev: _prev,
-            onSkip: _skip),
+              themeMode: widget.themeMode,
+              onThemeChanged: widget.onThemeChanged,
+              onNext: _next,
+              onPrev: _prev,
+              onSkip: _skip),
           StartScreenTwo(
-            themeMode: widget.themeMode,
-            onThemeChanged: widget.onThemeChanged,
-            onNext: _next,
-            onPrev: _prev,
-            onSkip: _skip),
+              themeMode: widget.themeMode,
+              onThemeChanged: widget.onThemeChanged,
+              onNext: _next,
+              onPrev: _prev,
+              onSkip: _skip),
           StartScreenThree(
-            themeMode: widget.themeMode,
-            onThemeChanged: widget.onThemeChanged,
-            onNext: _next,
-            onPrev: _prev,
-            onSkip: _skip),
+              themeMode: widget.themeMode,
+              onThemeChanged: widget.onThemeChanged,
+              onNext: _next,
+              onPrev: _prev,
+              onSkip: _skip),
         ],
       ),
     );
