@@ -218,9 +218,7 @@ class _BookChaptersScreenState extends State<BookChaptersScreen> {
                                           )),
                                       const SizedBox(height: 4),
                                       Text(
-                                        ch.description.isNotEmpty
-                                            ? ch.description
-                                            : '${ch.mediaCount} min lesson',
+                                        '0 min lesson',
                                         style: TextStyle(
                                           fontSize: 13,
                                           color: isLight
