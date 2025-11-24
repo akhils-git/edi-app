@@ -4,6 +4,13 @@ import '../services/chapter_service.dart';
 import '../components/nav_bar.dart';
 import 'video_player_screen.dart';
 
+// Helper to format duration as MM:SS
+String _formatDuration(Duration d) {
+  final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+  final seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+  return '$minutes:$seconds';
+}
+
 class ChapterHomeScreen extends StatefulWidget {
   final Chapter chapter;
   final String? bookTitle;
@@ -32,6 +39,9 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
     if (url.isEmpty) return;
     _inlineController = VideoPlayerController.network(url);
     await _inlineController!.initialize();
+    _inlineController!.addListener(() {
+      if (mounted) setState(() {});
+    });
     setState(() {
       _inlineInitialized = true;
     });
@@ -207,9 +217,18 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                           color: Colors.white),
                                     ),
                                     const SizedBox(width: 8),
-                                    Text('1:23',
-                                        style: const TextStyle(
-                                            color: Colors.white, fontSize: 12)),
+                                    Text(
+                                      _inlineInitialized &&
+                                              _inlineController != null
+                                          ? _formatDuration(_inlineController!
+                                                  .value.position) +
+                                              '/' +
+                                              _formatDuration(_inlineController!
+                                                  .value.duration)
+                                          : '--:--/--:--',
+                                      style: const TextStyle(
+                                          color: Colors.white, fontSize: 12),
+                                    ),
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: _inlineInitialized &&

@@ -23,6 +23,13 @@ class FullscreenVideoScreen extends StatefulWidget {
 }
 
 class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
+  // Helper to format duration as MM:SS
+  String _formatDuration(Duration d) {
+    final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
+
   late VideoPlayerController _controller;
   bool _initialized = false;
 
@@ -40,6 +47,9 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
       ..initialize().then((_) async {
         // Seek to the position passed from previous screen
         await _controller.seekTo(widget.startPosition);
+        _controller.addListener(() {
+          if (mounted) setState(() {});
+        });
         setState(() {
           _initialized = true;
         });
@@ -137,14 +147,31 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
                                 ),
                               ),
                               Expanded(
-                                child: VideoProgressIndicator(
-                                  _controller,
-                                  allowScrubbing: true,
-                                  colors: VideoProgressColors(
-                                    playedColor: Colors.blueAccent,
-                                    bufferedColor: Colors.white54,
-                                    backgroundColor: Colors.white24,
-                                  ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    VideoProgressIndicator(
+                                      _controller,
+                                      allowScrubbing: true,
+                                      colors: VideoProgressColors(
+                                        playedColor: Colors.blueAccent,
+                                        bufferedColor: Colors.white54,
+                                        backgroundColor: Colors.white24,
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 2.0),
+                                      child: Text(
+                                        _formatDuration(
+                                                _controller.value.position) +
+                                            '/' +
+                                            _formatDuration(
+                                                _controller.value.duration),
+                                        style: const TextStyle(
+                                            color: Colors.white, fontSize: 12),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
@@ -162,6 +189,13 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
 }
 
 class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
+  // Helper to format duration as MM:SS
+  String _formatDuration(Duration d) {
+    final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
+
   late VideoPlayerController _controller;
   bool _initialized = false;
 
@@ -170,6 +204,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     super.initState();
     _controller = VideoPlayerController.network(widget.url)
       ..initialize().then((_) {
+        _controller.addListener(() {
+          if (mounted) setState(() {});
+        });
         setState(() {
           _initialized = true;
         });
@@ -266,14 +303,31 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                                 color: Colors.white),
                           ),
                           Expanded(
-                            child: VideoProgressIndicator(
-                              _controller,
-                              allowScrubbing: true,
-                              colors: VideoProgressColors(
-                                playedColor: Colors.blueAccent,
-                                bufferedColor: Colors.white54,
-                                backgroundColor: Colors.white24,
-                              ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                VideoProgressIndicator(
+                                  _controller,
+                                  allowScrubbing: true,
+                                  colors: VideoProgressColors(
+                                    playedColor: Colors.blueAccent,
+                                    bufferedColor: Colors.white54,
+                                    backgroundColor: Colors.white24,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 2.0),
+                                  child: Text(
+                                    _formatDuration(
+                                            _controller.value.position) +
+                                        '/' +
+                                        _formatDuration(
+                                            _controller.value.duration),
+                                    style: const TextStyle(
+                                        color: Colors.white, fontSize: 12),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
