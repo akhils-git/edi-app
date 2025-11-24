@@ -75,7 +75,8 @@ class _MyHandbookScreenState extends State<MyHandbookScreen> {
                       return InkWell(
                         onTap: () {
                           Navigator.of(context).push(MaterialPageRoute(
-                              builder: (_) => BookHomeScreen(category: cat)));
+                              builder: (_) => BookHomeScreen(
+                                  category: cat, authToken: widget.authToken)));
                         },
                         borderRadius: BorderRadius.circular(20),
                         child: _CategoryCard(

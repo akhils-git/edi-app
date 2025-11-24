@@ -1,38 +1,33 @@
 import 'package:flutter/material.dart';
 import '../services/category_service.dart';
 import '../components/nav_bar.dart';
+import '../services/book_service.dart';
 
-class BookHomeScreen extends StatelessWidget {
+class BookHomeScreen extends StatefulWidget {
   final Category category;
+  final String? authToken;
 
-  const BookHomeScreen({super.key, required this.category});
+  const BookHomeScreen({super.key, required this.category, this.authToken});
+
+  @override
+  State<BookHomeScreen> createState() => _BookHomeScreenState();
+}
+
+class _BookHomeScreenState extends State<BookHomeScreen> {
+  late Future<List<Book>> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future =
+        BookService.getBooksForCategory(widget.category.id, widget.authToken);
+  }
 
   @override
   Widget build(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
     final bg = isLight ? const Color(0xFFF6F6F8) : const Color(0xFF0D1116);
     final titleColor = isLight ? const Color(0xFF0F1724) : Colors.white;
-
-    // Simple placeholder list for books — if your API provides book data,
-    // this can be replaced by passing the list inside `Category`.
-    final sampleBooks = [
-      {
-        'title': 'The Art of Living',
-        'image': 'assets/images/start_screen_one_header.png'
-      },
-      {
-        'title': 'Mindful Moments',
-        'image': 'assets/images/start_screen_two_header.png'
-      },
-      {
-        'title': 'Financial Freedom',
-        'image': 'assets/images/start_screen_three_header.png'
-      },
-      {
-        'title': 'Healthy Habits',
-        'image': 'assets/images/start_screen_one_header.png'
-      },
-    ];
 
     return Scaffold(
       backgroundColor: bg,
@@ -50,7 +45,7 @@ class BookHomeScreen extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(category.name,
+                    child: Text(widget.category.name,
                         style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.w800,
@@ -62,40 +57,63 @@ class BookHomeScreen extends StatelessWidget {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: GridView.builder(
-                  padding: const EdgeInsets.only(bottom: 8, top: 8),
-                  itemCount: sampleBooks.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 16,
-                      crossAxisSpacing: 16,
-                      childAspectRatio: 0.9),
-                  itemBuilder: (context, index) {
-                    final book = sampleBooks[index];
-                    return Column(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: isLight
-                                  ? Colors.white
-                                  : const Color(0xFF111827),
-                              borderRadius: BorderRadius.circular(18),
+                child: FutureBuilder<List<Book>>(
+                  future: _future,
+                  builder: (context, snap) {
+                    if (snap.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (snap.hasError) {
+                      return Center(child: Text('Error: ${snap.error}'));
+                    }
+                    final books = snap.data ?? [];
+                    if (books.isEmpty) {
+                      return const Center(
+                          child: Text('No books in this category'));
+                    }
+                    return GridView.builder(
+                      padding: const EdgeInsets.only(bottom: 8, top: 8),
+                      itemCount: books.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              mainAxisSpacing: 16,
+                              crossAxisSpacing: 16,
+                              childAspectRatio: 0.9),
+                      itemBuilder: (context, index) {
+                        final book = books[index];
+                        return Column(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: isLight
+                                      ? Colors.white
+                                      : const Color(0xFF111827),
+                                  borderRadius: BorderRadius.circular(18),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: book.thumbnail.isNotEmpty
+                                      ? Image.network(book.thumbnail,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (c, e, s) =>
+                                              const Icon(Icons.book))
+                                      : const Icon(Icons.book),
+                                ),
+                              ),
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Image.asset(book['image']!,
-                                  fit: BoxFit.contain),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(book['title']!,
-                            style: TextStyle(
-                                color: isLight
-                                    ? const Color(0xFF0F1724)
-                                    : Colors.white)),
-                      ],
+                            const SizedBox(height: 8),
+                            Text(book.title,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    color: isLight
+                                        ? const Color(0xFF0F1724)
+                                        : Colors.white)),
+                          ],
+                        );
+                      },
                     );
                   },
                 ),
