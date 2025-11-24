@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
@@ -19,7 +20,8 @@ class ApiException implements Exception {
   ApiException(this.message, [this.statusCode]);
 
   @override
-  String toString() => 'ApiException(statusCode: $statusCode, message: $message)';
+  String toString() =>
+      'ApiException(statusCode: $statusCode, message: $message)';
 }
 
 class UserData {
@@ -79,11 +81,39 @@ class AuthService {
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({'username': username, 'password': password});
 
-    final resp = await http.post(uri, headers: headers, body: body);
+    http.Response resp;
+    try {
+      resp = await http.post(uri, headers: headers, body: body);
+    } on SocketException catch (e) {
+      // If we're on Android try the emulator host as a fallback (10.0.2.2).
+      // This helps when the developer is running on an emulator without adb reverse.
+      if (Platform.isAndroid) {
+        final fallback = Uri.parse('http://10.0.2.2:3010/api/v1/auth/login');
+        try {
+          print('AuthService.login: SocketException, retrying with $fallback');
+          resp = await http
+              .post(fallback, headers: headers, body: body)
+              .timeout(Duration(seconds: 10));
+        } on SocketException catch (e2) {
+          throw ApiException(
+              'Network error: $e2. Tried localhost and 10.0.2.2. Ensure backend is running and accessible.',
+              null);
+        } catch (e2) {
+          throw ApiException('Request failed when retrying: $e2', null);
+        }
+      } else {
+        throw ApiException(
+            'Network error: $e. Ensure the backend at $apiBaseUrl is running and reachable from the device.',
+            null);
+      }
+    } catch (e) {
+      throw ApiException('Request failed: $e', null);
+    }
 
     if (resp.statusCode == 200) {
       try {
-        final Map<String, dynamic> json = jsonDecode(resp.body) as Map<String, dynamic>;
+        final Map<String, dynamic> json =
+            jsonDecode(resp.body) as Map<String, dynamic>;
         return AuthResponse.fromJson(json);
       } catch (e) {
         throw ApiException('Invalid response format: $e', resp.statusCode);

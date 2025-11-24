@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'create_account.dart';
+import '../services/auth_service.dart';
+import 'my_handbook.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,6 +12,9 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _loading = false;
   @override
   void initState() {
     super.initState();
@@ -20,6 +25,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
     // restore system UI
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
@@ -99,6 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // form
                 TextField(
+                  controller: _usernameController,
                   decoration: InputDecoration(
                     hintText: 'Email or username',
                     hintStyle: TextStyle(
@@ -133,6 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 12),
                 TextField(
+                  controller: _passwordController,
                   obscureText: true,
                   decoration: InputDecoration(
                     hintText: 'Password',
@@ -178,10 +187,44 @@ class _LoginScreenState extends State<LoginScreen> {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16)),
                     ),
-                    onPressed: () {},
-                    child: const Text('Log in',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w700, fontSize: 16)),
+                    onPressed: _loading
+                        ? null
+                        : () async {
+                            setState(() => _loading = true);
+                            final username = _usernameController.text.trim();
+                            final password = _passwordController.text;
+                            try {
+                              final resp =
+                                  await AuthService.login(username, password);
+                              if (resp.success) {
+                                // navigate to MyHandbook and pass the auth token
+                                if (mounted) {
+                                  Navigator.of(context).pushReplacement(
+                                      MaterialPageRoute(
+                                          builder: (_) => MyHandbookScreen(
+                                              authToken: resp.token)));
+                                }
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text('Login failed')));
+                              }
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(e.toString())));
+                            } finally {
+                              if (mounted) setState(() => _loading = false);
+                            }
+                          },
+                    child: _loading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                                color: Colors.white, strokeWidth: 2))
+                        : const Text('Log in',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w700, fontSize: 16)),
                   ),
                 ),
 
