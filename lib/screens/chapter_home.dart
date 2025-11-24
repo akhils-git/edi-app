@@ -414,7 +414,10 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                   horizontal: 24, vertical: 12)),
                           onPressed: () {},
                           child: Text('Start Quiz',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              )),
                         )
                       ],
                     ),
