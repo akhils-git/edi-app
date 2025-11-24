@@ -46,20 +46,14 @@ class StartScreenTwo extends StatelessWidget {
           children: [
             // top skip row
             Padding(
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+              padding: const EdgeInsets.fromLTRB(
+                  12, 12, 16, 0), // right margin now matches image
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   GestureDetector(
                     onTap: () {
-                      if (onSkip != null) {
-                        onSkip!();
-                        return;
-                      }
-                      if (onNext != null) {
-                        onNext!();
-                        return;
-                      }
+                      Navigator.of(context).pushReplacementNamed('/login');
                     },
                     child: Text('Skip',
                         style: TextStyle(

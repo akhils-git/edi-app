@@ -138,6 +138,9 @@ class _MyAppState extends State<MyApp> {
       ),
       home:
           OnboardingPage(themeMode: _themeMode, onThemeChanged: _setThemeMode),
+      routes: {
+        '/login': (context) => const LoginScreen(),
+      },
     );
   }
 }

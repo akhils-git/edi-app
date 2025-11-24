@@ -46,18 +46,15 @@ class StartScreenThree extends StatelessWidget {
           children: [
             // top app bar area with Skip
             Padding(
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+              padding: const EdgeInsets.fromLTRB(
+                  12, 12, 16, 8), // right margin now matches image
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const SizedBox(width: 36),
                   GestureDetector(
                     onTap: () {
-                      if (onSkip != null) {
-                        onSkip!();
-                        return;
-                      }
-                      if (onNext != null) onNext!();
+                      Navigator.of(context).pushReplacementNamed('/login');
                     },
                     child: Text('Skip',
                         style: TextStyle(
