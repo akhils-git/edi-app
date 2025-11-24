@@ -6,6 +6,9 @@ import 'screens/start_screen_three.dart';
 import 'screens/login_screen.dart';
 
 void main() {
+  // Make the app immersive (hide status and navigation bars) globally.
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   runApp(const MyApp());
 }
 
@@ -37,8 +40,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
-    // Hide status and navigation bars for immersive onboarding
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   }
 
   @override
@@ -50,8 +51,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
-    // Restore system UI (status/navigation bars)
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     _controller.dispose();
     super.dispose();
   }

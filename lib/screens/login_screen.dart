@@ -18,17 +18,13 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    // hide top status bar only (keep navigation bar visible)
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-        overlays: [SystemUiOverlay.bottom]);
+    // System UI mode is managed globally in `main.dart` (immersive full-screen).
   }
 
   @override
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
-    // restore system UI
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
   }
 
