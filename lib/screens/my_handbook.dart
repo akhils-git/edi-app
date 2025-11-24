@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/category_service.dart';
 import '../components/nav_bar.dart';
+import 'book_home.dart';
 
 class MyHandbookScreen extends StatefulWidget {
   final String? authToken;
@@ -71,10 +72,17 @@ class _MyHandbookScreenState extends State<MyHandbookScreen> {
                     itemBuilder: (c, i) {
                       final cat = cats[i];
                       final icon = _iconForCategory(cat.name);
-                      return _CategoryCard(
-                        title: cat.name,
-                        subtitle: cat.description,
-                        icon: icon,
+                      return InkWell(
+                        onTap: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (_) => BookHomeScreen(category: cat)));
+                        },
+                        borderRadius: BorderRadius.circular(20),
+                        child: _CategoryCard(
+                          title: cat.name,
+                          subtitle: cat.description,
+                          icon: icon,
+                        ),
                       );
                     },
                   );
