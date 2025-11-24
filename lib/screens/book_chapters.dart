@@ -56,61 +56,100 @@ class _BookChaptersScreenState extends State<BookChaptersScreen> {
                 ],
               ),
             ),
-
-            // Top book card (summary)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: isLight ? Colors.white : const Color(0xFF111827),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  children: [
-                    // text block
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(widget.book.title,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: titleColor,
-                              )),
-                          const SizedBox(height: 6),
-                          if ((widget.book.author ?? '').isNotEmpty)
-                            Text('By ${widget.book.author}',
-                                style: TextStyle(
-                                  color: isLight
-                                      ? const Color(0xFF6B7280)
-                                      : const Color(0xFF9CA3AF),
-                                  fontSize: 13,
-                                )),
-                        ],
-                      ),
+            // Book card + dummy progress bar
+            Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: isLight ? Colors.white : const Color(0xFF111827),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-
-                    // thumbnail
-                    Container(
-                      width: 72,
-                      height: 72,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: const Color(0xFFEAEAF0),
-                        image: widget.book.thumbnail.isNotEmpty
-                            ? DecorationImage(
-                                image: NetworkImage(widget.book.thumbnail),
-                                fit: BoxFit.cover)
-                            : null,
-                      ),
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      children: [
+                        // text block
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(widget.book.title,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: titleColor,
+                                  )),
+                              const SizedBox(height: 6),
+                              if ((widget.book.author ?? '').isNotEmpty)
+                                Text('By ${widget.book.author}',
+                                    style: TextStyle(
+                                      color: isLight
+                                          ? const Color(0xFF6B7280)
+                                          : const Color(0xFF9CA3AF),
+                                      fontSize: 13,
+                                    )),
+                            ],
+                          ),
+                        ),
+                        // thumbnail
+                        Container(
+                          width: 72,
+                          height: 72,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: const Color(0xFFEAEAF0),
+                            image: widget.book.thumbnail.isNotEmpty
+                                ? DecorationImage(
+                                    image: NetworkImage(widget.book.thumbnail),
+                                    fit: BoxFit.cover)
+                                : null,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
+                // Dummy Progress bar
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Progress',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            color: titleColor,
+                          )),
+                      const SizedBox(height: 8),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: LinearProgressIndicator(
+                          value: 0.2, // 2 of 10
+                          minHeight: 7,
+                          backgroundColor: isLight
+                              ? const Color(0xFFE5E7EB)
+                              : const Color(0xFF374151),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              const Color(0xFF135bec)),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'You have completed 2 of 10 chapters.',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: isLight
+                              ? const Color(0xFF6B7280)
+                              : const Color(0xFF9CA3AF),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-
             const SizedBox(height: 12),
 
             // Chapters list
@@ -156,20 +195,11 @@ class _BookChaptersScreenState extends State<BookChaptersScreen> {
                                   height: 44,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: ch.mediaCount > 0
-                                        ? Colors.blue.shade50
-                                        : (isLight
-                                            ? Colors.green.shade50
-                                            : Colors.green.shade900
-                                                .withOpacity(0.12)),
+                                    color: Colors.blue.shade50,
                                   ),
                                   child: Icon(
-                                    ch.mediaCount > 0
-                                        ? Icons.play_circle
-                                        : Icons.check_circle,
-                                    color: ch.mediaCount > 0
-                                        ? Colors.blue
-                                        : Colors.green,
+                                    Icons.play_circle,
+                                    color: const Color(0xFF135bec),
                                   ),
                                 ),
                                 const SizedBox(width: 12),
@@ -203,7 +233,7 @@ class _BookChaptersScreenState extends State<BookChaptersScreen> {
                                 ),
                                 const SizedBox(width: 8),
                                 const Icon(Icons.arrow_forward_ios,
-                                    size: 16, color: Colors.blue),
+                                    size: 16, color: Color(0xFF135bec)),
                               ],
                             ),
                           ),
