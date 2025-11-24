@@ -93,26 +93,26 @@ class StartScreenTwo extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                        Container(
+                      Container(
                           width: 8,
                           height: 8,
                           decoration: BoxDecoration(
-                            color: primary.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(8))),
-                        const SizedBox(width: 8),
-                        Container(
+                              color: primary.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(8))),
+                      const SizedBox(width: 8),
+                      Container(
                           width: 8,
                           height: 8,
                           decoration: BoxDecoration(
-                            color: primary,
-                            borderRadius: BorderRadius.circular(8))),
-                        const SizedBox(width: 8),
-                        Container(
+                              color: primary,
+                              borderRadius: BorderRadius.circular(8))),
+                      const SizedBox(width: 8),
+                      Container(
                           width: 8,
                           height: 8,
                           decoration: BoxDecoration(
-                            color: primary.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(8))),
+                              color: primary.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(8))),
                     ],
                   ),
                   const SizedBox(height: 16),
