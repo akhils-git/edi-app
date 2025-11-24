@@ -1,0 +1,19 @@
+name: edu_app
+description: A minimal cross-platform Flutter app (Hello World) with light/dark theme support.
+publish_to: "none"
+version: 0.0.1
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
