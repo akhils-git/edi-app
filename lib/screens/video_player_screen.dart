@@ -88,106 +88,99 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
       },
       child: Scaffold(
         backgroundColor: Colors.black,
-        body: SafeArea(
-          top: false,
-          bottom: false,
-          child: Center(
-            child: _initialized
-                ? Stack(
-                    children: [
-                      FittedBox(
-                        fit: BoxFit.cover,
-                        clipBehavior: Clip.hardEdge,
-                        child: SizedBox(
-                          width: MediaQuery.of(context).size.width,
-                          height: MediaQuery.of(context).size.height,
-                          child: VideoPlayer(_controller),
-                        ),
-                      ),
-                      Positioned(
-                        top: 12,
-                        left: 12,
-                        child: IconButton(
-                          color: Colors.white,
-                          icon: const Icon(Icons.arrow_back),
+        body: _initialized
+            ? Stack(
+                children: [
+                  FittedBox(
+                    fit: BoxFit.cover,
+                    clipBehavior: Clip.hardEdge,
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      child: VideoPlayer(_controller),
+                    ),
+                  ),
+                  Positioned(
+                    top: 12,
+                    left: 12,
+                    child: IconButton(
+                      color: Colors.white,
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed: () async {
+                        await _restoreAndPop();
+                      },
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 12,
+                    left: 12,
+                    right: 12,
+                    child: Row(
+                      children: [
+                        IconButton(
                           onPressed: () async {
-                            await _restoreAndPop();
+                            final current = _controller.value.position;
+                            final target =
+                                current - const Duration(seconds: 10);
+                            final seekTo =
+                                target > Duration.zero ? target : Duration.zero;
+                            await _controller.seekTo(seekTo);
+                            setState(() {});
                           },
+                          icon:
+                              const Icon(Icons.replay_10, color: Colors.white),
                         ),
-                      ),
-                      Positioned(
-                        bottom: 12,
-                        left: 12,
-                        right: 12,
-                        child: Row(
-                          children: [
-                            IconButton(
-                              onPressed: () async {
-                                final current = _controller.value.position;
-                                final target =
-                                    current - const Duration(seconds: 10);
-                                final seekTo = target > Duration.zero
-                                    ? target
-                                    : Duration.zero;
-                                await _controller.seekTo(seekTo);
-                                setState(() {});
-                              },
-                              icon: const Icon(Icons.replay_10,
-                                  color: Colors.white),
-                            ),
-                            IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  if (_controller.value.isPlaying) {
-                                    _controller.pause();
-                                  } else {
-                                    _controller.play();
-                                  }
-                                });
-                              },
-                              icon: Icon(
-                                _controller.value.isPlaying
-                                    ? Icons.pause
-                                    : Icons.play_arrow,
-                                color: Colors.white,
+                        IconButton(
+                          onPressed: () {
+                            setState(() {
+                              if (_controller.value.isPlaying) {
+                                _controller.pause();
+                              } else {
+                                _controller.play();
+                              }
+                            });
+                          },
+                          icon: Icon(
+                            _controller.value.isPlaying
+                                ? Icons.pause
+                                : Icons.play_arrow,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              VideoProgressIndicator(
+                                _controller,
+                                allowScrubbing: true,
+                                colors: VideoProgressColors(
+                                  playedColor: Colors.blueAccent,
+                                  bufferedColor: Colors.white54,
+                                  backgroundColor: Colors.white24,
+                                ),
                               ),
-                            ),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  VideoProgressIndicator(
-                                    _controller,
-                                    allowScrubbing: true,
-                                    colors: VideoProgressColors(
-                                      playedColor: Colors.blueAccent,
-                                      bufferedColor: Colors.white54,
-                                      backgroundColor: Colors.white24,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 2.0),
-                                    child: Text(
+                              Padding(
+                                padding: const EdgeInsets.only(top: 2.0),
+                                child: Text(
+                                  _formatDuration(_controller.value.position) +
+                                      '/' +
                                       _formatDuration(
-                                              _controller.value.position) +
-                                          '/' +
-                                          _formatDuration(
-                                              _controller.value.duration),
-                                      style: const TextStyle(
-                                          color: Colors.white, fontSize: 12),
-                                    ),
-                                  ),
-                                ],
+                                          _controller.value.duration),
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 12),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  )
-                : const CircularProgressIndicator(color: Colors.white),
-          ),
-        ),
+                      ],
+                    ),
+                  ),
+                ],
+              )
+            : const Center(
+                child: CircularProgressIndicator(color: Colors.white)),
       ),
     );
   }

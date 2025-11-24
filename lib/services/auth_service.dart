@@ -77,7 +77,6 @@ class AuthService {
   /// Returns [AuthResponse] on 200. Throws [ApiException] otherwise.
   static Future<AuthResponse> login(String username, String password) async {
     final uri = Uri.parse('${apiBaseUrl}api/v1/auth/login');
-
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({'username': username, 'password': password});
 
@@ -85,27 +84,10 @@ class AuthService {
     try {
       resp = await http.post(uri, headers: headers, body: body);
     } on SocketException catch (e) {
-      // If we're on Android try the emulator host as a fallback (10.0.2.2).
-      // This helps when the developer is running on an emulator without adb reverse.
-      if (Platform.isAndroid) {
-        final fallback = Uri.parse('http://10.0.2.2:3010/api/v1/auth/login');
-        try {
-          print('AuthService.login: SocketException, retrying with $fallback');
-          resp = await http
-              .post(fallback, headers: headers, body: body)
-              .timeout(Duration(seconds: 10));
-        } on SocketException catch (e2) {
-          throw ApiException(
-              'Network error: $e2. Tried localhost and 10.0.2.2. Ensure backend is running and accessible.',
-              null);
-        } catch (e2) {
-          throw ApiException('Request failed when retrying: $e2', null);
-        }
-      } else {
-        throw ApiException(
-            'Network error: $e. Ensure the backend at $apiBaseUrl is running and reachable from the device.',
-            null);
-      }
+      throw ApiException(
+        'Network error: $e. Ensure the backend at $apiBaseUrl is running and reachable from the device.',
+        null,
+      );
     } catch (e) {
       throw ApiException('Request failed: $e', null);
     }

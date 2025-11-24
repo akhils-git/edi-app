@@ -60,20 +60,8 @@ class ChapterService {
             const Duration(seconds: 15),
           );
     } on SocketException catch (e) {
-      if (Platform.isAndroid) {
-        final fallback =
-            Uri.parse('http://10.0.2.2:3010/api/v1/chapters/book/$bookId');
-        try {
-          print('ChapterService: SocketException, retrying with $fallback');
-          resp = await http.get(fallback, headers: headers).timeout(
-                const Duration(seconds: 10),
-              );
-        } catch (e2) {
-          throw Exception('Network error: $e2');
-        }
-      } else {
-        throw Exception('Network error: $e');
-      }
+      throw Exception(
+          'Network error: $e. Ensure the backend at $apiBaseUrl is running and reachable from the device.');
     }
 
     print('ChapterService.getChaptersForBook: status=${resp.statusCode}');
