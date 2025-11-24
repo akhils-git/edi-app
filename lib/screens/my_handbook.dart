@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/category_service.dart';
+import '../components/nav_bar.dart';
 
 class MyHandbookScreen extends StatefulWidget {
   final String? authToken;
@@ -80,7 +81,7 @@ class _MyHandbookScreenState extends State<MyHandbookScreen> {
                 },
               ),
             ),
-            _BottomNav(),
+            NavBar(activeIndex: 1),
           ],
         ),
       ),
@@ -159,49 +160,4 @@ class _CategoryCard extends StatelessWidget {
     );
   }
 }
-
-class _BottomNav extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final isLight = Theme.of(context).brightness == Brightness.light;
-    final bg =
-        isLight ? Colors.white.withOpacity(0.9) : Colors.black.withOpacity(0.6);
-    return Container(
-      color: bg,
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _NavItem(icon: Icons.home, label: 'Home'),
-          _NavItem(icon: Icons.library_books, label: 'Library', active: true),
-          _NavItem(icon: Icons.person, label: 'Profile'),
-        ],
-      ),
-    );
-  }
-}
-
-class _NavItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool active;
-  const _NavItem(
-      {required this.icon, required this.label, this.active = false});
-
-  @override
-  Widget build(BuildContext context) {
-    final color = active
-        ? const Color(0xFF135BEC)
-        : (Theme.of(context).brightness == Brightness.light
-            ? const Color(0xFF6B7280)
-            : const Color(0xFF9CA3AF));
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, color: color),
-        const SizedBox(height: 4),
-        Text(label, style: TextStyle(color: color, fontSize: 12)),
-      ],
-    );
-  }
-}
+// _BottomNav and _NavItem removed — replaced by reusable `NavBar` in `lib/components`.
