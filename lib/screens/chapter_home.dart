@@ -13,60 +13,46 @@ class ChapterHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
-    final bg = isLight ? const Color(0xFFF6F6F8) : const Color(0xFF101622);
+    final bgColor = isLight ? const Color(0xFFF6F6F8) : const Color(0xFF101622);
     final cardBg = isLight ? Colors.white : const Color(0xFF23272F);
     final titleColor = isLight ? const Color(0xFF0F1724) : Colors.white;
     final subtitleColor =
-        isLight ? const Color(0xFF6B7280) : const Color(0xFF9CA3AF);
-
+        isLight ? const Color(0xFF6B7280) : const Color(0xFFBFC9DA);
     return Scaffold(
-      backgroundColor: bg,
+      backgroundColor: bgColor,
       body: SafeArea(
         child: Column(
           children: [
-            // Header
-            Container(
-              height: 56,
-              decoration: BoxDecoration(
-                color: isLight ? Colors.white : const Color(0xFF101622),
-                border: Border(
-                    bottom: BorderSide(
-                        color: isLight
-                            ? const Color(0xFFE5E7EB)
-                            : const Color(0xFF23272F))),
-              ),
-              child: Stack(
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: Row(
                 children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back),
-                      color: titleColor,
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    color: titleColor,
+                    onPressed: () => Navigator.of(context).pop(),
                   ),
-                  Center(
+                  const SizedBox(width: 8),
+                  Expanded(
                     child: Text(
-                      chapter.heading,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      bookTitle ?? 'Chapter',
                       style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
                         color: titleColor,
                       ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
               ),
             ),
-
             Expanded(
               child: ListView(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 children: [
-                  // Chapter Summary
+                  // ...existing code for summary, video, audio, quiz...
                   Container(
                     decoration: BoxDecoration(
                       color: cardBg,
@@ -96,8 +82,7 @@ class ChapterHomeScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-
-                  // Video Player or fallback
+                  // ...existing code for video/audio/quiz...
                   Container(
                     decoration: BoxDecoration(
                       color: isLight ? Colors.black : const Color(0xFF23272F),
@@ -200,8 +185,6 @@ class ChapterHomeScreen extends StatelessWidget {
                                 )),
                           ),
                   ),
-
-                  // Audio Player or fallback
                   Container(
                     decoration: BoxDecoration(
                       color: cardBg,
@@ -282,8 +265,6 @@ class ChapterHomeScreen extends StatelessWidget {
                                 )),
                           ),
                   ),
-
-                  // Quiz Card (static)
                   Container(
                     decoration: BoxDecoration(
                       color: cardBg,
@@ -293,7 +274,7 @@ class ChapterHomeScreen extends StatelessWidget {
                     child: Row(
                       children: [
                         Icon(Icons.emoji_events, color: Colors.amber, size: 32),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -304,33 +285,32 @@ class ChapterHomeScreen extends StatelessWidget {
                                 style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w700,
-                                    color: titleColor)),
+                                    color: titleColor))
                           ],
                         ),
-                        const Spacer(),
+                        Spacer(),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF135bec),
+                            backgroundColor: Color(0xFF135bec),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(32)),
-                            padding: const EdgeInsets.symmetric(
+                            padding: EdgeInsets.symmetric(
                                 horizontal: 24, vertical: 12),
                           ),
                           onPressed: () {},
-                          child: const Text('Start Quiz',
+                          child: Text('Start Quiz',
                               style: TextStyle(fontWeight: FontWeight.bold)),
-                        ),
+                        )
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-            // NavBar
-            NavBar(activeIndex: 1),
           ],
         ),
       ),
+      bottomNavigationBar: NavBar(activeIndex: 1),
     );
   }
 }
