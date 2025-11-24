@@ -106,6 +106,20 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
                           child: Row(
                             children: [
                               IconButton(
+                                onPressed: () async {
+                                  final current = _controller.value.position;
+                                  final target =
+                                      current - const Duration(seconds: 10);
+                                  final seekTo = target > Duration.zero
+                                      ? target
+                                      : Duration.zero;
+                                  await _controller.seekTo(seekTo);
+                                  setState(() {});
+                                },
+                                icon: const Icon(Icons.replay_10,
+                                    color: Colors.white),
+                              ),
+                              IconButton(
                                 onPressed: () {
                                   setState(() {
                                     if (_controller.value.isPlaying) {
@@ -197,6 +211,20 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                       child: Row(
                         children: [
                           IconButton(
+                            onPressed: () async {
+                              final current = _controller.value.position;
+                              final target =
+                                  current - const Duration(seconds: 10);
+                              final seekTo = target > Duration.zero
+                                  ? target
+                                  : Duration.zero;
+                              await _controller.seekTo(seekTo);
+                              setState(() {});
+                            },
+                            icon: const Icon(Icons.replay_10,
+                                color: Colors.white),
+                          ),
+                          IconButton(
                             onPressed: () {
                               setState(() {
                                 if (_controller.value.isPlaying) {
@@ -207,10 +235,11 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                               });
                             },
                             icon: Icon(
-                                _controller.value.isPlaying
-                                    ? Icons.pause
-                                    : Icons.play_arrow,
-                                color: Colors.white),
+                              _controller.value.isPlaying
+                                  ? Icons.pause
+                                  : Icons.play_arrow,
+                              color: Colors.white,
+                            ),
                           ),
                           IconButton(
                             onPressed: () async {

@@ -189,7 +189,23 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                     horizontal: 12, vertical: 8),
                                 child: Row(
                                   children: [
-                                    Icon(Icons.replay_10, color: Colors.white),
+                                    IconButton(
+                                      onPressed: () async {
+                                        if (!_inlineInitialized ||
+                                            _inlineController == null) return;
+                                        final current =
+                                            _inlineController!.value.position;
+                                        final target = current -
+                                            const Duration(seconds: 10);
+                                        final seekTo = target > Duration.zero
+                                            ? target
+                                            : Duration.zero;
+                                        await _inlineController!.seekTo(seekTo);
+                                        setState(() {});
+                                      },
+                                      icon: const Icon(Icons.replay_10,
+                                          color: Colors.white),
+                                    ),
                                     const SizedBox(width: 8),
                                     Text('1:23',
                                         style: const TextStyle(
