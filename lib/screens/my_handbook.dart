@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/category_service.dart';
 import '../components/nav_bar.dart';
+import '../components/loading_box.dart';
 import 'book_home.dart';
 
 class MyHandbookScreen extends StatefulWidget {
@@ -59,7 +60,7 @@ class _MyHandbookScreenState extends State<MyHandbookScreen> {
                 future: _future,
                 builder: (context, snap) {
                   if (snap.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const LoadingBox(message: 'Loading your handbooks');
                   }
                   if (snap.hasError) {
                     return Center(child: Text('Error: ${snap.error}'));

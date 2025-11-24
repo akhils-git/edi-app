@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/category_service.dart';
 import '../components/nav_bar.dart';
 import '../components/book_card.dart';
+import '../components/loading_box.dart';
 import '../services/book_service.dart';
 
 class BookHomeScreen extends StatefulWidget {
@@ -62,7 +63,7 @@ class _BookHomeScreenState extends State<BookHomeScreen> {
                   future: _future,
                   builder: (context, snap) {
                     if (snap.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
+                      return const LoadingBox(message: 'Loading your books');
                     }
                     if (snap.hasError) {
                       return Center(child: Text('Error: ${snap.error}'));
