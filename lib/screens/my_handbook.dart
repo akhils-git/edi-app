@@ -172,9 +172,8 @@ class _BottomNav extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _NavItem(icon: Icons.home, label: 'Home', active: true),
-          _NavItem(icon: Icons.settings, label: 'Settings'),
-          _NavItem(icon: Icons.groups, label: 'Community'),
+          _NavItem(icon: Icons.home, label: 'Home'),
+          _NavItem(icon: Icons.library_books, label: 'Library', active: true),
           _NavItem(icon: Icons.person, label: 'Profile'),
         ],
       ),
