@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'start_screen_two.dart';
+import 'start_screen_three.dart';
 
-class StartScreenOne extends StatelessWidget {
+class StartScreenTwo extends StatelessWidget {
   final ThemeMode themeMode;
   final ValueChanged<ThemeMode> onThemeChanged;
 
-  const StartScreenOne(
+  const StartScreenTwo(
       {super.key, required this.themeMode, required this.onThemeChanged});
 
   Color _background(BuildContext context) {
@@ -30,14 +30,11 @@ class StartScreenOne extends StatelessWidget {
   Widget build(BuildContext context) {
     final primary = const Color(0xFF135BEC);
 
-    // themeMode is passed down; the popup uses it via initialValue
-
     return Scaffold(
       backgroundColor: _background(context),
       body: SafeArea(
         child: Column(
           children: [
-            // top header image
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
               child: ClipRRect(
@@ -50,14 +47,13 @@ class StartScreenOne extends StatelessWidget {
                       image: DecorationImage(
                         fit: BoxFit.cover,
                         image: AssetImage(
-                            'assets/images/start_screen_one_header.png'),
+                            'assets/images/start_screen_two_header.png'),
                       ),
                     ),
                   ),
                 ),
               ),
             ),
-            // text
             Expanded(
               child: Center(
                 child: Padding(
@@ -66,7 +62,7 @@ class StartScreenOne extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Your English. Your World.',
+                        'Learning with Fun',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: _textPrimary(context),
@@ -76,7 +72,7 @@ class StartScreenOne extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'A universal learning platform that helps learners of any age speak fluent English with ease—across continents and cultures.',
+                        'Unlock fluent English with fun! Designed for students (Grades 1-10) to learn confidently and easily, turning tough lessons into daily victories.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: _textSecondary(context),
@@ -89,8 +85,6 @@ class StartScreenOne extends StatelessWidget {
                 ),
               ),
             ),
-
-            // bottom controls
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
               child: Column(
@@ -99,26 +93,26 @@ class StartScreenOne extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(
+                        Container(
                           width: 8,
                           height: 8,
                           decoration: BoxDecoration(
-                              color: primary,
-                              borderRadius: BorderRadius.circular(8))),
-                      const SizedBox(width: 8),
-                      Container(
+                            color: primary.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(8))),
+                        const SizedBox(width: 8),
+                        Container(
                           width: 8,
                           height: 8,
                           decoration: BoxDecoration(
-                              color: primary.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(8))),
-                      const SizedBox(width: 8),
-                      Container(
+                            color: primary,
+                            borderRadius: BorderRadius.circular(8))),
+                        const SizedBox(width: 8),
+                        Container(
                           width: 8,
                           height: 8,
                           decoration: BoxDecoration(
-                              color: primary.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(8))),
+                            color: primary.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(8))),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -135,12 +129,12 @@ class StartScreenOne extends StatelessWidget {
                       ),
                       onPressed: () {
                         Navigator.of(context).push(MaterialPageRoute(
-                          builder: (c) => StartScreenTwo(
+                          builder: (c) => StartScreenThree(
                               themeMode: themeMode,
                               onThemeChanged: onThemeChanged),
                         ));
                       },
-                      child: const Text('Join the Global Learners',
+                      child: const Text('Continue',
                           style: TextStyle(
                               fontWeight: FontWeight.w700, fontSize: 16)),
                     ),
@@ -151,7 +145,6 @@ class StartScreenOne extends StatelessWidget {
           ],
         ),
       ),
-      // Removed theme selection FAB: theme is set via app menu in development
     );
   }
 }
