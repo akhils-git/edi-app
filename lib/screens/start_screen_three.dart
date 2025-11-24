@@ -3,9 +3,16 @@ import 'package:flutter/material.dart';
 class StartScreenThree extends StatelessWidget {
   final ThemeMode themeMode;
   final ValueChanged<ThemeMode> onThemeChanged;
+  final VoidCallback? onNext;
+  final VoidCallback? onPrev;
 
-  const StartScreenThree(
-      {super.key, required this.themeMode, required this.onThemeChanged});
+  const StartScreenThree({
+    super.key,
+    required this.themeMode,
+    required this.onThemeChanged,
+    this.onNext,
+    this.onPrev,
+  });
 
   Color _background(BuildContext context) {
     return Theme.of(context).brightness == Brightness.light
@@ -41,10 +48,15 @@ class StartScreenThree extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const SizedBox(width: 36),
-                  Text('Skip',
-                      style: TextStyle(
-                          color: _textSecondary(context),
-                          fontWeight: FontWeight.bold)),
+                  GestureDetector(
+                    onTap: () {
+                      if (onNext != null) onNext!();
+                    },
+                    child: Text('Skip',
+                        style: TextStyle(
+                            color: _textSecondary(context),
+                            fontWeight: FontWeight.bold)),
+                  ),
                 ],
               ),
             ),
@@ -138,7 +150,9 @@ class StartScreenThree extends StatelessWidget {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12)),
                           elevation: 6),
-                      onPressed: () {},
+                      onPressed: () {
+                        if (onNext != null) onNext!();
+                      },
                       child: const Text('Continue',
                           style: TextStyle(
                               fontWeight: FontWeight.w700, fontSize: 16)),

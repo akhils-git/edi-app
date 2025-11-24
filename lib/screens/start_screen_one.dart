@@ -4,9 +4,16 @@ import 'start_screen_two.dart';
 class StartScreenOne extends StatelessWidget {
   final ThemeMode themeMode;
   final ValueChanged<ThemeMode> onThemeChanged;
+  final VoidCallback? onNext;
+  final VoidCallback? onPrev;
 
-  const StartScreenOne(
-      {super.key, required this.themeMode, required this.onThemeChanged});
+  const StartScreenOne({
+    super.key,
+    required this.themeMode,
+    required this.onThemeChanged,
+    this.onNext,
+    this.onPrev,
+  });
 
   Color _background(BuildContext context) {
     return Theme.of(context).brightness == Brightness.light
@@ -134,6 +141,10 @@ class StartScreenOne extends StatelessWidget {
                         elevation: 6,
                       ),
                       onPressed: () {
+                        if (onNext != null) {
+                          onNext!();
+                          return;
+                        }
                         Navigator.of(context).push(MaterialPageRoute(
                           builder: (c) => StartScreenTwo(
                               themeMode: themeMode,
