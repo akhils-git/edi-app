@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sign Up - Speak English with Confidence</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#135bec",
+            "background-light": "#f6f6f8",
+            "background-dark": "#101622",
+            "border-light": "#e0e3e7",
+            "border-dark": "#333c4a",
+            "social-light": "#f0f2f5",
+            "social-dark": "#2a3240",
+            "text-light": "#111318",
+            "text-dark": "#ffffff",
+            "text-secondary-light": "#616f89",
+            "text-secondary-dark": "#a1aab8",
+          },
+          fontFamily: {
+            "display": ["Lexend", "sans-serif"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+<style type="text/tailwindcss">
+    body {
+      min-height: 100dvh;
+    }
+    input::placeholder {
+      color: #616f89;
+    }
+    .dark input::placeholder {
+      color: #a1aab8;
+    }
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-text-light dark:text-text-dark">
+<div class="flex flex-col h-screen">
+<header class="flex items-center p-4">
+<button class="flex items-center justify-center w-10 h-10">
+<span class="material-symbols-outlined text-2xl">arrow_back</span>
+</button>
+</header>
+<main class="flex-grow px-6 flex flex-col pt-4 pb-8">
+<div class="flex justify-center mb-6">
+<img alt="English Academy Logo" class="w-24 h-24 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAekV3Cwrn4ggf93Usb2x5v1LXM53n1RIGpV4mzYh83te8A6QlEf--PyeDBwuK1rbtOss7hGfNPcELzzDEd3m5a1ldFejk1mdve6uPrhG0GFX436C_JaUqG7SV4HWtci269Cp98eYFdjjSXL49KGYNylIo82rCOOPx1Kg2HIBlHV2D4g-FcAa31IqQUO5L5TMmWR1oamnbMnp3V0ejQoUmFxZ7SvnIwE_sEAHqXu5hDJ2zTKKP2FrJp2Nwmz8mU5EMN9k3nuhGrVwU"/>
+</div>
+<h1 class="text-3xl font-bold tracking-tight text-center">English Academy</h1>
+<p class="text-center text-text-secondary-light dark:text-text-secondary-dark mt-2">Create an account to start learning.</p>
+<form class="mt-8 space-y-4">
+<div>
+<label class="sr-only" for="full-name">Full Name</label>
+<input class="w-full h-14 px-4 bg-white dark:bg-background-dark border border-border-light dark:border-border-dark rounded-xl placeholder:text-text-secondary-light dark:placeholder:text-text-secondary-dark focus:ring-primary focus:border-primary transition-colors" id="full-name" name="full-name" placeholder="Full Name" type="text"/>
+</div>
+<div>
+<label class="sr-only" for="phone-number">Phone number</label>
+<input class="w-full h-14 px-4 bg-white dark:bg-background-dark border border-border-light dark:border-border-dark rounded-xl placeholder:text-text-secondary-light dark:placeholder:text-text-secondary-dark focus:ring-primary focus:border-primary transition-colors" id="phone-number" name="phone-number" placeholder="Phone number" type="tel"/>
+</div>
+<div>
+<label class="sr-only" for="email">Email</label>
+<input class="w-full h-14 px-4 bg-white dark:bg-background-dark border border-border-light dark:border-border-dark rounded-xl placeholder:text-text-secondary-light dark:placeholder:text-text-secondary-dark focus:ring-primary focus:border-primary transition-colors" id="email" name="email" placeholder="Email" type="email"/>
+</div>
+<div>
+<label class="sr-only" for="password">Password</label>
+<input class="w-full h-14 px-4 bg-white dark:bg-background-dark border border-border-light dark:border-border-dark rounded-xl placeholder:text-text-secondary-light dark:placeholder:text-text-secondary-dark focus:ring-primary focus:border-primary transition-colors" id="password" name="password" placeholder="Password" type="password"/>
+</div>
+<div>
+<label class="sr-only" for="confirm-password">Confirm password</label>
+<input class="w-full h-14 px-4 bg-white dark:bg-background-dark border border-border-light dark:border-border-dark rounded-xl placeholder:text-text-secondary-light dark:placeholder:text-text-secondary-dark focus:ring-primary focus:border-primary transition-colors" id="confirm-password" name="confirm-password" placeholder="Confirm password" type="password"/>
+</div>
+<button class="flex h-14 w-full items-center justify-center gap-x-2 rounded-xl bg-primary px-6 py-4 text-center font-bold text-white shadow-sm hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary transition-colors" type="submit">
+        Sign Up
+      </button>
+</form>
+<div class="flex items-center my-6">
+<div class="flex-grow border-t border-border-light dark:border-border-dark"></div>
+<span class="mx-4 text-sm text-text-secondary-light dark:text-text-secondary-dark">or</span>
+<div class="flex-grow border-t border-border-light dark:border-border-dark"></div>
+</div>
+<div class="space-y-4">
+<button class="w-full h-14 flex items-center justify-center gap-3 bg-white dark:bg-social-dark rounded-xl font-semibold text-base border border-border-light dark:border-border-dark hover:bg-gray-50 dark:hover:bg-opacity-80 transition-colors">
+<img alt="Google logo" class="w-6 h-6" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbpK_aBS8CgvhGpb4paP_xAwxUOQxDAMpkggiOn21kMCSntFRgAIyQyys91zdHVEUkV_Dnp61xDprYXYq_vujSa12rFuQK88xW4-PcZ0rivPXZe2BtvjLr9Z46ZAJOMSU9QtbHqG-N4V9swHgJTJUl2dSJLlEKpS2G7336eTqNV4yb3hiV0lfHT3KZUqPy9jKGaXyrDutEN-NtShGa_X_PduvauYxGt2Kmb1AqG0KH1-2iM-g4EZ-M-COFiLGQL3W72c0j5_rhjxk"/>
+        Sign up with Google
+      </button>
+<button class="w-full h-14 flex items-center justify-center gap-3 bg-white dark:bg-social-dark rounded-xl font-semibold text-base border border-border-light dark:border-border-dark hover:bg-gray-50 dark:hover:bg-opacity-80 transition-colors">
+<img alt="Apple logo" class="w-6 h-6 dark:invert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHmgtnrU_UJhyt39hEpnAALx6_HFYbwhkmdCPRcw28FBk95t3LA62qxsjS6xFa0OUiU7oUlRf0_bmYH6i47tiX2bd8MQNlDmypH_RAGyMUWpovL4j-TpyOI5BYquwYrVtBPGIVPcDN2KYsYz6obYJyK7ZP3n8GvU6mauFIG-TntDtDKDHiI6ibzc3HPGl1GlNCnm5GcIqM2KA-VZHa4oBqEg6bljIsxk8VqDJdZtblnKzU3U9a5WUe84paCp5zW5vKo7ZNVMjtw5o"/>
+        Sign up with Apple
+      </button>
+</div>
+<div class="mt-auto pt-8 text-center">
+<p class="text-sm">
+<span class="text-text-secondary-light dark:text-text-secondary-dark">Already have an account?</span>
+<a class="font-semibold text-primary hover:underline" href="#"> Log in</a>
+</p>
+</div>
+</main>
+</div>
+
+</body></html>

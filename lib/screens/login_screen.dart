@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'create_account.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -201,7 +202,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           style: TextStyle(color: _textSecondary(context))),
                       const SizedBox(width: 6),
                       GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (_) => const CreateAccountScreen()));
+                          },
                           child: Text('Sign up with email',
                               style: TextStyle(
                                   color: primary,
