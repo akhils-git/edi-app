@@ -4,12 +4,17 @@ import '../components/loading_box.dart';
 import '../components/nav_bar.dart';
 import '../services/book_service.dart';
 import '../services/chapter_service.dart';
+import 'chapter_home.dart';
 
 class BookChaptersScreen extends StatefulWidget {
   final Book book;
   final String? authToken;
 
-  const BookChaptersScreen({super.key, required this.book, this.authToken});
+  // Add book thumbnail for chapter detail transfer
+  final String? bookThumbnail;
+
+  const BookChaptersScreen(
+      {super.key, required this.book, this.authToken, this.bookThumbnail});
 
   @override
   State<BookChaptersScreen> createState() => _BookChaptersScreenState();
@@ -177,7 +182,15 @@ class _BookChaptersScreenState extends State<BookChaptersScreen> {
                         final ch = chapters[index];
                         return InkWell(
                           onTap: () {
-                            // TODO: open chapter player or detail screen
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => ChapterHomeScreen(
+                                  chapter: ch,
+                                  bookTitle: widget.book.title,
+                                  bookThumbnail: widget.book.thumbnail,
+                                ),
+                              ),
+                            );
                           },
                           borderRadius: BorderRadius.circular(12),
                           child: Container(
