@@ -76,42 +76,89 @@ class _BookHomeScreenState extends State<BookHomeScreen> {
                       itemCount: books.length,
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              mainAxisSpacing: 16,
-                              crossAxisSpacing: 16,
-                              childAspectRatio: 0.9),
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 16,
+                        crossAxisSpacing: 16,
+                        // Portrait card: taller than wide. Tweak this number if you
+                        // want a different thumbnail/title proportion.
+                        childAspectRatio: 0.62,
+                      ),
                       itemBuilder: (context, index) {
                         final book = books[index];
-                        return Column(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: isLight
-                                      ? Colors.white
-                                      : const Color(0xFF111827),
-                                  borderRadius: BorderRadius.circular(18),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12.0),
+                        // Outer card container ensures consistent background and radius.
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: isLight
+                                ? Colors.white
+                                : const Color(0xFF111827),
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          child: Column(
+                            children: [
+                              // Image area: occupies majority of card height.
+                              Expanded(
+                                flex: 7,
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(18),
+                                    topRight: Radius.circular(18),
+                                  ),
                                   child: book.thumbnail.isNotEmpty
-                                      ? Image.network(book.thumbnail,
+                                      ? Image.network(
+                                          book.thumbnail,
+                                          width: double.infinity,
+                                          height: double.infinity,
                                           fit: BoxFit.cover,
                                           errorBuilder: (c, e, s) =>
-                                              const Icon(Icons.book))
-                                      : const Icon(Icons.book),
+                                              const Icon(Icons.book),
+                                        )
+                                      : const ColoredBox(
+                                          color: Color(0xFFEAEAF0),
+                                          child:
+                                              Center(child: Icon(Icons.book)),
+                                        ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(book.title,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                    color: isLight
-                                        ? const Color(0xFF0F1724)
-                                        : Colors.white)),
-                          ],
+                              // Text area: title + description. Use a slightly
+                              // larger flex to allow two lines for description.
+                              Expanded(
+                                flex: 4,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10.0, vertical: 8.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        book.title,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          color: isLight
+                                              ? const Color(0xFF0F1724)
+                                              : Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        book.description,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          color: isLight
+                                              ? const Color(0xFF6B7280)
+                                              : const Color(0xFF9CA3AF),
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         );
                       },
                     );
