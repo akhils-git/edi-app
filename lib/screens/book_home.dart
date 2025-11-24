@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/category_service.dart';
 import '../components/nav_bar.dart';
+import '../components/book_card.dart';
 import '../services/book_service.dart';
 
 class BookHomeScreen extends StatefulWidget {
@@ -35,7 +36,7 @@ class _BookHomeScreenState extends State<BookHomeScreen> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
               child: Row(
                 children: [
                   IconButton(
@@ -85,116 +86,7 @@ class _BookHomeScreenState extends State<BookHomeScreen> {
                       ),
                       itemBuilder: (context, index) {
                         final book = books[index];
-                        // Outer card container ensures consistent background and radius.
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: isLight
-                                ? Colors.white
-                                : const Color(0xFF111827),
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                          child: Column(
-                            children: [
-                              // Image area: occupies majority of card height.
-                              Expanded(
-                                flex: 8,
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(18),
-                                    topRight: Radius.circular(18),
-                                  ),
-                                  child: book.thumbnail.isNotEmpty
-                                      ? Image.network(
-                                          book.thumbnail,
-                                          width: double.infinity,
-                                          height: double.infinity,
-                                          fit: BoxFit.cover,
-                                          errorBuilder: (c, e, s) =>
-                                              const Icon(Icons.book),
-                                        )
-                                      : const ColoredBox(
-                                          color: Color(0xFFEAEAF0),
-                                          child:
-                                              Center(child: Icon(Icons.book)),
-                                        ),
-                                ),
-                              ),
-                              // Text area: heading, description, author — occupy ~20%.
-                              // Reduce padding and font sizes; restrict to single lines
-                              // so the small area fits the content.
-                              Expanded(
-                                flex: 2,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0, vertical: 4.0),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        book.title,
-                                        textAlign: TextAlign.left,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          color: isLight
-                                              ? const Color(0xFF0F1724)
-                                              : Colors.white,
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        book.description,
-                                        textAlign: TextAlign.left,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          color: isLight
-                                              ? const Color(0xFF6B7280)
-                                              : const Color(0xFF9CA3AF),
-                                          fontSize: 11,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      if ((book.author ?? '').isNotEmpty)
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Icon(
-                                              Icons.person,
-                                              size: 12,
-                                              color: isLight
-                                                  ? const Color(0xFF6B7280)
-                                                  : const Color(0xFF9CA3AF),
-                                            ),
-                                            const SizedBox(width: 6),
-                                            Expanded(
-                                              child: Text(
-                                                book.author ?? '',
-                                                textAlign: TextAlign.left,
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                  color: isLight
-                                                      ? const Color(0xFF6B7280)
-                                                      : const Color(0xFF9CA3AF),
-                                                  fontSize: 11,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
+                        return BookCard(book: book);
                       },
                     );
                   },
