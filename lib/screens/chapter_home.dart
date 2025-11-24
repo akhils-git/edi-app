@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/chapter_service.dart';
 import '../components/nav_bar.dart';
+import 'video_player_screen.dart';
 
 class ChapterHomeScreen extends StatelessWidget {
   final Chapter chapter;
@@ -89,15 +90,14 @@ class ChapterHomeScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     margin: const EdgeInsets.only(bottom: 18),
+
                     child: chapter.videoFile.isNotEmpty
                         ? Stack(
                             children: [
                               AspectRatio(
                                 aspectRatio: 16 / 9,
-                                child: bookThumbnail != null &&
-                                        bookThumbnail!.isNotEmpty
-                                    ? Image.network(bookThumbnail!,
-                                        fit: BoxFit.cover)
+                                child: bookThumbnail != null && bookThumbnail!.isNotEmpty
+                                    ? Image.network(bookThumbnail!, fit: BoxFit.cover)
                                     : Container(color: Colors.black),
                               ),
                               Positioned.fill(
@@ -107,15 +107,22 @@ class ChapterHomeScreen extends StatelessWidget {
                               ),
                               Positioned.fill(
                                 child: Center(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.3),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Padding(
-                                      padding: EdgeInsets.all(16.0),
-                                      child: Icon(Icons.play_arrow,
-                                          color: Colors.white, size: 48),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      if (chapter.videoFile.isNotEmpty) {
+                                        Navigator.of(context).push(MaterialPageRoute(
+                                            builder: (_) => VideoPlayerScreen(url: chapter.videoFile)));
+                                      }
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.3),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Padding(
+                                        padding: EdgeInsets.all(16.0),
+                                        child: Icon(Icons.play_arrow, color: Colors.white, size: 48),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -126,27 +133,19 @@ class ChapterHomeScreen extends StatelessWidget {
                                 right: 0,
                                 bottom: 0,
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 8),
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                   child: Row(
                                     children: [
-                                      Icon(Icons.replay_10,
-                                          color: Colors.white),
+                                      Icon(Icons.replay_10, color: Colors.white),
                                       const SizedBox(width: 8),
-                                      Text('1:23',
-                                          style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12)),
+                                      Text('1:23', style: const TextStyle(color: Colors.white, fontSize: 12)),
                                       Expanded(
                                         child: Container(
-                                          margin: const EdgeInsets.symmetric(
-                                              horizontal: 8),
+                                          margin: const EdgeInsets.symmetric(horizontal: 8),
                                           height: 4,
                                           decoration: BoxDecoration(
-                                            color:
-                                                Colors.white.withOpacity(0.2),
-                                            borderRadius:
-                                                BorderRadius.circular(2),
+                                            color: Colors.white.withOpacity(0.2),
+                                            borderRadius: BorderRadius.circular(2),
                                           ),
                                           child: FractionallySizedBox(
                                             alignment: Alignment.centerLeft,
@@ -154,20 +153,15 @@ class ChapterHomeScreen extends StatelessWidget {
                                             child: Container(
                                               decoration: BoxDecoration(
                                                 color: Colors.white,
-                                                borderRadius:
-                                                    BorderRadius.circular(2),
+                                                borderRadius: BorderRadius.circular(2),
                                               ),
                                             ),
                                           ),
                                         ),
                                       ),
-                                      Text('4:56',
-                                          style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12)),
+                                      Text('4:56', style: const TextStyle(color: Colors.white, fontSize: 12)),
                                       const SizedBox(width: 8),
-                                      Icon(Icons.fullscreen,
-                                          color: Colors.white),
+                                      Icon(Icons.fullscreen, color: Colors.white),
                                     ],
                                   ),
                                 ),
