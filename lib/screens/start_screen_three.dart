@@ -6,12 +6,15 @@ class StartScreenThree extends StatelessWidget {
   final VoidCallback? onNext;
   final VoidCallback? onPrev;
 
+  final VoidCallback? onSkip;
+
   const StartScreenThree({
     super.key,
     required this.themeMode,
     required this.onThemeChanged,
     this.onNext,
     this.onPrev,
+    this.onSkip,
   });
 
   Color _background(BuildContext context) {
@@ -50,6 +53,10 @@ class StartScreenThree extends StatelessWidget {
                   const SizedBox(width: 36),
                   GestureDetector(
                     onTap: () {
+                      if (onSkip != null) {
+                        onSkip!();
+                        return;
+                      }
                       if (onNext != null) onNext!();
                     },
                     child: Text('Skip',

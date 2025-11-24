@@ -6,6 +6,7 @@ class StartScreenTwo extends StatelessWidget {
   final ValueChanged<ThemeMode> onThemeChanged;
   final VoidCallback? onNext;
   final VoidCallback? onPrev;
+  final VoidCallback? onSkip;
 
   const StartScreenTwo({
     super.key,
@@ -13,6 +14,7 @@ class StartScreenTwo extends StatelessWidget {
     required this.onThemeChanged,
     this.onNext,
     this.onPrev,
+    this.onSkip,
   });
 
   Color _background(BuildContext context) {
@@ -42,6 +44,32 @@ class StartScreenTwo extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
+            // top skip row
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      if (onSkip != null) {
+                        onSkip!();
+                        return;
+                      }
+                      if (onNext != null) {
+                        onNext!();
+                        return;
+                      }
+                    },
+                    child: Text('Skip',
+                        style: TextStyle(
+                            color: _textSecondary(context),
+                            fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+            ),
+
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
               child: ClipRRect(
