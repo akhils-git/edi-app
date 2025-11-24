@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/category_service.dart';
 import '../components/nav_bar.dart';
 import '../components/book_card.dart';
+import 'book_chapters.dart';
 import '../components/loading_box.dart';
 import '../services/book_service.dart';
 
@@ -87,7 +88,14 @@ class _BookHomeScreenState extends State<BookHomeScreen> {
                       ),
                       itemBuilder: (context, index) {
                         final book = books[index];
-                        return BookCard(book: book);
+                        return BookCard(
+                          book: book,
+                          onTap: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (_) => BookChaptersScreen(
+                                    book: book, authToken: widget.authToken)));
+                          },
+                        );
                       },
                     );
                   },
