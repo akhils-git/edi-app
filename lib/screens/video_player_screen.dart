@@ -69,7 +69,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                               });
                             },
                             icon: Icon(
-                                _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                                _controller.value.isPlaying
+                                    ? Icons.pause
+                                    : Icons.play_arrow,
                                 color: Colors.white),
                           ),
                           Expanded(
