@@ -14,9 +14,14 @@ class VideoPlayerScreen extends StatefulWidget {
 class FullscreenVideoScreen extends StatefulWidget {
   final String url;
   final Duration startPosition;
+  final VideoPlayerController?
+      controller; // optional existing controller to reuse
 
   const FullscreenVideoScreen(
-      {Key? key, required this.url, required this.startPosition})
+      {Key? key,
+      required this.url,
+      required this.startPosition,
+      this.controller})
       : super(key: key);
 
   @override
@@ -33,6 +38,10 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
 
   late VideoPlayerController _controller;
   bool _initialized = false;
+  VoidCallback? _fullscreenListener;
+  bool _loadError = false;
+  String? _errorMessage;
+  bool _ownsController = false;
 
   @override
   void initState() {
@@ -44,18 +53,188 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
       DeviceOrientation.landscapeRight,
     ]);
 
-    _controller = VideoPlayerController.network(widget.url)
-      ..initialize().then((_) async {
-        // Seek to the position passed from previous screen
-        await _controller.seekTo(widget.startPosition);
-        _controller.addListener(() {
+    // Initialize controller async (don't mark initState async)
+    _initializeFullscreen();
+  }
+
+  Future<void> _initializeFullscreen() async {
+    // If an existing controller was provided, reuse it to avoid creating
+    // a second MediaCodec/ExoPlayer instance which can cause native crashes.
+    if (widget.controller != null) {
+      _controller = widget.controller!;
+      _ownsController = false;
+      // If the provided controller isn't initialized, initialize it first.
+      if (!_controller.value.isInitialized) {
+        await _controller.initialize();
+      }
+      // seek to desired start position
+      await _controller.seekTo(widget.startPosition);
+      // attach listener below and start playing
+      _fullscreenListener = () {
+        try {
+          if (!mounted) return;
+          if (_controller.value.hasError) {
+            // Record the error once and surface a user-facing message.
+            if (!_loadError) {
+              _loadError = true;
+              _errorMessage =
+                  _controller.value.errorDescription ?? 'Playback error';
+              try {
+                _controller.pause();
+              } catch (_) {}
+              try {
+                if (_fullscreenListener != null)
+                  _controller.removeListener(_fullscreenListener!);
+              } catch (_) {}
+              if (mounted) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  showDialog<void>(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('Playback error'),
+                      content: Text(_errorMessage!),
+                      actions: [
+                        TextButton(
+                            onPressed: () {
+                              Navigator.of(ctx).pop();
+                            },
+                            child: const Text('OK')),
+                      ],
+                    ),
+                  ).then((_) {
+                    if (mounted) Navigator.of(context).pop();
+                  });
+                });
+              }
+            }
+            return;
+          }
           if (mounted) setState(() {});
-        });
+        } catch (e, st) {
+          debugPrint('Fullscreen listener error: $e\n$st');
+        }
+      };
+      _controller.addListener(_fullscreenListener!);
+      if (mounted)
         setState(() {
           _initialized = true;
         });
-        _controller.play();
-      });
+      try {
+        await _controller.play();
+      } catch (e) {
+        _loadError = true;
+        _errorMessage = e.toString();
+        debugPrint('Error starting playback in fullscreen: $_errorMessage');
+        if (mounted) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            showDialog<void>(
+              context: context,
+              barrierDismissible: false,
+              builder: (ctx) => AlertDialog(
+                title: const Text('Playback error'),
+                content: Text(_errorMessage!),
+                actions: [
+                  TextButton(
+                      onPressed: () => Navigator.of(ctx).pop(),
+                      child: const Text('OK')),
+                ],
+              ),
+            ).then((_) {
+              if (mounted) Navigator.of(context).pop();
+            });
+          });
+        }
+      }
+      return;
+    }
+
+    _ownsController = true;
+    _controller = VideoPlayerController.network(widget.url);
+    try {
+      await _controller.initialize();
+      await _controller.seekTo(widget.startPosition);
+      _fullscreenListener = () {
+        try {
+          if (!mounted) return;
+          if (_controller.value.hasError) {
+            if (!_loadError) {
+              _loadError = true;
+              _errorMessage =
+                  _controller.value.errorDescription ?? 'Playback error';
+              debugPrint('Fullscreen video error: $_errorMessage');
+              try {
+                _controller.pause();
+              } catch (_) {}
+              try {
+                if (_fullscreenListener != null)
+                  _controller.removeListener(_fullscreenListener!);
+              } catch (_) {}
+              if (mounted) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  showDialog<void>(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('Playback error'),
+                      content: Text(_errorMessage!),
+                      actions: [
+                        TextButton(
+                            onPressed: () {
+                              Navigator.of(ctx).pop();
+                            },
+                            child: const Text('OK')),
+                      ],
+                    ),
+                  ).then((_) {
+                    if (mounted) Navigator.of(context).pop();
+                  });
+                });
+              }
+            }
+            return;
+          }
+          setState(() {});
+        } catch (e, st) {
+          debugPrint('Fullscreen listener error: $e\n$st');
+        }
+      };
+      _controller.addListener(_fullscreenListener!);
+      if (mounted)
+        setState(() {
+          _initialized = true;
+        });
+      try {
+        await _controller.play();
+      } catch (e) {
+        debugPrint(
+            'Error starting playback in fullscreen (owned controller): $e');
+      }
+    } catch (e, st) {
+      debugPrint('Error initializing fullscreen controller: $e\n$st');
+      // Surface an error and pop
+      _loadError = true;
+      _errorMessage = e.toString();
+      if (mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog<void>(
+            context: context,
+            barrierDismissible: false,
+            builder: (ctx) => AlertDialog(
+              title: const Text('Playback error'),
+              content: Text(_errorMessage!),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    child: const Text('OK')),
+              ],
+            ),
+          ).then((_) {
+            if (mounted) Navigator.of(context).pop();
+          });
+        });
+      }
+    }
   }
 
   Future<void> _restoreAndPop() async {
@@ -77,17 +256,18 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
     // Guard controller accesses — it may already be disposed if pop logic
     // disposed it earlier. Use try/catch to avoid throwing during teardown.
     try {
+      if (_fullscreenListener != null) {
+        _controller.removeListener(_fullscreenListener!);
+      }
+    } catch (_) {}
+    try {
       if (_controller.value.isInitialized && _controller.value.isPlaying) {
         _controller.pause();
       }
-    } catch (_) {
-      // ignore errors reading controller state if it's already disposed
-    }
+    } catch (_) {}
     try {
       _controller.dispose();
-    } catch (_) {
-      // ignore if already disposed
-    }
+    } catch (_) {}
     super.dispose();
   }
 
@@ -239,6 +419,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     super.initState();
     _controller = VideoPlayerController.network(widget.url)
       ..initialize().then((_) {
+        // attach listener and keep it removable
         _controller.addListener(_onControllerUpdated);
         setState(() {
           _initialized = true;
@@ -252,8 +433,17 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   @override
   void dispose() {
     _hideTimer?.cancel();
-    _controller.pause();
-    _controller.dispose();
+    try {
+      _controller.removeListener(_onControllerUpdated);
+    } catch (_) {}
+    try {
+      if (_controller.value.isInitialized && _controller.value.isPlaying) {
+        _controller.pause();
+      }
+    } catch (_) {}
+    try {
+      _controller.dispose();
+    } catch (_) {}
     super.dispose();
   }
 
@@ -339,6 +529,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                                     builder: (_) => FullscreenVideoScreen(
                                       url: widget.url,
                                       startPosition: currentPos,
+                                      controller: _controller,
                                     ),
                                   ),
                                 );

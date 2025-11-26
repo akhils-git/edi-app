@@ -286,7 +286,9 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                             builder: (_) =>
                                                 FullscreenVideoScreen(
                                                     url: chapter.videoFile,
-                                                    startPosition: currentPos),
+                                                    startPosition: currentPos,
+                                                    controller:
+                                                        _inlineController),
                                           ),
                                         );
                                         if (result != null) {
