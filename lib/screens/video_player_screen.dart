@@ -239,7 +239,15 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
 
   Future<void> _restoreAndPop() async {
     final pos = _controller.value.position;
-    await _controller.pause();
+    // If this fullscreen screen owns the controller (it created it),
+    // pause it here. If the controller was passed in from the inline
+    // player, avoid pausing to prevent races or native resource issues
+    // when returning to the inline screen.
+    if (_ownsController) {
+      try {
+        await _controller.pause();
+      } catch (_) {}
+    }
     // Do not dispose the controller here — let the framework call dispose()
     // to avoid accessing a disposed controller from lifecycle callbacks.
     // Restore portrait mode and UI
@@ -265,9 +273,14 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
         _controller.pause();
       }
     } catch (_) {}
-    try {
-      _controller.dispose();
-    } catch (_) {}
+    // Only dispose the underlying controller if this fullscreen screen
+    // created/owns it. If the controller was passed in from the inline
+    // player, we must not dispose it here (inline screen expects to reuse it).
+    if (_ownsController) {
+      try {
+        _controller.dispose();
+      } catch (_) {}
+    }
     super.dispose();
   }
 
@@ -390,6 +403,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   bool _initialized = false;
   bool _showControls = true;
   Timer? _hideTimer;
+  bool _isInFullscreen = false;
 
   void _startHideTimerIfNeeded() {
     _hideTimer?.cancel();
@@ -474,7 +488,12 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      VideoPlayer(_controller),
+                      // If we are showing fullscreen using the same controller,
+                      // don't render the inline VideoPlayer to avoid two active
+                      // platform surfaces that can lead to native crashes.
+                      _isInFullscreen
+                          ? Container(color: Colors.black)
+                          : VideoPlayer(_controller),
                       Positioned(
                         bottom: 20,
                         left: 20,
@@ -522,24 +541,50 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                               onPressed: () async {
                                 final wasPlaying = _controller.value.isPlaying;
                                 final currentPos = _controller.value.position;
-                                await _controller.pause();
+                                // Pause and dispose the inline controller before creating
+                                // a fullscreen controller to avoid two active platform
+                                // surfaces.
+                                try {
+                                  await _controller.pause();
+                                } catch (_) {}
+                                try {
+                                  await _controller.dispose();
+                                } catch (_) {}
+                                if (mounted)
+                                  setState(() {
+                                    _initialized = false;
+                                  });
+
                                 final result =
                                     await Navigator.of(context).push<Duration?>(
                                   MaterialPageRoute(
                                     builder: (_) => FullscreenVideoScreen(
                                       url: widget.url,
                                       startPosition: currentPos,
-                                      controller: _controller,
+                                      // let fullscreen create its own controller
+                                      controller: null,
                                     ),
                                   ),
                                 );
+
+                                // Re-create the inline controller after returning
+                                _controller =
+                                    VideoPlayerController.network(widget.url);
+                                await _controller.initialize();
+                                _controller.addListener(_onControllerUpdated);
                                 if (result != null) {
                                   await _controller.seekTo(result);
+                                } else {
+                                  await _controller.seekTo(currentPos);
                                 }
                                 if (wasPlaying) {
-                                  _controller.play();
+                                  await _controller.play();
                                   _startHideTimerIfNeeded();
                                 }
+                                if (mounted)
+                                  setState(() {
+                                    _initialized = true;
+                                  });
                               },
                               icon: const Icon(Icons.fullscreen,
                                   color: Colors.white),

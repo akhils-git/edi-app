@@ -26,6 +26,7 @@ class ChapterHomeScreen extends StatefulWidget {
 class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
   VideoPlayerController? _inlineController;
   bool _inlineInitialized = false;
+  bool _inlineHidden = false;
 
   @override
   void dispose() {
@@ -137,7 +138,9 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                     children: [
                                       if (_inlineInitialized &&
                                           _inlineController != null)
-                                        VideoPlayer(_inlineController!)
+                                        (_inlineHidden
+                                            ? Container(color: Colors.black)
+                                            : VideoPlayer(_inlineController!))
                                       else if (bookThumbnail != null &&
                                           bookThumbnail.isNotEmpty)
                                         Image.network(bookThumbnail,
@@ -156,45 +159,40 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                               if (!_inlineInitialized) {
                                                 await _initAndPlayInline();
                                               } else {
-                                                if (_inlineController!
-                                                    .value.isPlaying) {
-                                                  _inlineController!.pause();
+                                                final isPlaying =
+                                                    _inlineController!
+                                                        .value.isPlaying;
+                                                if (isPlaying) {
+                                                  try {
+                                                    await _inlineController!
+                                                        .pause();
+                                                  } catch (_) {}
                                                 } else {
-                                                  _inlineController!.play();
+                                                  try {
+                                                    await _inlineController!
+                                                        .play();
+                                                  } catch (_) {}
                                                 }
-                                                setState(() {});
+                                                if (mounted) setState(() {});
                                               }
                                             },
-                                            child: AnimatedOpacity(
-                                              duration: const Duration(
-                                                  milliseconds: 200),
-                                              opacity: (_inlineInitialized &&
-                                                      _inlineController !=
-                                                          null &&
-                                                      _inlineController!
-                                                          .value.isPlaying)
-                                                  ? 0.0
-                                                  : 1.0,
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                    color: Colors.white
-                                                        .withOpacity(0.3),
-                                                    shape: BoxShape.circle),
-                                                child: Padding(
-                                                  padding: const EdgeInsets.all(
-                                                      16.0),
-                                                  child: Icon(
-                                                    _inlineInitialized &&
-                                                            _inlineController !=
-                                                                null &&
-                                                            _inlineController!
-                                                                .value.isPlaying
-                                                        ? Icons.pause
-                                                        : Icons.play_arrow,
-                                                    color: Colors.white,
-                                                    size: 48,
-                                                  ),
-                                                ),
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.black
+                                                    .withOpacity(0.3),
+                                                shape: BoxShape.circle,
+                                              ),
+                                              padding: const EdgeInsets.all(16),
+                                              child: Icon(
+                                                _inlineInitialized &&
+                                                        _inlineController !=
+                                                            null &&
+                                                        _inlineController!
+                                                            .value.isPlaying
+                                                    ? Icons.pause
+                                                    : Icons.play_arrow,
+                                                color: Colors.white,
+                                                size: 48,
                                               ),
                                             ),
                                           ),
@@ -278,6 +276,9 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                             _inlineController!.value.isPlaying;
                                         final currentPos =
                                             _inlineController!.value.position;
+                                        // Hide inline player to avoid two active surfaces
+                                        if (mounted)
+                                          setState(() => _inlineHidden = true);
                                         await _inlineController!.pause();
                                         final result =
                                             await Navigator.of(context)
@@ -297,6 +298,8 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                         }
                                         if (wasPlaying)
                                           _inlineController!.play();
+                                        if (mounted)
+                                          setState(() => _inlineHidden = false);
                                         setState(() {});
                                       },
                                       icon: const Icon(Icons.fullscreen,
