@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'create_account.dart';
 import '../services/auth_service.dart';
+import '../services/session.dart';
 import 'my_handbook.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -311,7 +312,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 final resp =
                                     await AuthService.login(username, password);
                                 if (resp.success) {
-                                  // show success alert, then navigate shortly after
+                                  // store session info globally
+                                  UserSession.setFromAuthResponse(resp);
                                   setState(() {
                                     _alertType = 'success';
                                     _alertMessage =

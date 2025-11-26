@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/category_service.dart';
 import '../components/nav_bar.dart';
+import 'user_profile_screen.dart';
 import '../components/loading_box.dart';
 import 'book_home.dart';
 
@@ -91,7 +92,14 @@ class _MyHandbookScreenState extends State<MyHandbookScreen> {
                 },
               ),
             ),
-            NavBar(activeIndex: 1),
+            NavBar(
+                activeIndex: 1,
+                onTap: (idx) {
+                  if (idx == 2) {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => const UserProfileScreen()));
+                  }
+                }),
           ],
         ),
       ),

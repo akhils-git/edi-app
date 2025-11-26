@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/category_service.dart';
 import '../components/nav_bar.dart';
+import 'user_profile_screen.dart';
 import '../components/book_card.dart';
 import 'book_chapters.dart';
 import '../components/loading_box.dart';
@@ -103,7 +104,14 @@ class _BookHomeScreenState extends State<BookHomeScreen> {
               ),
             ),
             // Reuse the NavBar; place Library active index as 1
-            NavBar(activeIndex: 1),
+            NavBar(
+                activeIndex: 1,
+                onTap: (idx) {
+                  if (idx == 2) {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => const UserProfileScreen()));
+                  }
+                }),
           ],
         ),
       ),

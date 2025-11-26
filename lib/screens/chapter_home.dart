@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import '../services/chapter_service.dart';
 import '../components/nav_bar.dart';
+import 'user_profile_screen.dart';
 import 'video_player_screen.dart';
 
 // Helper to format duration as MM:SS
@@ -449,7 +450,14 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: NavBar(activeIndex: 1),
+      bottomNavigationBar: NavBar(
+          activeIndex: 1,
+          onTap: (idx) {
+            if (idx == 2) {
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const UserProfileScreen()));
+            }
+          }),
     );
   }
 }
