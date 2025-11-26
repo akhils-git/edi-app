@@ -60,7 +60,8 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
   Future<void> _restoreAndPop() async {
     final pos = _controller.value.position;
     await _controller.pause();
-    await _controller.dispose();
+    // Do not dispose the controller here — let the framework call dispose()
+    // to avoid accessing a disposed controller from lifecycle callbacks.
     // Restore portrait mode and UI
     await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -72,10 +73,20 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
     // In case dispose is called directly, try restoring orientations
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    if (_controller.value.isPlaying) {
-      _controller.pause();
+    // Guard controller accesses — it may already be disposed if pop logic
+    // disposed it earlier. Use try/catch to avoid throwing during teardown.
+    try {
+      if (_controller.value.isInitialized && _controller.value.isPlaying) {
+        _controller.pause();
+      }
+    } catch (_) {
+      // ignore errors reading controller state if it's already disposed
     }
-    _controller.dispose();
+    try {
+      _controller.dispose();
+    } catch (_) {
+      // ignore if already disposed
+    }
     super.dispose();
   }
 

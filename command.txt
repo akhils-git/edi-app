@@ -1,0 +1,1 @@
+flutter run -d adb-809834f3-0fWyXq._adb-tls-connect._tcp
