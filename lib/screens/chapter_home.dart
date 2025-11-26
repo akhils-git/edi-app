@@ -165,24 +165,35 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                                 setState(() {});
                                               }
                                             },
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white
-                                                      .withOpacity(0.3),
-                                                  shape: BoxShape.circle),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(16.0),
-                                                child: Icon(
-                                                  _inlineInitialized &&
-                                                          _inlineController !=
-                                                              null &&
-                                                          _inlineController!
-                                                              .value.isPlaying
-                                                      ? Icons.pause
-                                                      : Icons.play_arrow,
-                                                  color: Colors.white,
-                                                  size: 48,
+                                            child: AnimatedOpacity(
+                                              duration: const Duration(
+                                                  milliseconds: 200),
+                                              opacity: (_inlineInitialized &&
+                                                      _inlineController !=
+                                                          null &&
+                                                      _inlineController!
+                                                          .value.isPlaying)
+                                                  ? 0.0
+                                                  : 1.0,
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                    color: Colors.white
+                                                        .withOpacity(0.3),
+                                                    shape: BoxShape.circle),
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(
+                                                      16.0),
+                                                  child: Icon(
+                                                    _inlineInitialized &&
+                                                            _inlineController !=
+                                                                null &&
+                                                            _inlineController!
+                                                                .value.isPlaying
+                                                        ? Icons.pause
+                                                        : Icons.play_arrow,
+                                                    color: Colors.white,
+                                                    size: 48,
+                                                  ),
                                                 ),
                                               ),
                                             ),
