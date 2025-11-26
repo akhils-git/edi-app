@@ -36,12 +36,23 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
     return '$minutes:$seconds';
   }
 
+  void _startHideTimerIfNeeded() {
+    _hideTimer?.cancel();
+    if (_controller.value.isPlaying) {
+      _hideTimer = Timer(const Duration(seconds: 2), () {
+        if (mounted) setState(() => _showControls = false);
+      });
+    }
+  }
+
   late VideoPlayerController _controller;
   bool _initialized = false;
   VoidCallback? _fullscreenListener;
   bool _loadError = false;
   String? _errorMessage;
   bool _ownsController = false;
+  bool _showControls = true;
+  Timer? _hideTimer;
 
   @override
   void initState() {
@@ -110,6 +121,14 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
             }
             return;
           }
+          // When playback is active, schedule auto-hide; when paused/buffering,
+          // cancel the hide timer and show controls.
+          if (_controller.value.isPlaying) {
+            _startHideTimerIfNeeded();
+          } else {
+            _hideTimer?.cancel();
+            if (!_showControls && mounted) setState(() => _showControls = true);
+          }
           if (mounted) setState(() {});
         } catch (e, st) {
           debugPrint('Fullscreen listener error: $e\n$st');
@@ -146,6 +165,7 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
           });
         }
       }
+      if (!_loadError) _startHideTimerIfNeeded();
       return;
     }
 
@@ -194,6 +214,12 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
             }
             return;
           }
+          if (_controller.value.isPlaying) {
+            _startHideTimerIfNeeded();
+          } else {
+            _hideTimer?.cancel();
+            if (!_showControls && mounted) setState(() => _showControls = true);
+          }
           setState(() {});
         } catch (e, st) {
           debugPrint('Fullscreen listener error: $e\n$st');
@@ -210,6 +236,7 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
         debugPrint(
             'Error starting playback in fullscreen (owned controller): $e');
       }
+      _startHideTimerIfNeeded();
     } catch (e, st) {
       debugPrint('Error initializing fullscreen controller: $e\n$st');
       // Surface an error and pop
@@ -268,6 +295,7 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
         _controller.removeListener(_fullscreenListener!);
       }
     } catch (_) {}
+    _hideTimer?.cancel();
     try {
       if (_controller.value.isInitialized && _controller.value.isPlaying) {
         _controller.pause();
@@ -294,95 +322,114 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
       child: Scaffold(
         backgroundColor: Colors.black,
         body: _initialized
-            ? Stack(
-                children: [
-                  FittedBox(
-                    fit: BoxFit.cover,
-                    clipBehavior: Clip.hardEdge,
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height,
-                      child: VideoPlayer(_controller),
+            ? GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  if (mounted) setState(() => _showControls = !_showControls);
+                  if (_showControls) _startHideTimerIfNeeded();
+                },
+                child: Stack(
+                  children: [
+                    FittedBox(
+                      fit: BoxFit.cover,
+                      clipBehavior: Clip.hardEdge,
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height,
+                        child: VideoPlayer(_controller),
+                      ),
                     ),
-                  ),
-                  Positioned(
-                    top: 12,
-                    left: 12,
-                    child: IconButton(
-                      color: Colors.white,
-                      icon: const Icon(Icons.arrow_back),
-                      onPressed: () async {
-                        await _restoreAndPop();
-                      },
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 12,
-                    left: 12,
-                    right: 12,
-                    child: Row(
-                      children: [
-                        IconButton(
+                    if (_showControls)
+                      Positioned(
+                        top: 12,
+                        left: 12,
+                        child: IconButton(
+                          color: Colors.white,
+                          icon: const Icon(Icons.arrow_back),
                           onPressed: () async {
-                            final current = _controller.value.position;
-                            final target =
-                                current - const Duration(seconds: 10);
-                            final seekTo =
-                                target > Duration.zero ? target : Duration.zero;
-                            await _controller.seekTo(seekTo);
-                            setState(() {});
+                            await _restoreAndPop();
                           },
-                          icon:
-                              const Icon(Icons.replay_10, color: Colors.white),
                         ),
-                        IconButton(
-                          onPressed: () {
-                            setState(() {
-                              if (_controller.value.isPlaying) {
-                                _controller.pause();
-                              } else {
-                                _controller.play();
-                              }
-                            });
-                          },
-                          icon: Icon(
-                            _controller.value.isPlaying
-                                ? Icons.pause
-                                : Icons.play_arrow,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              VideoProgressIndicator(
-                                _controller,
-                                allowScrubbing: true,
-                                colors: VideoProgressColors(
-                                  playedColor: Colors.blueAccent,
-                                  bufferedColor: Colors.white54,
-                                  backgroundColor: Colors.white24,
-                                ),
+                      ),
+                    if (_showControls)
+                      Positioned(
+                        bottom: 12,
+                        left: 12,
+                        right: 12,
+                        child: Row(
+                          children: [
+                            IconButton(
+                              onPressed: () async {
+                                if (mounted)
+                                  setState(() => _showControls = true);
+                                _hideTimer?.cancel();
+                                final current = _controller.value.position;
+                                final target =
+                                    current - const Duration(seconds: 10);
+                                final seekTo = target > Duration.zero
+                                    ? target
+                                    : Duration.zero;
+                                await _controller.seekTo(seekTo);
+                                _startHideTimerIfNeeded();
+                                setState(() {});
+                              },
+                              icon: const Icon(Icons.replay_10,
+                                  color: Colors.white),
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                if (mounted)
+                                  setState(() => _showControls = true);
+                                _hideTimer?.cancel();
+                                setState(() {
+                                  if (_controller.value.isPlaying) {
+                                    _controller.pause();
+                                  } else {
+                                    _controller.play();
+                                  }
+                                });
+                                _startHideTimerIfNeeded();
+                              },
+                              icon: Icon(
+                                _controller.value.isPlaying
+                                    ? Icons.pause
+                                    : Icons.play_arrow,
+                                color: Colors.white,
                               ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 2.0),
-                                child: Text(
-                                  _formatDuration(_controller.value.position) +
-                                      '/' +
+                            ),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  VideoProgressIndicator(
+                                    _controller,
+                                    allowScrubbing: true,
+                                    colors: VideoProgressColors(
+                                      playedColor: Colors.blueAccent,
+                                      bufferedColor: Colors.white54,
+                                      backgroundColor: Colors.white24,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 2.0),
+                                    child: Text(
                                       _formatDuration(
-                                          _controller.value.duration),
-                                  style: const TextStyle(
-                                      color: Colors.white, fontSize: 12),
-                                ),
+                                              _controller.value.position) +
+                                          '/' +
+                                          _formatDuration(
+                                              _controller.value.duration),
+                                      style: const TextStyle(
+                                          color: Colors.white, fontSize: 12),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                ],
+                      ),
+                  ],
+                ),
               )
             : const Center(
                 child: CircularProgressIndicator(color: Colors.white)),
