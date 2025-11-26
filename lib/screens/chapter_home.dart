@@ -232,8 +232,13 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                           ? _formatDuration(_inlineController!
                                                   .value.position) +
                                               '/' +
-                                              _formatDuration(_inlineController!
-                                                  .value.duration)
+                                              (_inlineController!
+                                                          .value.duration >
+                                                      Duration.zero
+                                                  ? _formatDuration(
+                                                      _inlineController!
+                                                          .value.duration)
+                                                  : '--:--')
                                           : '--:--/--:--',
                                       style: const TextStyle(
                                           color: Colors.white, fontSize: 12),

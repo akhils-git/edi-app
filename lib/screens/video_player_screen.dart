@@ -416,8 +416,11 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
                                       _formatDuration(
                                               _controller.value.position) +
                                           '/' +
-                                          _formatDuration(
-                                              _controller.value.duration),
+                                          (_controller.value.duration >
+                                                  Duration.zero
+                                              ? _formatDuration(
+                                                  _controller.value.duration)
+                                              : '--:--'),
                                       style: const TextStyle(
                                           color: Colors.white, fontSize: 12),
                                     ),
@@ -655,8 +658,11 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                                       _formatDuration(
                                               _controller.value.position) +
                                           '/' +
-                                          _formatDuration(
-                                              _controller.value.duration),
+                                          (_controller.value.duration >
+                                                  Duration.zero
+                                              ? _formatDuration(
+                                                  _controller.value.duration)
+                                              : '--:--'),
                                       style: const TextStyle(
                                           color: Colors.white, fontSize: 12),
                                     ),
