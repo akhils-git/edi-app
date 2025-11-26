@@ -339,12 +339,36 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                           )
                         : Container(
                             height: 180,
+                            padding: const EdgeInsets.all(16),
                             alignment: Alignment.center,
-                            child: Text('No Video available !',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600)),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 56,
+                                  height: 56,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white24,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(Icons.videocam_off,
+                                      size: 32, color: Colors.white70),
+                                ),
+                                const SizedBox(height: 12),
+                                Text('No video available',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700)),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'This chapter does not contain a video yet.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: Colors.white70, fontSize: 13),
+                                ),
+                              ],
+                            ),
                           ),
                   ),
                   // audio and quiz cards follow (existing UI)
@@ -417,13 +441,42 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                             ],
                           )
                         : Container(
-                            height: 80,
+                            height: 84,
+                            padding: const EdgeInsets.all(12),
                             alignment: Alignment.center,
-                            child: Text('No Audio available !',
-                                style: TextStyle(
-                                    color: subtitleColor,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600)),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 48,
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    color: isLight
+                                        ? const Color(0xFFF1F5F9)
+                                        : const Color(0xFF1B2936),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(Icons.music_off,
+                                      size: 28, color: titleColor),
+                                ),
+                                const SizedBox(width: 12),
+                                Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('No audio available',
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w700,
+                                            color: titleColor)),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                        'There is no audio for this chapter yet.',
+                                        style: TextStyle(color: subtitleColor)),
+                                  ],
+                                )
+                              ],
+                            ),
                           ),
                   ),
                   Container(
