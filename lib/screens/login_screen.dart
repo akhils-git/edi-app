@@ -53,206 +53,215 @@ class _LoginScreenState extends State<LoginScreen> {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        // no back button
         appBar: AppBar(
           automaticallyImplyLeading: false,
           backgroundColor: Colors.transparent,
           elevation: 0,
         ),
         backgroundColor: _background(context),
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20.0, 50.0, 20.0, 0.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // logo
-                      Container(
-                        width: 96,
-                        height: 96,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: const DecorationImage(
-                            fit: BoxFit.cover,
-                            image: AssetImage('assets/images/login_logo.png'),
+        body: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20.0, 50.0, 20.0, 0.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // logo
+                        Container(
+                          width: 96,
+                          height: 96,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: const DecorationImage(
+                              fit: BoxFit.cover,
+                              image: AssetImage('assets/images/login_logo.png'),
+                            ),
+                            color: Colors.transparent,
                           ),
-                          color: Colors.transparent,
+                        ),
+                        const SizedBox(height: 12),
+                        Text('English Academy',
+                            style: TextStyle(
+                                color: _textPrimary(context),
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 8),
+                        Text('Log in to continue your learning journey.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: _textSecondary(context), fontSize: 14)),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // form
+                  TextField(
+                    controller: _usernameController,
+                    decoration: InputDecoration(
+                      hintText: 'Email or username',
+                      hintStyle: TextStyle(
+                        color: Theme.of(context).brightness == Brightness.light
+                            ? const Color(0xFF616F89)
+                            : const Color(0xFFA1AAB8),
+                      ),
+                      filled: true,
+                      fillColor:
+                          Theme.of(context).brightness == Brightness.light
+                              ? Colors.white
+                              : const Color(0xFF15202B),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(
+                          color:
+                              Theme.of(context).brightness == Brightness.light
+                                  ? const Color(0xFFE0E3E7)
+                                  : const Color(0xFF333C4A),
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      Text('English Academy',
-                          style: TextStyle(
-                              color: _textPrimary(context),
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 8),
-                      Text('Log in to continue your learning journey.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              color: _textSecondary(context), fontSize: 14)),
-                    ],
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(
+                          color:
+                              Theme.of(context).brightness == Brightness.light
+                                  ? const Color(0xFFE0E3E7)
+                                  : const Color(0xFF333C4A),
+                          width: 2,
+                        ),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 18),
+                    ),
                   ),
-                ),
-
-                const SizedBox(height: 12),
-
-                // form
-                TextField(
-                  controller: _usernameController,
-                  decoration: InputDecoration(
-                    hintText: 'Email or username',
-                    hintStyle: TextStyle(
-                      color: Theme.of(context).brightness == Brightness.light
-                          ? const Color(0xFF616F89)
-                          : const Color(0xFFA1AAB8),
-                    ),
-                    filled: true,
-                    fillColor: Theme.of(context).brightness == Brightness.light
-                        ? Colors.white
-                        : const Color(0xFF15202B),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      hintText: 'Password',
+                      hintStyle: TextStyle(
                         color: Theme.of(context).brightness == Brightness.light
-                            ? const Color(0xFFE0E3E7)
-                            : const Color(0xFF333C4A),
+                            ? const Color(0xFF616F89)
+                            : const Color(0xFFA1AAB8),
                       ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).brightness == Brightness.light
-                            ? const Color(0xFFE0E3E7)
-                            : const Color(0xFF333C4A),
-                        width: 2,
+                      filled: true,
+                      fillColor:
+                          Theme.of(context).brightness == Brightness.light
+                              ? Colors.white
+                              : const Color(0xFF15202B),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(
+                          color:
+                              Theme.of(context).brightness == Brightness.light
+                                  ? const Color(0xFFE0E3E7)
+                                  : const Color(0xFF333C4A),
+                        ),
                       ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(
+                          color:
+                              Theme.of(context).brightness == Brightness.light
+                                  ? const Color(0xFFE0E3E7)
+                                  : const Color(0xFF333C4A),
+                          width: 2,
+                        ),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 18),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 18),
                   ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    hintText: 'Password',
-                    hintStyle: TextStyle(
-                      color: Theme.of(context).brightness == Brightness.light
-                          ? const Color(0xFF616F89)
-                          : const Color(0xFFA1AAB8),
-                    ),
-                    filled: true,
-                    fillColor: Theme.of(context).brightness == Brightness.light
-                        ? Colors.white
-                        : const Color(0xFF15202B),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).brightness == Brightness.light
-                            ? const Color(0xFFE0E3E7)
-                            : const Color(0xFF333C4A),
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).brightness == Brightness.light
-                            ? const Color(0xFFE0E3E7)
-                            : const Color(0xFF333C4A),
-                        width: 2,
-                      ),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 18),
-                  ),
-                ),
 
-                const SizedBox(height: 16),
-                SizedBox(
-                  height: 56,
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16)),
-                    ),
-                    onPressed: _loading
-                        ? null
-                        : () async {
-                            setState(() => _loading = true);
-                            final username = _usernameController.text.trim();
-                            final password = _passwordController.text;
-                            try {
-                              final resp =
-                                  await AuthService.login(username, password);
-                              if (resp.success) {
-                                // navigate to MyHandbook and pass the auth token
-                                if (mounted) {
-                                  Navigator.of(context).pushReplacement(
-                                      MaterialPageRoute(
-                                          builder: (_) => MyHandbookScreen(
-                                              authToken: resp.token)));
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    height: 56,
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)),
+                      ),
+                      onPressed: _loading
+                          ? null
+                          : () async {
+                              setState(() => _loading = true);
+                              final username = _usernameController.text.trim();
+                              final password = _passwordController.text;
+                              try {
+                                final resp =
+                                    await AuthService.login(username, password);
+                                if (resp.success) {
+                                  // navigate to MyHandbook and pass the auth token
+                                  if (mounted) {
+                                    Navigator.of(context).pushReplacement(
+                                        MaterialPageRoute(
+                                            builder: (_) => MyHandbookScreen(
+                                                authToken: resp.token)));
+                                  }
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text('Login failed')));
                                 }
-                              } else {
+                              } catch (e) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text('Login failed')));
+                                    SnackBar(content: Text(e.toString())));
+                              } finally {
+                                if (mounted) setState(() => _loading = false);
                               }
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(e.toString())));
-                            } finally {
-                              if (mounted) setState(() => _loading = false);
-                            }
-                          },
-                    child: _loading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                                color: Colors.white, strokeWidth: 2))
-                        : const Text('Log in',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w700, fontSize: 16)),
-                  ),
-                ),
-
-                TextButton(
-                  onPressed: () {},
-                  child: Text('Forgot password?',
-                      style: TextStyle(color: primary)),
-                ),
-
-                // removed social buttons and extra placeholders
-
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 18.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('New user?',
-                          style: TextStyle(color: _textSecondary(context))),
-                      const SizedBox(width: 6),
-                      GestureDetector(
-                          onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (_) => const CreateAccountScreen()));
-                          },
-                          child: Text('Sign up with email',
+                            },
+                      child: _loading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                  color: Colors.white, strokeWidth: 2))
+                          : const Text('Log in',
                               style: TextStyle(
-                                  color: primary,
-                                  fontWeight: FontWeight.w600))),
-                    ],
+                                  fontWeight: FontWeight.w700, fontSize: 16)),
+                    ),
                   ),
-                ),
-              ],
+
+                  TextButton(
+                    onPressed: () {},
+                    child: Text('Forgot password?',
+                        style: TextStyle(color: primary)),
+                  ),
+
+                  // removed social buttons and extra placeholders
+
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 18.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('New user?',
+                            style: TextStyle(color: _textSecondary(context))),
+                        const SizedBox(width: 6),
+                        GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (_) => const CreateAccountScreen()));
+                            },
+                            child: Text('Sign up with email',
+                                style: TextStyle(
+                                    color: primary,
+                                    fontWeight: FontWeight.w600))),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
