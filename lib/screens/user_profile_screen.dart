@@ -38,7 +38,7 @@ class UserProfileScreen extends StatelessWidget {
                 ],
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: 24),
 
               // profile avatar + name + email
               Center(
@@ -86,7 +86,7 @@ class UserProfileScreen extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
 
               // Account Information
               Text('Account Information',
@@ -115,7 +115,7 @@ class UserProfileScreen extends StatelessWidget {
                       color: isLight
                           ? const Color(0xFFF1F5F9)
                           : const Color(0xFF2A2A2A)),
-                  _buildInfoRow('Phone Number', '-', isLight),
+                  _buildInfoRow('Phone Number', 'Not available !', isLight),
                 ]),
               ),
 
@@ -183,7 +183,7 @@ class UserProfileScreen extends StatelessWidget {
 
               const SizedBox(height: 28),
               Center(
-                  child: Text('Version 1.0.2',
+                  child: Text('Beta 1.0.1',
                       style: TextStyle(
                           color: isLight
                               ? const Color(0xFF6B7280)
@@ -200,7 +200,7 @@ class UserProfileScreen extends StatelessWidget {
     final rightStyle = TextStyle(
       color: highlightRight
           ? const Color(0xFF136DEC)
-          : (isLight ? const Color(0xFF6B7280) : const Color(0xFF9CA3AF)),
+          : (isLight ? const Color(0xFF6B7280) : const Color.fromARGB(255, 21, 30, 46)),
       fontWeight: highlightRight ? FontWeight.w600 : FontWeight.normal,
     );
     return InkWell(
