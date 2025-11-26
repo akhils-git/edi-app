@@ -42,7 +42,10 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
     _inlineController = VideoPlayerController.network(url);
     await _inlineController!.initialize();
     _inlineController!.addListener(() {
-      if (mounted) setState(() {});
+      if (!mounted) return;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
     });
     setState(() {
       _inlineInitialized = true;
@@ -153,9 +156,15 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                             color:
                                                 Colors.black.withOpacity(0.28)),
                                       ),
+                                      // Keep a tap area so users can toggle playback
+                                      // by tapping the video. The icon will fade
+                                      // out when playback is active but the handler
+                                      // remains available.
                                       Positioned.fill(
                                         child: Center(
                                           child: GestureDetector(
+                                            behavior:
+                                                HitTestBehavior.translucent,
                                             onTap: () async {
                                               if (!_inlineInitialized) {
                                                 await _initAndPlayInline();
@@ -177,23 +186,35 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                                 if (mounted) setState(() {});
                                               }
                                             },
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: Colors.black
-                                                    .withOpacity(0.3),
-                                                shape: BoxShape.circle,
-                                              ),
-                                              padding: const EdgeInsets.all(16),
-                                              child: Icon(
-                                                _inlineInitialized &&
-                                                        _inlineController !=
-                                                            null &&
-                                                        _inlineController!
-                                                            .value.isPlaying
-                                                    ? Icons.pause
-                                                    : Icons.play_arrow,
-                                                color: Colors.white,
-                                                size: 48,
+                                            child: AnimatedOpacity(
+                                              duration: const Duration(
+                                                  milliseconds: 200),
+                                              opacity: _inlineInitialized &&
+                                                      _inlineController !=
+                                                          null &&
+                                                      _inlineController!
+                                                          .value.isPlaying
+                                                  ? 0.0
+                                                  : 1.0,
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  color: Colors.black
+                                                      .withOpacity(0.3),
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                padding:
+                                                    const EdgeInsets.all(16),
+                                                child: Icon(
+                                                  _inlineInitialized &&
+                                                          _inlineController !=
+                                                              null &&
+                                                          _inlineController!
+                                                              .value.isPlaying
+                                                      ? Icons.pause
+                                                      : Icons.play_arrow,
+                                                  color: Colors.white,
+                                                  size: 48,
+                                                ),
                                               ),
                                             ),
                                           ),
