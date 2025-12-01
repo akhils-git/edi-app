@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Quiz Screen</title>
+<link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<script>tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#135bec", "background-light": "#f6f6f8", "background-dark": "#101622", "surface-light": "#FFFFFF", "surface-dark": "#1E1E1E", "text-primary-light": "#111827", "text-primary-dark": "#F9FAFB", "text-secondary-light": "#6B7280", "text-secondary-dark": "#9CA3AF", "border-light": "#E5E7EB", "border-dark": "#374151", success: "#34D399"}, fontFamily: {display: "Spline Sans"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}}}};</script>
+<style>.custom-radio input[type="radio"] {
+            display: none;
+        }
+        .custom-radio .radio-circle {
+            width: 1.5rem;height: 1.5rem;border-radius: 9999px;
+            border: 2px solid #D1D5DB;display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+        .dark .custom-radio .radio-circle {
+            border-color: #4B5563;}
+        .custom-radio .radio-dot {
+            width: 0.875rem;height: 0.875rem;border-radius: 9999px;
+            background-color: transparent;
+            transform: scale(0);
+            transition: all 0.2s ease;
+        }
+        .custom-radio input[type="radio"]:checked + .radio-circle {
+            border-color: #34D399;}
+        .dark .custom-radio input[type="radio"]:checked + .radio-circle {
+             border-color: #34D399;}
+        .custom-radio input[type="radio"]:checked + .radio-circle .radio-dot {
+            background-color: #34D399;transform: scale(1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="flex items-end justify-center min-h-screen">
+<div class="w-full max-w-md h-[95vh] bg-surface-light dark:bg-surface-dark rounded-t-3xl shadow-2xl flex flex-col">
+<header class="p-6">
+<div class="flex justify-between items-center mb-4">
+<button class="text-text-secondary-light dark:text-text-secondary-dark">
+<span class="material-symbols-outlined text-3xl">close</span>
+</button>
+<span class="font-bold text-lg text-text-primary-light dark:text-text-primary-dark">3/10</span>
+<button class="text-primary font-bold text-lg">Skip</button>
+</div>
+<div class="w-full bg-border-light dark:bg-border-dark rounded-full h-1.5">
+<div class="bg-primary h-1.5 rounded-full" style="width: 30%"></div>
+</div>
+</header>
+<main class="flex-grow flex flex-col justify-center px-6 pb-6 space-y-8">
+<h1 class="text-3xl font-bold text-center text-text-primary-light dark:text-text-primary-dark leading-tight">
+                    Which of the following sentences uses the correct verb tense?
+                </h1>
+<div class="space-y-4">
+<label class="flex items-center p-4 rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark cursor-pointer transition-all">
+<span class="custom-radio mr-4">
+<input class="hidden" name="answer" type="radio"/>
+<span class="radio-circle"><span class="radio-dot"></span></span>
+</span>
+<span class="text-text-primary-light dark:text-text-primary-dark font-medium">She will go to the store yesterday.</span>
+</label>
+<label class="flex items-center p-4 rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark cursor-pointer transition-all">
+<span class="custom-radio mr-4">
+<input class="hidden" name="answer" type="radio"/>
+<span class="radio-circle"><span class="radio-dot"></span></span>
+</span>
+<span class="text-text-primary-light dark:text-text-primary-dark font-medium">She is goes to the store now.</span>
+</label>
+<label class="flex items-center p-4 rounded-lg border-2 border-success bg-green-50 dark:bg-green-900/30 cursor-pointer transition-all">
+<span class="custom-radio mr-4">
+<input checked="" class="hidden" name="answer" type="radio"/>
+<span class="radio-circle"><span class="radio-dot"></span></span>
+</span>
+<span class="text-text-primary-light dark:text-text-primary-dark font-medium">She went to the store yesterday.</span>
+</label>
+<label class="flex items-center p-4 rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark cursor-pointer transition-all">
+<span class="custom-radio mr-4">
+<input class="hidden" name="answer" type="radio"/>
+<span class="radio-circle"><span class="radio-dot"></span></span>
+</span>
+<span class="text-text-primary-light dark:text-text-primary-dark font-medium">She go to the store tomorrow.</span>
+</label>
+</div>
+</main>
+<footer class="p-6">
+<button class="w-full bg-primary text-white font-bold py-4 px-6 rounded-lg text-lg shadow-lg hover:opacity-90 transition-opacity">
+                    Next Question
+                </button>
+</footer>
+</div>
+</div>
+</body></html>
