@@ -170,9 +170,74 @@ class _QuizScreenState extends State<QuizScreen> {
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(24)),
             ),
-            child: Center(
-                child: Text(_error ?? 'No questions found',
-                    style: TextStyle(color: textColor))),
+            child: Stack(
+              children: [
+                // Close Button
+                Positioned(
+                  top: 24,
+                  right: 24,
+                  child: IconButton(
+                    icon: Icon(Icons.close, size: 28, color: secondaryTextColor),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ),
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TweenAnimationBuilder(
+                        tween: Tween<double>(begin: 0.8, end: 1.0),
+                        duration: const Duration(milliseconds: 1500),
+                        curve: Curves.easeInOut,
+                        builder: (context, double value, child) {
+                          return Transform.scale(
+                            scale: value,
+                            child: Container(
+                              padding: const EdgeInsets.all(32),
+                              decoration: BoxDecoration(
+                                color: primaryColor.withOpacity(0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.quiz_outlined,
+                                size: 80,
+                                color: primaryColor,
+                              ),
+                            ),
+                          );
+                        },
+                        onEnd: () {}, // Could loop animation here if needed
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        _error != null
+                            ? 'Oops! Something went wrong.'
+                            : 'No Questions Found',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: textColor,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 48),
+                        child: Text(
+                          _error ??
+                              'It seems there are no questions available for this chapter yet. Please check back later!',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: secondaryTextColor,
+                            height: 1.5,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );
