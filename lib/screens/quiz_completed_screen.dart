@@ -40,25 +40,7 @@ class QuizCompletedScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // Success Icon
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: successColor,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: successColor.withOpacity(0.3),
-                            blurRadius: 20,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.task_alt,
-                        size: 64,
-                        color: Colors.white,
-                      ),
-                    ),
+                    SuccessAnimation(color: successColor),
                     const SizedBox(height: 24),
 
                     // Title
@@ -182,4 +164,133 @@ class QuizCompletedScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+class SuccessAnimation extends StatefulWidget {
+  final Color color;
+  const SuccessAnimation({super.key, required this.color});
+
+  @override
+  State<SuccessAnimation> createState() => _SuccessAnimationState();
+}
+
+class _SuccessAnimationState extends State<SuccessAnimation>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _checkAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.6, curve: Curves.elasticOut),
+      ),
+    );
+
+    _checkAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.4, 1.0, curve: Curves.easeInOutCubic),
+      ),
+    );
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: Container(
+        width: 120,
+        height: 120,
+        decoration: BoxDecoration(
+          color: widget.color,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: widget.color.withOpacity(0.4),
+              blurRadius: 24,
+              offset: const Offset(0, 12),
+            ),
+          ],
+        ),
+        child: AnimatedBuilder(
+          animation: _checkAnimation,
+          builder: (context, child) {
+            return CustomPaint(
+              painter: CheckPainter(
+                progress: _checkAnimation.value,
+                color: Colors.white,
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class CheckPainter extends CustomPainter {
+  final double progress;
+  final Color color;
+
+  CheckPainter({required this.progress, required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 10
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final path = Path();
+    final w = size.width;
+    final h = size.height;
+
+    final p1 = Offset(w * 0.28, h * 0.52);
+    final p2 = Offset(w * 0.45, h * 0.70);
+    final p3 = Offset(w * 0.75, h * 0.35);
+
+    final l1 = (p2 - p1).distance;
+    final l2 = (p3 - p2).distance;
+    final total = l1 + l2;
+
+    final currentLen = total * progress;
+
+    path.moveTo(p1.dx, p1.dy);
+
+    if (currentLen <= l1) {
+      final t = currentLen / l1;
+      final p = Offset.lerp(p1, p2, t)!;
+      path.lineTo(p.dx, p.dy);
+    } else {
+      path.lineTo(p2.dx, p2.dy);
+      final t = (currentLen - l1) / l2;
+      final p = Offset.lerp(p2, p3, t)!;
+      path.lineTo(p.dx, p.dy);
+    }
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(CheckPainter oldDelegate) =>
+      oldDelegate.progress != progress;
 }
