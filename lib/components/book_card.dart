@@ -36,6 +36,18 @@ class BookCard extends StatelessWidget {
                         width: double.infinity,
                         height: double.infinity,
                         fit: BoxFit.cover,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                  : null,
+                              strokeWidth: 2,
+                            ),
+                          );
+                        },
                         errorBuilder: (c, e, s) => const Icon(Icons.book),
                       )
                     : const ColoredBox(
