@@ -402,13 +402,8 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
                                 });
                               },
                               icon: _controller.value.isBuffering
-                                  ? const SizedBox(
-                                      width: 64,
-                                      height: 64,
-                                      child: CircularProgressIndicator(
-                                        color: Colors.white,
-                                        strokeWidth: 4,
-                                      ),
+                                  ? const CircularProgressIndicator(
+                                      color: Colors.white,
                                     )
                                   : Icon(
                                       _controller.value.isPlaying
