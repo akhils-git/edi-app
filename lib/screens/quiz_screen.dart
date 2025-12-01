@@ -64,7 +64,7 @@ class _QuizScreenState extends State<QuizScreen> {
     }
   }
 
-  void _handleNext() {
+  Future<void> _handleNext() async {
     // Calculate score if submitted
     if (_isSubmitted) {
       final question = _questions[_currentQuestionIndex];
@@ -81,14 +81,49 @@ class _QuizScreenState extends State<QuizScreen> {
       });
     } else {
       // Quiz finished logic here
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => QuizCompletedScreen(
-            score: _score,
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        final token = UserSession.token;
+        final currentUser = UserSession.currentUser;
+
+        if (currentUser != null) {
+          // Calculate total points (assuming 10 points per question for now, or based on logic)
+          // The request example shows total_point: 50 for 5 correct answers out of 10.
+          // So let's assume 10 points per correct answer.
+          final totalPoints = _score * 10;
+
+          await QuizService.submitQuizResult(
+            userId: currentUser.id,
+            chapterId: widget.chapterId,
             totalQuestions: _questions.length,
-          ),
-        ),
-      );
+            correctAnswer: _score,
+            totalPoint: totalPoints,
+            authToken: token,
+          );
+        }
+      } catch (e) {
+        // Handle error silently or show snackbar?
+        // For now, we proceed to show the result screen even if submission fails,
+        // or we could show an error. Let's just log it and proceed.
+        debugPrint('Error submitting quiz result: $e');
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => QuizCompletedScreen(
+                score: _score,
+                totalQuestions: _questions.length,
+              ),
+            ),
+          );
+        }
+      }
     }
   }
 

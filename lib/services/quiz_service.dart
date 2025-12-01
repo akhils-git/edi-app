@@ -64,4 +64,49 @@ class QuizService {
       throw Exception('Error fetching questions: $e');
     }
   }
+
+
+  static Future<void> submitQuizResult({
+    required String userId,
+    required String chapterId,
+    required int totalQuestions,
+    required int correctAnswer,
+    required int totalPoint,
+    String? authToken,
+  }) async {
+    final url = Uri.parse('${apiBaseUrl}api/v1/quiz-results');
+    final headers = <String, String>{'Content-Type': 'application/json'};
+    if (authToken != null) {
+      headers['Authorization'] = 'Bearer $authToken';
+    }
+
+    final body = json.encode({
+      'user_id': userId,
+      'chapter_id': chapterId,
+      'total_questions': totalQuestions,
+      'correct_answer': correctAnswer,
+      'total_point': totalPoint,
+    });
+
+    print('Submitting quiz result to: $url');
+    print('Request body: $body');
+
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse['success'] != true) {
+          throw Exception(
+              'Failed to submit quiz result: ${jsonResponse['message']}');
+        }
+      } else {
+        print('Failed response body: ${response.body}');
+        throw Exception(
+            'Failed to submit quiz result: ${response.statusCode} ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Error submitting quiz result: $e');
+    }
+  }
 }
