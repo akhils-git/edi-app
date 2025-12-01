@@ -18,6 +18,7 @@ class _QuizScreenState extends State<QuizScreen> {
   String? _error;
   int _currentQuestionIndex = 0;
   String? _selectedAnswer; // 'option_a', 'option_b', etc.
+  bool _isSubmitted = false;
 
   @override
   void initState() {
@@ -51,6 +52,7 @@ class _QuizScreenState extends State<QuizScreen> {
       setState(() {
         _currentQuestionIndex++;
         _selectedAnswer = null;
+        _isSubmitted = false;
       });
     } else {
       // Quiz finished logic here
@@ -216,6 +218,7 @@ class _QuizScreenState extends State<QuizScreen> {
                         text: question.optionA,
                         isSelected: _selectedAnswer == 'option_a',
                         isCorrect: question.correctAnswer == 'option_a',
+                        showFeedback: _isSubmitted,
                         borderColor: borderColor,
                         surfaceColor: surfaceColor,
                         textColor: textColor,
@@ -228,6 +231,7 @@ class _QuizScreenState extends State<QuizScreen> {
                         text: question.optionB,
                         isSelected: _selectedAnswer == 'option_b',
                         isCorrect: question.correctAnswer == 'option_b',
+                        showFeedback: _isSubmitted,
                         borderColor: borderColor,
                         surfaceColor: surfaceColor,
                         textColor: textColor,
@@ -240,6 +244,7 @@ class _QuizScreenState extends State<QuizScreen> {
                         text: question.optionC,
                         isSelected: _selectedAnswer == 'option_c',
                         isCorrect: question.correctAnswer == 'option_c',
+                        showFeedback: _isSubmitted,
                         borderColor: borderColor,
                         surfaceColor: surfaceColor,
                         textColor: textColor,
@@ -252,6 +257,7 @@ class _QuizScreenState extends State<QuizScreen> {
                         text: question.optionD,
                         isSelected: _selectedAnswer == 'option_d',
                         isCorrect: question.correctAnswer == 'option_d',
+                        showFeedback: _isSubmitted,
                         borderColor: borderColor,
                         surfaceColor: surfaceColor,
                         textColor: textColor,
@@ -270,7 +276,17 @@ class _QuizScreenState extends State<QuizScreen> {
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _selectedAnswer != null ? _handleNext : null,
+                    onPressed: _selectedAnswer != null
+                        ? () {
+                            if (_isSubmitted) {
+                              _handleNext();
+                            } else {
+                              setState(() {
+                                _isSubmitted = true;
+                              });
+                            }
+                          }
+                        : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryColor,
                       disabledBackgroundColor: primaryColor.withOpacity(0.5),
@@ -283,9 +299,11 @@ class _QuizScreenState extends State<QuizScreen> {
                       shadowColor: primaryColor.withOpacity(0.4),
                     ),
                     child: Text(
-                      _currentQuestionIndex < _questions.length - 1
-                          ? 'Next Question'
-                          : 'Finish Quiz',
+                      _isSubmitted
+                          ? (_currentQuestionIndex < _questions.length - 1
+                              ? 'Next Question'
+                              : 'Finish Quiz')
+                          : 'Check Answer',
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -306,38 +324,53 @@ class _QuizScreenState extends State<QuizScreen> {
     required String text,
     required bool isSelected,
     required bool isCorrect,
+    required bool showFeedback,
     required Color borderColor,
     required Color surfaceColor,
     required Color textColor,
     required Color successColor,
     required bool isLight,
   }) {
-    // Logic for styling based on selection
-    // If selected, we show if it's correct or not (for immediate feedback)
-    // OR we just show it as selected.
-    // Based on the user request, we'll just show selection state for now.
-    // If we want to show correct/incorrect immediately:
-    // Color currentBorderColor = isSelected ? (isCorrect ? successColor : Colors.red) : borderColor;
-
-    // For now, let's just highlight selection.
-    // If the user wants immediate feedback (green for correct), we can use isCorrect.
-    // The design implies "correct" answer is green. Let's assume we show the green style if selected.
-
     Color currentBorderColor = borderColor;
     Color currentBgColor = surfaceColor;
+    Color radioBorderColor = const Color(0xFFD1D5DB);
+    Color? radioFillColor;
 
-    if (isSelected) {
+    if (showFeedback) {
+      if (isCorrect) {
+        // Correct answer always green
+        currentBorderColor = successColor;
+        currentBgColor = isLight
+            ? const Color(0xFFECFDF5)
+            : const Color(0xFF064E3B).withOpacity(0.3);
+        radioBorderColor = successColor;
+        radioFillColor = successColor;
+      } else if (isSelected) {
+        // Selected but wrong -> Red
+        currentBorderColor = Colors.red;
+        currentBgColor = isLight
+            ? const Color(0xFFFEF2F2)
+            : const Color(0xFF7F1D1D).withOpacity(0.3);
+        radioBorderColor = Colors.red;
+        radioFillColor = Colors.red;
+      }
+    } else if (isSelected) {
+      // Selected state before feedback (though logic implies immediate feedback)
       currentBorderColor = successColor;
       currentBgColor = isLight
           ? const Color(0xFFECFDF5)
           : const Color(0xFF064E3B).withOpacity(0.3);
+      radioBorderColor = successColor;
+      radioFillColor = successColor;
     }
 
     return GestureDetector(
       onTap: () {
-        setState(() {
-          _selectedAnswer = optionKey;
-        });
+        if (!showFeedback) {
+          setState(() {
+            _selectedAnswer = optionKey;
+          });
+        }
       },
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -345,7 +378,7 @@ class _QuizScreenState extends State<QuizScreen> {
           color: currentBgColor,
           border: Border.all(
             color: currentBorderColor,
-            width: isSelected ? 2 : 1,
+            width: (isSelected || (showFeedback && isCorrect)) ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(16),
         ),
@@ -359,17 +392,17 @@ class _QuizScreenState extends State<QuizScreen> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isSelected ? successColor : const Color(0xFFD1D5DB),
+                  color: radioBorderColor,
                   width: 2,
                 ),
               ),
-              child: isSelected
+              child: (isSelected || (showFeedback && isCorrect))
                   ? Center(
                       child: Container(
                         width: 14,
                         height: 14,
                         decoration: BoxDecoration(
-                          color: successColor,
+                          color: radioFillColor,
                           shape: BoxShape.circle,
                         ),
                       ),
