@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../services/quiz_service.dart';
 import '../services/session.dart';
 import '../components/loading_box.dart';
+import 'quiz_completed_screen.dart';
 
 class QuizScreen extends StatefulWidget {
   final String chapterId;
@@ -19,6 +20,7 @@ class _QuizScreenState extends State<QuizScreen> {
   int _currentQuestionIndex = 0;
   String? _selectedAnswer; // 'option_a', 'option_b', etc.
   bool _isSubmitted = false;
+  int _score = 0;
 
   @override
   void initState() {
@@ -48,6 +50,14 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   void _handleNext() {
+    // Calculate score if submitted
+    if (_isSubmitted) {
+      final question = _questions[_currentQuestionIndex];
+      if (_selectedAnswer == question.correctAnswer) {
+        _score++;
+      }
+    }
+
     if (_currentQuestionIndex < _questions.length - 1) {
       setState(() {
         _currentQuestionIndex++;
@@ -56,7 +66,14 @@ class _QuizScreenState extends State<QuizScreen> {
       });
     } else {
       // Quiz finished logic here
-      Navigator.of(context).pop();
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => QuizCompletedScreen(
+            score: _score,
+            totalQuestions: _questions.length,
+          ),
+        ),
+      );
     }
   }
 

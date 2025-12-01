@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Quiz Completed Screen</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#007AFF", // Bright blue from the image
+              "background-light": "#F3F4F6",
+              "background-dark": "#121212",
+              "surface-light": "#FFFFFF",
+              "surface-dark": "#1E1E1E",
+              "text-primary-light": "#111827",
+              "text-primary-dark": "#F9FAFB",
+              "text-secondary-light": "#6B7280",
+              "text-secondary-dark": "#9CA3AF",
+              "border-light": "#E5E7EB",
+              "border-dark": "#374151",
+              "success": "#34D399",
+              "error": "#F87171",
+              "warning": "#FBBF24", // A vibrant yellow for stars
+            },
+            fontFamily: {
+              display: ["Inter", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "1rem", // 16px
+            },
+          },
+        },
+      };
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="flex items-center justify-center min-h-screen">
+<div class="w-full h-screen bg-surface-light dark:bg-surface-dark flex flex-col">
+<header class="p-6">
+<div class="flex justify-end items-center">
+<button class="text-text-secondary-light dark:text-text-secondary-dark">
+<span class="material-symbols-outlined text-3xl">close</span>
+</button>
+</div>
+</header>
+<main class="flex-grow flex flex-col justify-center items-center px-6 pb-6 text-center">
+<div class="flex flex-col items-center space-y-6">
+<div class="bg-success rounded-full p-6 shadow-lg shadow-success/30">
+<span class="material-symbols-outlined text-6xl text-white" style="font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 48;">
+                        task_alt
+                    </span>
+</div>
+<h1 class="text-4xl font-extrabold text-text-primary-light dark:text-text-primary-dark">
+                    Quiz Completed!
+                </h1>
+<p class="text-lg text-text-secondary-light dark:text-text-secondary-dark max-w-sm">
+                    You've successfully completed the chapter quiz. Keep up the fantastic work!
+                </p>
+<div class="p-6 bg-primary/10 dark:bg-primary/20 rounded-2xl w-full max-w-sm">
+<div class="flex justify-between items-center">
+<div class="text-left">
+<p class="text-sm text-primary dark:text-sky-300 font-medium">Your Score</p>
+<p class="text-2xl font-bold text-text-primary-light dark:text-text-primary-dark">9/10 (90%)</p>
+</div>
+<div class="flex items-center space-x-1 text-warning">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="p-6 space-y-4">
+<button class="w-full bg-primary text-white font-bold py-4 px-6 rounded-lg text-lg shadow-lg hover:opacity-90 transition-opacity">
+                Back to Chapter
+            </button>
+</footer>
+</div>
+</div>
+
+</body></html>
