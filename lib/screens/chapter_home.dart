@@ -5,6 +5,7 @@ import '../services/chapter_service.dart';
 import '../components/nav_bar.dart';
 import 'user_profile_screen.dart';
 import 'video_player_screen.dart';
+import 'quiz_screen.dart';
 
 // Helper to format duration as MM:SS
 String _formatDuration(Duration d) {
@@ -676,7 +677,14 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                   borderRadius: BorderRadius.circular(32)),
                               padding: EdgeInsets.symmetric(
                                   horizontal: 24, vertical: 12)),
-                          onPressed: () {},
+                          onPressed: () {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                              builder: (context) => const QuizScreen(),
+                            );
+                          },
                           child: Text('Start Quiz',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
