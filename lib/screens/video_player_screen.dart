@@ -51,8 +51,11 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
   bool _loadError = false;
   String? _errorMessage;
   bool _ownsController = false;
+
   bool _showControls = true;
   Timer? _hideTimer;
+  bool _isVideoDragging = false;
+  double _videoDragValue = 0.0;
 
   @override
   void initState() {
@@ -401,13 +404,65 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  VideoProgressIndicator(
-                                    _controller,
-                                    allowScrubbing: true,
-                                    colors: VideoProgressColors(
-                                      playedColor: Colors.blueAccent,
-                                      bufferedColor: Colors.white54,
-                                      backgroundColor: Colors.white24,
+                                  SliderTheme(
+                                    data: SliderTheme.of(context).copyWith(
+                                      trackHeight: 4,
+                                      thumbShape: const RoundSliderThumbShape(
+                                          enabledThumbRadius: 6),
+                                      overlayShape:
+                                          const RoundSliderOverlayShape(
+                                              overlayRadius: 14),
+                                      activeTrackColor: Colors.blueAccent,
+                                      inactiveTrackColor: Colors.white24,
+                                      thumbColor: Colors.blueAccent,
+                                      overlayColor:
+                                          Colors.blueAccent.withOpacity(0.2),
+                                      trackShape:
+                                          const RectangularSliderTrackShape(),
+                                    ),
+                                    child: Slider(
+                                      value: (_isVideoDragging
+                                              ? _videoDragValue
+                                              : _controller
+                                                  .value.position.inMilliseconds
+                                                  .toDouble())
+                                          .clamp(
+                                              0.0,
+                                              _controller.value.duration
+                                                          .inMilliseconds >
+                                                      0
+                                                  ? _controller.value.duration
+                                                      .inMilliseconds
+                                                      .toDouble()
+                                                  : 1.0),
+                                      min: 0.0,
+                                      max: _controller.value.duration
+                                                  .inMilliseconds >
+                                              0
+                                          ? _controller.value.duration
+                                              .inMilliseconds
+                                              .toDouble()
+                                          : 1.0,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _videoDragValue = value;
+                                        });
+                                      },
+                                      onChangeStart: (value) {
+                                        setState(() {
+                                          _isVideoDragging = true;
+                                          _videoDragValue = value;
+                                        });
+                                        _hideTimer?.cancel();
+                                      },
+                                      onChangeEnd: (value) async {
+                                        await _controller.seekTo(Duration(
+                                            milliseconds: value.toInt()));
+                                        setState(() {
+                                          _isVideoDragging = false;
+                                        });
+                                        _startHideTimerIfNeeded();
+                                      },
                                     ),
                                   ),
                                   Padding(

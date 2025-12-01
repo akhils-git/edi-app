@@ -338,11 +338,11 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                                 overlayShape:
                                                     const RoundSliderOverlayShape(
                                                         overlayRadius: 14),
-                                                activeTrackColor: Colors.white,
+                                                activeTrackColor: Colors.blueAccent,
                                                 inactiveTrackColor:
                                                     Colors.white24,
-                                                thumbColor: Colors.white,
-                                                overlayColor: Colors.white
+                                                thumbColor: Colors.blueAccent,
+                                                overlayColor: Colors.blueAccent
                                                     .withOpacity(0.2),
                                                 trackShape:
                                                     const RectangularSliderTrackShape(),
