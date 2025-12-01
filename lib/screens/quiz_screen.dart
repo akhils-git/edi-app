@@ -90,10 +90,8 @@ class _QuizScreenState extends State<QuizScreen> {
         final currentUser = UserSession.currentUser;
 
         if (currentUser != null) {
-          // Calculate total points (assuming 10 points per question for now, or based on logic)
-          // The request example shows total_point: 50 for 5 correct answers out of 10.
-          // So let's assume 10 points per correct answer.
-          final totalPoints = _score * 10;
+          // Calculate total points as percentage
+          final totalPoints = ((_score / _questions.length) * 100).round();
 
           await QuizService.submitQuizResult(
             userId: currentUser.id,
