@@ -330,8 +330,14 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
             ? GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () {
-                  if (mounted) setState(() => _showControls = !_showControls);
-                  if (_showControls) _startHideTimerIfNeeded();
+                  if (mounted) {
+                    setState(() => _showControls = !_showControls);
+                    if (_showControls) {
+                      _startHideTimerIfNeeded();
+                    } else {
+                      _hideTimer?.cancel();
+                    }
+                  }
                 },
                 child: Stack(
                   children: [
@@ -359,35 +365,59 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
                       ),
                     if (_showControls)
                       Center(
-                        child: IconButton(
-                          iconSize: 64,
-                          onPressed: () {
-                            if (mounted) setState(() => _showControls = true);
-                            _hideTimer?.cancel();
-                            setState(() {
-                              if (_controller.value.isPlaying) {
-                                _controller.pause();
-                              } else {
-                                _controller.play();
-                              }
-                            });
-                            _startHideTimerIfNeeded();
-                          },
-                          icon: _controller.value.isBuffering
-                              ? const SizedBox(
-                                  width: 64,
-                                  height: 64,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 4,
-                                  ),
-                                )
-                              : Icon(
-                                  _controller.value.isPlaying
-                                      ? Icons.pause
-                                      : Icons.play_arrow,
-                                  color: Colors.white,
-                                ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              iconSize: 48,
+                              onPressed: () async {
+                                if (mounted) setState(() => _showControls = true);
+                                _hideTimer?.cancel();
+                                final current = _controller.value.position;
+                                final target =
+                                    current - const Duration(seconds: 10);
+                                final seekTo =
+                                    target > Duration.zero ? target : Duration.zero;
+                                await _controller.seekTo(seekTo);
+                                _startHideTimerIfNeeded();
+                                setState(() {});
+                              },
+                              icon: const Icon(Icons.replay_10, color: Colors.white),
+                            ),
+                            const SizedBox(width: 32),
+                            IconButton(
+                              iconSize: 64,
+                              onPressed: () {
+                                if (mounted) setState(() => _showControls = true);
+                                _hideTimer?.cancel();
+                                setState(() {
+                                  if (_controller.value.isPlaying) {
+                                    _controller.pause();
+                                    _hideTimer?.cancel();
+                                    _showControls = true;
+                                  } else {
+                                    _controller.play();
+                                    _startHideTimerIfNeeded();
+                                  }
+                                });
+                              },
+                              icon: _controller.value.isBuffering
+                                  ? const SizedBox(
+                                      width: 64,
+                                      height: 64,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 4,
+                                      ),
+                                    )
+                                  : Icon(
+                                      _controller.value.isPlaying
+                                          ? Icons.pause
+                                          : Icons.play_arrow,
+                                      color: Colors.white,
+                                    ),
+                            ),
+                          ],
                         ),
                       ),
                     if (_showControls)
@@ -397,24 +427,7 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
                         right: 12,
                         child: Row(
                           children: [
-                            IconButton(
-                              onPressed: () async {
-                                if (mounted)
-                                  setState(() => _showControls = true);
-                                _hideTimer?.cancel();
-                                final current = _controller.value.position;
-                                final target =
-                                    current - const Duration(seconds: 10);
-                                final seekTo = target > Duration.zero
-                                    ? target
-                                    : Duration.zero;
-                                await _controller.seekTo(seekTo);
-                                _startHideTimerIfNeeded();
-                                setState(() {});
-                              },
-                              icon: const Icon(Icons.replay_10,
-                                  color: Colors.white),
-                            ),
+
 
                             Expanded(
                               child: Column(
