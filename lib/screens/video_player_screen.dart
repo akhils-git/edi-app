@@ -371,7 +371,7 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
                         ),
                       ),
                     ),
-                    if (_showControls)
+                    if (_showControls && !widget.isEmbedded)
                       Positioned(
                         top: 12,
                         left: 12,
@@ -388,27 +388,32 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            IconButton(
-                              iconSize: 48,
-                              onPressed: () async {
-                                if (mounted) setState(() => _showControls = true);
-                                _hideTimer?.cancel();
-                                final current = _controller.value.position;
-                                final target =
-                                    current - const Duration(seconds: 10);
-                                final seekTo =
-                                    target > Duration.zero ? target : Duration.zero;
-                                await _controller.seekTo(seekTo);
-                                _startHideTimerIfNeeded();
-                                setState(() {});
-                              },
-                              icon: const Icon(Icons.replay_10, color: Colors.white),
-                            ),
-                            const SizedBox(width: 32),
+                            if (!widget.isEmbedded)
+                              IconButton(
+                                iconSize: 48,
+                                onPressed: () async {
+                                  if (mounted)
+                                    setState(() => _showControls = true);
+                                  _hideTimer?.cancel();
+                                  final current = _controller.value.position;
+                                  final target =
+                                      current - const Duration(seconds: 10);
+                                  final seekTo = target > Duration.zero
+                                      ? target
+                                      : Duration.zero;
+                                  await _controller.seekTo(seekTo);
+                                  _startHideTimerIfNeeded();
+                                  setState(() {});
+                                },
+                                icon: const Icon(Icons.replay_10,
+                                    color: Colors.white),
+                              ),
+                            if (!widget.isEmbedded) const SizedBox(width: 32),
                             IconButton(
                               iconSize: 64,
                               onPressed: () {
-                                if (mounted) setState(() => _showControls = true);
+                                if (mounted)
+                                  setState(() => _showControls = true);
                                 _hideTimer?.cancel();
                                 setState(() {
                                   if (_controller.value.isPlaying) {
@@ -432,36 +437,37 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
                                       color: Colors.white,
                                     ),
                             ),
-
-                            const SizedBox(width: 32),
-                            IconButton(
-                              iconSize: 48,
-                              onPressed: () async {
-                                if (mounted) setState(() => _showControls = true);
-                                _hideTimer?.cancel();
-                                final current = _controller.value.position;
-                                final target =
-                                    current + const Duration(seconds: 10);
-                                final duration = _controller.value.duration;
-                                final seekTo = target < duration ? target : duration;
-                                await _controller.seekTo(seekTo);
-                                _startHideTimerIfNeeded();
-                                setState(() {});
-                              },
-                              icon: const Icon(Icons.forward_10, color: Colors.white),
-                            ),
+                            if (!widget.isEmbedded) const SizedBox(width: 32),
+                            if (!widget.isEmbedded)
+                              IconButton(
+                                iconSize: 48,
+                                onPressed: () async {
+                                  if (mounted)
+                                    setState(() => _showControls = true);
+                                  _hideTimer?.cancel();
+                                  final current = _controller.value.position;
+                                  final target =
+                                      current + const Duration(seconds: 10);
+                                  final duration = _controller.value.duration;
+                                  final seekTo =
+                                      target < duration ? target : duration;
+                                  await _controller.seekTo(seekTo);
+                                  _startHideTimerIfNeeded();
+                                  setState(() {});
+                                },
+                                icon: const Icon(Icons.forward_10,
+                                    color: Colors.white),
+                              ),
                           ],
                         ),
                       ),
-                    if (_showControls)
+                    if (_showControls && !widget.isEmbedded)
                       Positioned(
                         bottom: 12,
                         left: 12,
                         right: 12,
                         child: Row(
                           children: [
-
-
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
