@@ -852,34 +852,44 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                       ),
                                     ],
                                     Spacer(),
-                                    ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                          backgroundColor: Color(0xFF135bec),
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(32)),
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 24, vertical: 12)),
-                                      onPressed: () async {
-                                        await showModalBottomSheet(
-                                          context: context,
-                                          isScrollControlled: true,
-                                          backgroundColor: Colors.transparent,
-                                          builder: (context) => QuizScreen(
-                                              chapterId: widget.chapter.id),
-                                        );
-                                        // Refresh result after quiz
-                                        _fetchQuizResult();
-                                      },
-                                      child: Text(
-                                          _quizResult != null
-                                              ? 'Try Again'
-                                              : 'Start Quiz',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                          )),
-                                    )
+                                    if (_quizResult != null &&
+                                        ((_quizResult!['correct_answer'] /
+                                                    _quizResult![
+                                                        'total_questions']) *
+                                                100)
+                                            .round() ==
+                                        100)
+                                      const StarConfetti()
+                                    else
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                const Color(0xFF135bec),
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(32)),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 24, vertical: 12)),
+                                        onPressed: () async {
+                                          await showModalBottomSheet(
+                                            context: context,
+                                            isScrollControlled: true,
+                                            backgroundColor: Colors.transparent,
+                                            builder: (context) => QuizScreen(
+                                                chapterId: widget.chapter.id),
+                                          );
+                                          // Refresh result after quiz
+                                          _fetchQuizResult();
+                                        },
+                                        child: Text(
+                                            _quizResult != null
+                                                ? 'Try Again'
+                                                : 'Start Quiz',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            )),
+                                      )
                                   ],
                                 ),
                     ),
@@ -897,6 +907,65 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                     builder: (_) => const UserProfileScreen()));
               }
             }),
+      ),
+    );
+  }
+}
+
+class StarConfetti extends StatefulWidget {
+  const StarConfetti({super.key});
+
+  @override
+  State<StarConfetti> createState() => _StarConfettiState();
+}
+
+class _StarConfettiState extends State<StarConfetti>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2000),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildStar(Colors.green, 0),
+        _buildStar(Colors.pink, 1),
+        _buildStar(Colors.yellow, 2),
+        _buildStar(Colors.cyan, 3),
+      ],
+    );
+  }
+
+  Widget _buildStar(Color color, int index) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        final double t = (_controller.value + index * 0.25) % 1.0;
+        final double scale =
+            1.0 + 0.5 * (0.5 - (t - 0.5).abs()); // Triangle wave 1.0 -> 1.25 -> 1.0
+        return Transform.scale(
+          scale: scale,
+          child: child,
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4.0),
+        child: Icon(Icons.star_rounded, color: color, size: 28),
       ),
     );
   }
