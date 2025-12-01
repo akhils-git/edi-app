@@ -42,6 +42,7 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
   Duration _audioPosition = Duration.zero;
 
   bool _audioInitialized = false;
+  bool _isAudioLoading = false;
   bool _isDragging = false;
   final Floating _floating = Floating();
 
@@ -145,17 +146,29 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
   Future<void> _toggleAudio() async {
     if (widget.chapter.audioFile.isEmpty) return;
 
-    if (!_audioInitialized) {
-      await _audioPlayer.setSourceUrl(widget.chapter.audioFile);
-      setState(() {
-        _audioInitialized = true;
-      });
-    }
+    setState(() {
+      _isAudioLoading = true;
+    });
 
-    if (_isAudioPlaying) {
-      await _audioPlayer.pause();
-    } else {
-      await _audioPlayer.resume();
+    try {
+      if (!_audioInitialized) {
+        await _audioPlayer.setSourceUrl(widget.chapter.audioFile);
+        setState(() {
+          _audioInitialized = true;
+        });
+      }
+
+      if (_isAudioPlaying) {
+        await _audioPlayer.pause();
+      } else {
+        await _audioPlayer.resume();
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isAudioLoading = false;
+        });
+      }
     }
   }
 
@@ -596,12 +609,20 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                       color: const Color(0xFF135bec),
                                       shape: BoxShape.circle,
                                     ),
-                                    child: Icon(
-                                        _isAudioPlaying
-                                            ? Icons.pause
-                                            : Icons.play_arrow,
-                                        color: Colors.white,
-                                        size: 32),
+                                    child: _isAudioLoading
+                                        ? const Padding(
+                                            padding: EdgeInsets.all(12.0),
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                              strokeWidth: 3,
+                                            ),
+                                          )
+                                        : Icon(
+                                            _isAudioPlaying
+                                                ? Icons.pause
+                                                : Icons.play_arrow,
+                                            color: Colors.white,
+                                            size: 32),
                                   ),
                                 ),
                                 const SizedBox(width: 16),
