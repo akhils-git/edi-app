@@ -35,7 +35,7 @@ class BookCard extends StatelessWidget {
                         book.thumbnail,
                         width: double.infinity,
                         height: double.infinity,
-                        fit: BoxFit.cover,
+                        fit: BoxFit.fill,
                         loadingBuilder: (context, child, loadingProgress) {
                           if (loadingProgress == null) return child;
                           return Center(
