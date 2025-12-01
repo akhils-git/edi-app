@@ -307,7 +307,9 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                                         _inlineController !=
                                                             null &&
                                                         _inlineController!
-                                                            .value.isPlaying
+                                                            .value.isPlaying &&
+                                                        !_inlineController!
+                                                            .value.isBuffering
                                                     ? 0.0
                                                     : 1.0,
                                                 child: Container(
@@ -318,17 +320,26 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                                   ),
                                                   padding:
                                                       const EdgeInsets.all(16),
-                                                  child: Icon(
-                                                    _inlineInitialized &&
-                                                            _inlineController !=
-                                                                null &&
-                                                            _inlineController!
-                                                                .value.isPlaying
-                                                        ? Icons.pause
-                                                        : Icons.play_arrow,
-                                                    color: Colors.white,
-                                                    size: 48,
-                                                  ),
+                                                  child: _inlineInitialized &&
+                                                          _inlineController !=
+                                                              null &&
+                                                          _inlineController!
+                                                              .value.isBuffering
+                                                      ? const CircularProgressIndicator(
+                                                          color: Colors.white,
+                                                        )
+                                                      : Icon(
+                                                          _inlineInitialized &&
+                                                                  _inlineController !=
+                                                                      null &&
+                                                                  _inlineController!
+                                                                      .value
+                                                                      .isPlaying
+                                                              ? Icons.pause
+                                                              : Icons.play_arrow,
+                                                          color: Colors.white,
+                                                          size: 48,
+                                                        ),
                                                 ),
                                               ),
                                             ),
