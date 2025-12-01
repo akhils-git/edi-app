@@ -34,7 +34,9 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
   bool _isAudioPlaying = false;
   Duration _audioDuration = Duration.zero;
   Duration _audioPosition = Duration.zero;
+
   bool _audioInitialized = false;
+  bool _isDragging = false;
 
   @override
   void initState() {
@@ -58,7 +60,7 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
     });
 
     _audioPlayer.onPositionChanged.listen((newPosition) {
-      if (mounted) {
+      if (mounted && !_isDragging) {
         setState(() {
           _audioPosition = newPosition;
         });
@@ -469,21 +471,57 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                     const SizedBox(height: 8),
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(2),
-                                      child: LinearProgressIndicator(
-                                        value: (_audioDuration.inMilliseconds >
-                                                0)
-                                            ? _audioPosition.inMilliseconds /
-                                                _audioDuration.inMilliseconds
-                                            : 0.0,
-                                        minHeight: 4,
-                                        backgroundColor: isLight
+                                    SliderTheme(
+                                      data: SliderTheme.of(context).copyWith(
+                                        trackHeight: 4,
+                                        thumbShape: const RoundSliderThumbShape(
+                                            enabledThumbRadius: 6),
+                                        overlayShape:
+                                            const RoundSliderOverlayShape(
+                                                overlayRadius: 14),
+                                        activeTrackColor:
+                                            const Color(0xFF135bec),
+                                        inactiveTrackColor: isLight
                                             ? const Color(0xFFE5E7EB)
                                             : const Color(0xFF374151),
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                                const Color(0xFF135bec)),
+                                        thumbColor: const Color(0xFF135bec),
+                                        overlayColor: const Color(0xFF135bec)
+                                            .withOpacity(0.2),
+                                        trackShape:
+                                            const RectangularSliderTrackShape(),
+                                      ),
+                                      child: Slider(
+                                        value: (_audioPosition.inMilliseconds >
+                                                    0 &&
+                                                _audioPosition.inMilliseconds <=
+                                                    _audioDuration
+                                                        .inMilliseconds)
+                                            ? _audioPosition.inMilliseconds
+                                                .toDouble()
+                                            : 0.0,
+                                        min: 0.0,
+                                        max: _audioDuration.inMilliseconds > 0
+                                            ? _audioDuration.inMilliseconds
+                                                .toDouble()
+                                            : 1.0,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            _audioPosition = Duration(
+                                                milliseconds: value.toInt());
+                                          });
+                                        },
+                                        onChangeStart: (_) {
+                                          setState(() {
+                                            _isDragging = true;
+                                          });
+                                        },
+                                        onChangeEnd: (value) async {
+                                          await _audioPlayer.seek(Duration(
+                                              milliseconds: value.toInt()));
+                                          setState(() {
+                                            _isDragging = false;
+                                          });
+                                        },
                                       ),
                                     ),
                                     const SizedBox(height: 4),
