@@ -285,7 +285,10 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
     // Restore portrait mode and UI
     await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    if (mounted) Navigator.of(context).pop(pos);
+    // If we don't own the controller (shared), we don't need to return the position
+    // because the shared controller is already at the correct position.
+    // Returning null prevents the caller from seeking (which causes stutter).
+    if (mounted) Navigator.of(context).pop(_ownsController ? pos : null);
   }
 
   @override

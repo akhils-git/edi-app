@@ -511,7 +511,10 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                             await _inlineController!
                                                 .seekTo(result);
                                           }
-                                          _inlineController!.play();
+                                          // Ensure play is called after UI is restored
+                                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                                            _inlineController!.play();
+                                          });
                                           if (mounted)
                                             setState(() => _inlineHidden = false);
                                           setState(() {});
