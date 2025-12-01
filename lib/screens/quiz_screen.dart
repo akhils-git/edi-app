@@ -1,7 +1,9 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../services/quiz_service.dart';
 import '../services/session.dart';
+import 'package:confetti/confetti.dart';
 import '../components/loading_box.dart';
 import 'quiz_completed_screen.dart';
 
@@ -21,11 +23,24 @@ class _QuizScreenState extends State<QuizScreen> {
   String? _selectedAnswer; // 'option_a', 'option_b', etc.
   bool _isSubmitted = false;
   int _score = 0;
+  late ConfettiController _confettiController;
+  late ConfettiController _wrongConfettiController;
 
   @override
   void initState() {
     super.initState();
+    _confettiController =
+        ConfettiController(duration: const Duration(seconds: 1));
+    _wrongConfettiController =
+        ConfettiController(duration: const Duration(seconds: 1));
     _fetchQuestions();
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    _wrongConfettiController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchQuestions() async {
@@ -153,11 +168,13 @@ class _QuizScreenState extends State<QuizScreen> {
               ),
             ],
           ),
-          child: Column(
+          child: Stack(
             children: [
-              // Header
-              Padding(
-                padding: const EdgeInsets.all(24.0),
+              Column(
+                children: [
+                  // Header
+                  Padding(
+                    padding: const EdgeInsets.all(24.0),
                 child: Column(
                   children: [
                     Row(
@@ -301,6 +318,13 @@ class _QuizScreenState extends State<QuizScreen> {
                               setState(() {
                                 _isSubmitted = true;
                               });
+                              // Check if correct and play confetti
+                              final question = _questions[_currentQuestionIndex];
+                              if (_selectedAnswer == question.correctAnswer) {
+                                _confettiController.play();
+                              } else {
+                                _wrongConfettiController.play();
+                              }
                             }
                           }
                         : null,
@@ -329,11 +353,132 @@ class _QuizScreenState extends State<QuizScreen> {
                   ),
                 ),
               ),
+                ],
+              ),
+              Align(
+                alignment: Alignment.topCenter,
+                child: ConfettiWidget(
+                  confettiController: _confettiController,
+                  blastDirectionality: BlastDirectionality.explosive,
+                  shouldLoop: false,
+                  colors: const [
+                    Colors.green,
+                    Colors.lightGreen,
+                    Colors.greenAccent,
+                  ],
+                  createParticlePath: drawHappyFace,
+                  numberOfParticles: 15,
+                ),
+              ),
+              Align(
+                alignment: Alignment.topCenter,
+                child: ConfettiWidget(
+                  confettiController: _confettiController,
+                  blastDirectionality: BlastDirectionality.explosive,
+                  shouldLoop: false,
+                  colors: const [
+                    Colors.amber,
+                    Colors.orange,
+                    Colors.yellow,
+                    Colors.green,
+                  ],
+                  createParticlePath: drawStar,
+                  numberOfParticles: 15,
+                ),
+              ),
+              Align(
+                alignment: Alignment.topCenter,
+                child: ConfettiWidget(
+                  confettiController: _wrongConfettiController,
+                  blastDirectionality: BlastDirectionality.explosive,
+                  shouldLoop: false,
+                  colors: const [
+                    Colors.red,
+                    Colors.redAccent,
+                    Color(0xFFEF5350), // red-400
+                  ],
+                  createParticlePath: drawSadFace,
+                  numberOfParticles: 20,
+                ),
+              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  /// A custom Path to paint a happy face.
+  Path drawHappyFace(Size size) {
+    final path = Path();
+    final w = size.width;
+    final h = size.height;
+
+    // Face
+    path.addOval(Rect.fromLTWH(0, 0, w, h));
+
+    // Left Eye
+    path.addOval(Rect.fromLTWH(w * 0.25, h * 0.35, w * 0.15, h * 0.15));
+
+    // Right Eye
+    path.addOval(Rect.fromLTWH(w * 0.6, h * 0.35, w * 0.15, h * 0.15));
+
+    // Mouth (Smile)
+    path.moveTo(w * 0.3, h * 0.65);
+    path.quadraticBezierTo(w * 0.5, h * 0.85, w * 0.7, h * 0.65);
+    path.quadraticBezierTo(w * 0.5, h * 0.75, w * 0.3, h * 0.65);
+
+    path.fillType = PathFillType.evenOdd;
+    return path;
+  }
+
+  /// A custom Path to paint stars.
+  Path drawStar(Size size) {
+    // Method to convert degree to radians
+    double degToRad(double deg) => deg * (3.1415926535897932 / 180.0);
+
+    const numberOfPoints = 5;
+    final halfWidth = size.width / 2;
+    final externalRadius = halfWidth;
+    final internalRadius = halfWidth / 2.5;
+    final degreesPerStep = degToRad(360 / numberOfPoints);
+    final halfDegreesPerStep = degreesPerStep / 2;
+    final path = Path();
+    final fullAngle = degToRad(360);
+    path.moveTo(size.width, halfWidth);
+
+    for (double step = 0; step < fullAngle; step += degreesPerStep) {
+      path.lineTo(halfWidth + externalRadius * cos(step),
+          halfWidth + externalRadius * sin(step));
+      path.lineTo(halfWidth + internalRadius * cos(step + halfDegreesPerStep),
+          halfWidth + internalRadius * sin(step + halfDegreesPerStep));
+    }
+    path.close();
+    return path;
+  }
+
+  /// A custom Path to paint a sad face.
+  Path drawSadFace(Size size) {
+    final path = Path();
+    final w = size.width;
+    final h = size.height;
+
+    // Face
+    path.addOval(Rect.fromLTWH(0, 0, w, h));
+
+    // Left Eye
+    path.addOval(Rect.fromLTWH(w * 0.25, h * 0.35, w * 0.15, h * 0.15));
+
+    // Right Eye
+    path.addOval(Rect.fromLTWH(w * 0.6, h * 0.35, w * 0.15, h * 0.15));
+
+    // Mouth (Frown)
+    path.moveTo(w * 0.3, h * 0.75);
+    path.quadraticBezierTo(w * 0.5, h * 0.55, w * 0.7, h * 0.75);
+    path.quadraticBezierTo(w * 0.5, h * 0.65, w * 0.3, h * 0.75);
+
+    path.fillType = PathFillType.evenOdd;
+    return path;
   }
 
   Widget _buildOption({
