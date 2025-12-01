@@ -417,6 +417,24 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
                                       color: Colors.white,
                                     ),
                             ),
+
+                            const SizedBox(width: 32),
+                            IconButton(
+                              iconSize: 48,
+                              onPressed: () async {
+                                if (mounted) setState(() => _showControls = true);
+                                _hideTimer?.cancel();
+                                final current = _controller.value.position;
+                                final target =
+                                    current + const Duration(seconds: 10);
+                                final duration = _controller.value.duration;
+                                final seekTo = target < duration ? target : duration;
+                                await _controller.seekTo(seekTo);
+                                _startHideTimerIfNeeded();
+                                setState(() {});
+                              },
+                              icon: const Icon(Icons.forward_10, color: Colors.white),
+                            ),
                           ],
                         ),
                       ),
