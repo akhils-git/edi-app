@@ -29,18 +29,8 @@ class QuizCompletedScreen extends StatelessWidget {
         child: Column(
           children: [
             // Header
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: IconButton(
-                  icon: Icon(Icons.close, size: 28, color: secondaryTextColor),
-                  onPressed: () => Navigator.of(context).pop(),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-              ),
-            ),
+            // Header
+            const SizedBox(height: 24),
 
             // Main Content
             Expanded(
@@ -131,10 +121,22 @@ class QuizCompletedScreen extends StatelessWidget {
                           ),
                           Row(
                             children: List.generate(3, (index) {
-                              // Logic for stars could be dynamic based on percentage
-                              // For now, showing 3 stars as per design
+                              // 3 stars logic:
+                              // 100% -> 3 stars
+                              // >= 66% -> 2 stars
+                              // >= 33% -> 1 star
+                              // < 33% -> 0 stars
+                              int stars = 0;
+                              if (percentage == 100) {
+                                stars = 3;
+                              } else if (percentage >= 66) {
+                                stars = 2;
+                              } else if (percentage >= 33) {
+                                stars = 1;
+                              }
+
                               return Icon(
-                                Icons.star,
+                                index < stars ? Icons.star : Icons.star_border,
                                 size: 36,
                                 color: warningColor,
                               );
