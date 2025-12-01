@@ -53,6 +53,7 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
   @override
   void initState() {
     super.initState();
+    _initAndPlayInline();
     _audioPlayer = AudioPlayer();
 
     _audioPlayer.onPlayerStateChanged.listen((state) {
@@ -510,8 +511,7 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                             await _inlineController!
                                                 .seekTo(result);
                                           }
-                                          if (wasPlaying)
-                                            _inlineController!.play();
+                                          _inlineController!.play();
                                           if (mounted)
                                             setState(() => _inlineHidden = false);
                                           setState(() {});
