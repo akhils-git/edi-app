@@ -128,7 +128,7 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
           }
           // When playback is active, schedule auto-hide; when paused/buffering,
           // cancel the hide timer and show controls.
-          if (_controller.value.isPlaying) {
+          if (_controller.value.isPlaying && !_controller.value.isBuffering) {
             _startHideTimerIfNeeded();
           } else {
             _hideTimer?.cancel();
@@ -219,7 +219,7 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
             }
             return;
           }
-          if (_controller.value.isPlaying) {
+          if (_controller.value.isPlaying && !_controller.value.isBuffering) {
             _startHideTimerIfNeeded();
           } else {
             _hideTimer?.cancel();
@@ -358,6 +358,39 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
                         ),
                       ),
                     if (_showControls)
+                      Center(
+                        child: IconButton(
+                          iconSize: 64,
+                          onPressed: () {
+                            if (mounted) setState(() => _showControls = true);
+                            _hideTimer?.cancel();
+                            setState(() {
+                              if (_controller.value.isPlaying) {
+                                _controller.pause();
+                              } else {
+                                _controller.play();
+                              }
+                            });
+                            _startHideTimerIfNeeded();
+                          },
+                          icon: _controller.value.isBuffering
+                              ? const SizedBox(
+                                  width: 64,
+                                  height: 64,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 4,
+                                  ),
+                                )
+                              : Icon(
+                                  _controller.value.isPlaying
+                                      ? Icons.pause
+                                      : Icons.play_arrow,
+                                  color: Colors.white,
+                                ),
+                        ),
+                      ),
+                    if (_showControls)
                       Positioned(
                         bottom: 12,
                         left: 12,
@@ -382,27 +415,7 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
                               icon: const Icon(Icons.replay_10,
                                   color: Colors.white),
                             ),
-                            IconButton(
-                              onPressed: () {
-                                if (mounted)
-                                  setState(() => _showControls = true);
-                                _hideTimer?.cancel();
-                                setState(() {
-                                  if (_controller.value.isPlaying) {
-                                    _controller.pause();
-                                  } else {
-                                    _controller.play();
-                                  }
-                                });
-                                _startHideTimerIfNeeded();
-                              },
-                              icon: Icon(
-                                _controller.value.isPlaying
-                                    ? Icons.pause
-                                    : Icons.play_arrow,
-                                color: Colors.white,
-                              ),
-                            ),
+
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
