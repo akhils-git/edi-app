@@ -506,7 +506,8 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                           setState(() {});
                                         },
                                         icon: const Icon(Icons.fullscreen,
-                                            color: Colors.white),
+                                            color: Colors.white,
+                                            size: 28),
                                       ),
                                       IconButton(
                                         onPressed: () async {
@@ -519,7 +520,8 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                         },
                                         icon: const Icon(
                                             Icons.picture_in_picture_alt,
-                                            color: Colors.white),
+                                            color: Colors.white,
+                                            size: 28),
                                       ),
                                     ],
                                   ),
