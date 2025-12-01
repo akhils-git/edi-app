@@ -55,7 +55,9 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
   bool _showControls = true;
   Timer? _hideTimer;
   bool _isVideoDragging = false;
+
   double _videoDragValue = 0.0;
+  BoxFit _fit = BoxFit.contain;
 
   @override
   void initState() {
@@ -333,13 +335,14 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
                 },
                 child: Stack(
                   children: [
-                    FittedBox(
-                      fit: BoxFit.cover,
-                      clipBehavior: Clip.hardEdge,
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.height,
-                        child: VideoPlayer(_controller),
+                    SizedBox.expand(
+                      child: FittedBox(
+                        fit: _fit,
+                        child: SizedBox(
+                          width: _controller.value.size.width,
+                          height: _controller.value.size.height,
+                          child: VideoPlayer(_controller),
+                        ),
                       ),
                     ),
                     if (_showControls)
@@ -481,6 +484,22 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
                                     ),
                                   ),
                                 ],
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  _fit = _fit == BoxFit.contain
+                                      ? BoxFit.cover
+                                      : BoxFit.contain;
+                                });
+                                if (_showControls) _startHideTimerIfNeeded();
+                              },
+                              icon: Icon(
+                                _fit == BoxFit.contain
+                                    ? Icons.zoom_out_map
+                                    : Icons.zoom_in_map,
+                                color: Colors.white,
                               ),
                             ),
                           ],
