@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+import 'package:audioplayers/audioplayers.dart';
 import '../services/chapter_service.dart';
 import '../components/nav_bar.dart';
 import 'user_profile_screen.dart';
@@ -29,8 +30,45 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
   bool _inlineInitialized = false;
   bool _inlineHidden = false;
 
+  late AudioPlayer _audioPlayer;
+  bool _isAudioPlaying = false;
+  Duration _audioDuration = Duration.zero;
+  Duration _audioPosition = Duration.zero;
+  bool _audioInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _audioPlayer = AudioPlayer();
+
+    _audioPlayer.onPlayerStateChanged.listen((state) {
+      if (mounted) {
+        setState(() {
+          _isAudioPlaying = state == PlayerState.playing;
+        });
+      }
+    });
+
+    _audioPlayer.onDurationChanged.listen((newDuration) {
+      if (mounted) {
+        setState(() {
+          _audioDuration = newDuration;
+        });
+      }
+    });
+
+    _audioPlayer.onPositionChanged.listen((newPosition) {
+      if (mounted) {
+        setState(() {
+          _audioPosition = newPosition;
+        });
+      }
+    });
+  }
+
   @override
   void dispose() {
+    _audioPlayer.dispose();
     _inlineController?.pause();
     _inlineController?.dispose();
     super.dispose();
@@ -51,6 +89,23 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
       _inlineInitialized = true;
     });
     _inlineController!.play();
+  }
+
+  Future<void> _toggleAudio() async {
+    if (widget.chapter.audioFile.isEmpty) return;
+
+    if (!_audioInitialized) {
+      await _audioPlayer.setSourceUrl(widget.chapter.audioFile);
+      setState(() {
+        _audioInitialized = true;
+      });
+    }
+
+    if (_isAudioPlaying) {
+      await _audioPlayer.pause();
+    } else {
+      await _audioPlayer.resume();
+    }
   }
 
   @override
@@ -379,18 +434,25 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                     ),
                     margin: const EdgeInsets.only(bottom: 18),
                     padding: const EdgeInsets.all(16),
-                    child: chapter.audioFile.isNotEmpty
+                            child: chapter.audioFile.isNotEmpty
                         ? Row(
                             children: [
-                              Container(
-                                width: 56,
-                                height: 56,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF135bec),
-                                  shape: BoxShape.circle,
+                              GestureDetector(
+                                onTap: _toggleAudio,
+                                child: Container(
+                                  width: 56,
+                                  height: 56,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF135bec),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                      _isAudioPlaying
+                                          ? Icons.pause
+                                          : Icons.play_arrow,
+                                      color: Colors.white,
+                                      size: 32),
                                 ),
-                                child: const Icon(Icons.pause,
-                                    color: Colors.white, size: 32),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
@@ -410,7 +472,11 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(2),
                                       child: LinearProgressIndicator(
-                                        value: 0.33,
+                                        value: (_audioDuration.inMilliseconds >
+                                                0)
+                                            ? _audioPosition.inMilliseconds /
+                                                _audioDuration.inMilliseconds
+                                            : 0.0,
                                         minHeight: 4,
                                         backgroundColor: isLight
                                             ? const Color(0xFFE5E7EB)
@@ -425,11 +491,11 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text('01:32',
+                                        Text(_formatDuration(_audioPosition),
                                             style: TextStyle(
                                                 fontSize: 12,
                                                 color: subtitleColor)),
-                                        Text('04:15',
+                                        Text(_formatDuration(_audioDuration),
                                             style: TextStyle(
                                                 fontSize: 12,
                                                 color: subtitleColor)),

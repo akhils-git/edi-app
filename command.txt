@@ -1,1 +1,6 @@
 flutter run -d adb-809834f3-0fWyXq._adb-tls-connect._tcp
+flutter run -d 809834f3
+
+
+shibu.rex@edu.com
+1234
