@@ -159,7 +159,7 @@ class _QuizScreenState extends State<QuizScreen> {
                           ),
                         ),
                         TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
+                          onPressed: _handleNext,
                           style: TextButton.styleFrom(
                             padding: EdgeInsets.zero,
                             minimumSize: Size.zero,
