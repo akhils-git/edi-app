@@ -46,6 +46,7 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
   // Quiz State
   bool _isLoadingQuizResult = true;
   Map<String, dynamic>? _quizResult;
+  bool _hasQuestions = true;
 
   @override
   void initState() {
@@ -81,11 +82,22 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
 
   Future<void> _fetchQuizResult() async {
     final currentUser = UserSession.currentUser;
-    if (currentUser != null) {
+    final token = UserSession.token;
+
+    // Check if questions exist
+    try {
+      final questions =
+          await QuizService.fetchQuestions(widget.chapter.id, token);
+      _hasQuestions = questions.isNotEmpty;
+    } catch (e) {
+      _hasQuestions = false;
+    }
+
+    if (currentUser != null && _hasQuestions) {
       final result = await QuizService.getQuizResult(
         userId: currentUser.id,
         chapterId: widget.chapter.id,
-        authToken: UserSession.token,
+        authToken: token,
       );
       if (mounted) {
         setState(() {
@@ -643,15 +655,15 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                             ],
                           )
                         : Container(
-                            height: 84,
-                            padding: const EdgeInsets.all(12),
+                            height: 180,
+                            padding: const EdgeInsets.all(16),
                             alignment: Alignment.center,
-                            child: Row(
+                            child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Container(
-                                  width: 48,
-                                  height: 48,
+                                  width: 56,
+                                  height: 56,
                                   decoration: BoxDecoration(
                                     color: isLight
                                         ? const Color(0xFFF1F5F9)
@@ -659,24 +671,21 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                     shape: BoxShape.circle,
                                   ),
                                   child: Icon(Icons.music_off,
-                                      size: 28, color: titleColor),
+                                      size: 32, color: titleColor),
                                 ),
-                                const SizedBox(width: 12),
-                                Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('No audio available',
-                                        style: TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w700,
-                                            color: titleColor)),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                        'There is no audio for this chapter yet.',
-                                        style: TextStyle(color: subtitleColor)),
-                                  ],
-                                )
+                                const SizedBox(height: 12),
+                                Text('No audio available',
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                        color: titleColor)),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'There is no audio for this chapter yet.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: subtitleColor, fontSize: 13),
+                                ),
                               ],
                             ),
                           ),
@@ -696,88 +705,124 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                         ]),
                     child: _isLoadingQuizResult
                         ? Center(child: CircularProgressIndicator())
-                        : Row(
-                            children: [
-                              if (_quizResult != null) ...[
-                                // Last Score View
-                                Icon(Icons.emoji_events,
-                                    color: Colors.amber, size: 32),
-                                SizedBox(width: 12),
-                                Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                        : !_hasQuestions
+                            ? Container(
+                                height: 180,
+                                alignment: Alignment.center,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text('Last Score',
-                                        style: TextStyle(
-                                            fontSize: 13,
-                                            color: subtitleColor)),
-                                    Text(
-                                        '${((_quizResult!['correct_answer'] / _quizResult!['total_questions']) * 100).round()}%', // Show percentage
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w700,
-                                            color: titleColor))
-                                  ],
-                                ),
-                              ] else ...[
-                                // Fresh Start View
-                                Container(
-                                  padding: EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    color: Color(0xFFE0E7FF), // Light blue bg
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(Icons.quiz,
-                                      color: Color(0xFF135bec), size: 24),
-                                ),
-                                SizedBox(width: 12),
-                                Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Test your knowledge',
-                                        style: TextStyle(
-                                            fontSize: 13,
-                                            color: subtitleColor)),
-                                    Text('Take the Quiz',
+                                    Container(
+                                      width: 56,
+                                      height: 56,
+                                      decoration: BoxDecoration(
+                                        color: isLight
+                                            ? const Color(0xFFF1F5F9)
+                                            : const Color(0xFF1B2936),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(Icons.quiz_outlined,
+                                          size: 32, color: titleColor),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text('No Quiz Available',
                                         style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w700,
-                                            color: titleColor))
+                                            color: titleColor)),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      'Check back later for this chapter\'s quiz.',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          color: subtitleColor, fontSize: 13),
+                                    ),
                                   ],
                                 ),
-                              ],
-                              Spacer(),
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                    backgroundColor: Color(0xFF135bec),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(32)),
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 24, vertical: 12)),
-                                onPressed: () async {
-                                  await showModalBottomSheet(
-                                    context: context,
-                                    isScrollControlled: true,
-                                    backgroundColor: Colors.transparent,
-                                    builder: (context) => QuizScreen(
-                                        chapterId: widget.chapter.id),
-                                  );
-                                  // Refresh result after quiz
-                                  _fetchQuizResult();
-                                },
-                                child: Text(
-                                    _quizResult != null
-                                        ? 'Try Again'
-                                        : 'Start Quiz',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    )),
                               )
-                            ],
-                          ),
+                            : Row(
+                                children: [
+                                  if (_quizResult != null) ...[
+                                    // Last Score View
+                                    Icon(Icons.emoji_events,
+                                        color: Colors.amber, size: 32),
+                                    SizedBox(width: 12),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text('Last Score',
+                                            style: TextStyle(
+                                                fontSize: 13,
+                                                color: subtitleColor)),
+                                        Text(
+                                            '${((_quizResult!['correct_answer'] / _quizResult!['total_questions']) * 100).round()}%', // Show percentage
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w700,
+                                                color: titleColor))
+                                      ],
+                                    ),
+                                  ] else ...[
+                                    // Fresh Start View
+                                    Container(
+                                      padding: EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        color:
+                                            Color(0xFFE0E7FF), // Light blue bg
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(Icons.quiz,
+                                          color: Color(0xFF135bec), size: 24),
+                                    ),
+                                    SizedBox(width: 12),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text('Test your knowledge',
+                                            style: TextStyle(
+                                                fontSize: 13,
+                                                color: subtitleColor)),
+                                        Text('Take the Quiz',
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w700,
+                                                color: titleColor))
+                                      ],
+                                    ),
+                                  ],
+                                  Spacer(),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                        backgroundColor: Color(0xFF135bec),
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(32)),
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 24, vertical: 12)),
+                                    onPressed: () async {
+                                      await showModalBottomSheet(
+                                        context: context,
+                                        isScrollControlled: true,
+                                        backgroundColor: Colors.transparent,
+                                        builder: (context) => QuizScreen(
+                                            chapterId: widget.chapter.id),
+                                      );
+                                      // Refresh result after quiz
+                                      _fetchQuizResult();
+                                    },
+                                    child: Text(
+                                        _quizResult != null
+                                            ? 'Try Again'
+                                            : 'Start Quiz',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        )),
+                                  )
+                                ],
+                              ),
                   ),
                 ],
               ),
