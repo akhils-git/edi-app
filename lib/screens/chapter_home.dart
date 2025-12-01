@@ -8,6 +8,7 @@ import 'video_player_screen.dart';
 import '../services/quiz_service.dart';
 import '../services/session.dart';
 import 'quiz_screen.dart';
+import 'package:floating/floating.dart';
 
 // Helper to format duration as MM:SS
 String _formatDuration(Duration d) {
@@ -42,6 +43,7 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
 
   bool _audioInitialized = false;
   bool _isDragging = false;
+  final Floating _floating = Floating();
 
   // Quiz State
   bool _isLoadingQuizResult = true;
@@ -170,674 +172,695 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
     final chapter = widget.chapter;
     final bookThumbnail = widget.bookThumbnail;
 
-    return Scaffold(
-      backgroundColor: bgColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    color: titleColor,
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      widget.bookTitle ?? 'Chapter',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w800,
-                        color: titleColor,
-                      ),
-                      overflow: TextOverflow.ellipsis,
+    return PiPSwitcher(
+      childWhenEnabled: _inlineInitialized && _inlineController != null
+          ? AspectRatio(
+              aspectRatio: _inlineController!.value.aspectRatio,
+              child: VideoPlayer(_inlineController!),
+            )
+          : const SizedBox(),
+      childWhenDisabled: Scaffold(
+        backgroundColor: bgColor,
+        body: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      color: titleColor,
+                      onPressed: () => Navigator.of(context).pop(),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: ListView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: cardBg,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    padding: const EdgeInsets.all(16),
-                    margin: const EdgeInsets.only(bottom: 18),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Chapter Summary',
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: titleColor)),
-                        const SizedBox(height: 8),
-                        Text(
-                          chapter.description.isNotEmpty
-                              ? chapter.description
-                              : 'No summary available.',
-                          style: TextStyle(fontSize: 14, color: subtitleColor),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        widget.bookTitle ?? 'Chapter',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
+                          color: titleColor,
                         ),
-                      ],
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  ),
-                  // Video box: show inline player when initialized, else thumbnail + play button
-                  Container(
-                    decoration: BoxDecoration(
-                        color: isLight ? Colors.black : const Color(0xFF23272F),
-                        borderRadius: BorderRadius.circular(16)),
-                    margin: const EdgeInsets.only(bottom: 18),
-                    child: chapter.videoFile.isNotEmpty
-                        ? Column(
-                            children: [
-                              AspectRatio(
-                                aspectRatio: 16 / 9,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Stack(
-                                    fit: StackFit.expand,
-                                    children: [
-                                      if (_inlineInitialized &&
-                                          _inlineController != null)
-                                        (_inlineHidden
-                                            ? Container(color: Colors.black)
-                                            : VideoPlayer(_inlineController!))
-                                      else if (bookThumbnail != null &&
-                                          bookThumbnail.isNotEmpty)
-                                        Image.network(bookThumbnail,
-                                            fit: BoxFit.cover)
-                                      else
-                                        Container(color: Colors.black),
-                                      Positioned.fill(
-                                        child: Container(
-                                            color:
-                                                Colors.black.withOpacity(0.28)),
-                                      ),
-                                      // Keep a tap area so users can toggle playback
-                                      // by tapping the video. The icon will fade
-                                      // out when playback is active but the handler
-                                      // remains available.
-                                      Positioned.fill(
-                                        child: Center(
-                                          child: GestureDetector(
-                                            behavior:
-                                                HitTestBehavior.translucent,
-                                            onTap: () async {
-                                              if (!_inlineInitialized) {
-                                                await _initAndPlayInline();
-                                              } else {
-                                                final isPlaying =
-                                                    _inlineController!
-                                                        .value.isPlaying;
-                                                if (isPlaying) {
-                                                  try {
-                                                    await _inlineController!
-                                                        .pause();
-                                                  } catch (_) {}
+                  ],
+                ),
+              ),
+              Expanded(
+                child: ListView(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: cardBg,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      padding: const EdgeInsets.all(16),
+                      margin: const EdgeInsets.only(bottom: 18),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Chapter Summary',
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: titleColor)),
+                          const SizedBox(height: 8),
+                          Text(
+                            chapter.description.isNotEmpty
+                                ? chapter.description
+                                : 'No summary available.',
+                            style: TextStyle(fontSize: 14, color: subtitleColor),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Video box: show inline player when initialized, else thumbnail + play button
+                    Container(
+                      decoration: BoxDecoration(
+                          color: isLight ? Colors.black : const Color(0xFF23272F),
+                          borderRadius: BorderRadius.circular(16)),
+                      margin: const EdgeInsets.only(bottom: 18),
+                      child: chapter.videoFile.isNotEmpty
+                          ? Column(
+                              children: [
+                                AspectRatio(
+                                  aspectRatio: 16 / 9,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Stack(
+                                      fit: StackFit.expand,
+                                      children: [
+                                        if (_inlineInitialized &&
+                                            _inlineController != null)
+                                          (_inlineHidden
+                                              ? Container(color: Colors.black)
+                                              : VideoPlayer(_inlineController!))
+                                        else if (bookThumbnail != null &&
+                                            bookThumbnail.isNotEmpty)
+                                          Image.network(bookThumbnail,
+                                              fit: BoxFit.cover)
+                                        else
+                                          Container(color: Colors.black),
+                                        Positioned.fill(
+                                          child: Container(
+                                              color:
+                                                  Colors.black.withOpacity(0.28)),
+                                        ),
+                                        // Keep a tap area so users can toggle playback
+                                        // by tapping the video. The icon will fade
+                                        // out when playback is active but the handler
+                                        // remains available.
+                                        Positioned.fill(
+                                          child: Center(
+                                            child: GestureDetector(
+                                              behavior:
+                                                  HitTestBehavior.translucent,
+                                              onTap: () async {
+                                                if (!_inlineInitialized) {
+                                                  await _initAndPlayInline();
                                                 } else {
-                                                  try {
-                                                    await _inlineController!
-                                                        .play();
-                                                  } catch (_) {}
-                                                }
-                                                if (mounted) setState(() {});
-                                              }
-                                            },
-                                            child: AnimatedOpacity(
-                                              duration: const Duration(
-                                                  milliseconds: 200),
-                                              opacity: _inlineInitialized &&
-                                                      _inlineController !=
-                                                          null &&
+                                                  final isPlaying =
                                                       _inlineController!
-                                                          .value.isPlaying
-                                                  ? 0.0
-                                                  : 1.0,
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  color: Colors.black
-                                                      .withOpacity(0.3),
-                                                  shape: BoxShape.circle,
-                                                ),
-                                                padding:
-                                                    const EdgeInsets.all(16),
-                                                child: Icon(
-                                                  _inlineInitialized &&
-                                                          _inlineController !=
-                                                              null &&
-                                                          _inlineController!
-                                                              .value.isPlaying
-                                                      ? Icons.pause
-                                                      : Icons.play_arrow,
-                                                  color: Colors.white,
-                                                  size: 48,
+                                                          .value.isPlaying;
+                                                  if (isPlaying) {
+                                                    try {
+                                                      await _inlineController!
+                                                          .pause();
+                                                    } catch (_) {}
+                                                  } else {
+                                                    try {
+                                                      await _inlineController!
+                                                          .play();
+                                                    } catch (_) {}
+                                                  }
+                                                  if (mounted) setState(() {});
+                                                }
+                                              },
+                                              child: AnimatedOpacity(
+                                                duration: const Duration(
+                                                    milliseconds: 200),
+                                                opacity: _inlineInitialized &&
+                                                        _inlineController !=
+                                                            null &&
+                                                        _inlineController!
+                                                            .value.isPlaying
+                                                    ? 0.0
+                                                    : 1.0,
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.black
+                                                        .withOpacity(0.3),
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  padding:
+                                                      const EdgeInsets.all(16),
+                                                  child: Icon(
+                                                    _inlineInitialized &&
+                                                            _inlineController !=
+                                                                null &&
+                                                            _inlineController!
+                                                                .value.isPlaying
+                                                        ? Icons.pause
+                                                        : Icons.play_arrow,
+                                                    color: Colors.white,
+                                                    size: 48,
+                                                  ),
                                                 ),
                                               ),
                                             ),
                                           ),
                                         ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                // controls bar below video
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 8),
+                                  child: Row(
+                                    children: [
+                                      IconButton(
+                                        onPressed: () async {
+                                          if (!_inlineInitialized ||
+                                              _inlineController == null) return;
+                                          final current =
+                                              _inlineController!.value.position;
+                                          final target = current -
+                                              const Duration(seconds: 10);
+                                          final seekTo = target > Duration.zero
+                                              ? target
+                                              : Duration.zero;
+                                          await _inlineController!.seekTo(seekTo);
+                                          setState(() {});
+                                        },
+                                        icon: const Icon(Icons.replay_10,
+                                            color: Colors.white),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        _inlineInitialized &&
+                                                _inlineController != null
+                                            ? _formatDuration(_inlineController!
+                                                    .value.position) +
+                                                '/' +
+                                                (_inlineController!
+                                                            .value.duration >
+                                                        Duration.zero
+                                                    ? _formatDuration(
+                                                        _inlineController!
+                                                            .value.duration)
+                                                    : '--:--')
+                                            : '--:--/--:--',
+                                        style: const TextStyle(
+                                            color: Colors.white, fontSize: 12),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: _inlineInitialized &&
+                                                _inlineController != null
+                                            ? SliderTheme(
+                                                data: SliderTheme.of(context)
+                                                    .copyWith(
+                                                  trackHeight: 4,
+                                                  thumbShape:
+                                                      const RoundSliderThumbShape(
+                                                          enabledThumbRadius: 6),
+                                                  overlayShape:
+                                                      const RoundSliderOverlayShape(
+                                                          overlayRadius: 14),
+                                                  activeTrackColor: Colors.blueAccent,
+                                                  inactiveTrackColor:
+                                                      Colors.white24,
+                                                  thumbColor: Colors.blueAccent,
+                                                  overlayColor: Colors.blueAccent
+                                                      .withOpacity(0.2),
+                                                  trackShape:
+                                                      const RectangularSliderTrackShape(),
+                                                ),
+                                                child: Slider(
+                                                  value: (_isVideoDragging
+                                                          ? _videoDragValue
+                                                          : _inlineController!
+                                                              .value
+                                                              .position
+                                                              .inMilliseconds
+                                                              .toDouble())
+                                                      .clamp(
+                                                          0.0,
+                                                          _inlineController!.value
+                                                                      .duration
+                                                                      .inMilliseconds >
+                                                                  0
+                                                              ? _inlineController!
+                                                                  .value
+                                                                  .duration
+                                                                  .inMilliseconds
+                                                                  .toDouble()
+                                                              : 1.0),
+                                                  min: 0.0,
+                                                  max: _inlineController!.value
+                                                              .duration.inMilliseconds >
+                                                          0
+                                                      ? _inlineController!.value
+                                                          .duration.inMilliseconds
+                                                          .toDouble()
+                                                      : 1.0,
+                                                  onChanged: (value) {
+                                                    setState(() {
+                                                      _videoDragValue = value;
+                                                    });
+                                                  },
+                                                  onChangeStart: (value) {
+                                                    setState(() {
+                                                      _isVideoDragging = true;
+                                                      _videoDragValue = value;
+                                                    });
+                                                  },
+                                                  onChangeEnd: (value) async {
+                                                    await _inlineController!.seekTo(
+                                                        Duration(
+                                                            milliseconds:
+                                                                value.toInt()));
+                                                    setState(() {
+                                                      _isVideoDragging = false;
+                                                    });
+                                                  },
+                                                ),
+                                              )
+                                            : Container(
+                                                height: 4,
+                                                decoration: BoxDecoration(
+                                                    color: Colors.white
+                                                        .withOpacity(0.2),
+                                                    borderRadius:
+                                                        BorderRadius.circular(2)),
+                                                child: FractionallySizedBox(
+                                                    alignment:
+                                                        Alignment.centerLeft,
+                                                    widthFactor: 0.25,
+                                                    child: Container(
+                                                        decoration: BoxDecoration(
+                                                            color: Colors.white,
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                    2))))),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      IconButton(
+                                        onPressed: () async {
+                                          if (!_inlineInitialized ||
+                                              _inlineController == null) return;
+                                          final wasPlaying =
+                                              _inlineController!.value.isPlaying;
+                                          final currentPos =
+                                              _inlineController!.value.position;
+                                          // Hide inline player to avoid two active surfaces
+                                          if (mounted)
+                                            setState(() => _inlineHidden = true);
+                                          await _inlineController!.pause();
+                                          final result =
+                                              await Navigator.of(context)
+                                                  .push<Duration?>(
+                                            MaterialPageRoute(
+                                              builder: (_) =>
+                                                  FullscreenVideoScreen(
+                                                      url: chapter.videoFile,
+                                                      startPosition: currentPos,
+                                                      controller:
+                                                          _inlineController),
+                                            ),
+                                          );
+                                          if (result != null) {
+                                            await _inlineController!
+                                                .seekTo(result);
+                                          }
+                                          if (wasPlaying)
+                                            _inlineController!.play();
+                                          if (mounted)
+                                            setState(() => _inlineHidden = false);
+                                          setState(() {});
+                                        },
+                                        icon: const Icon(Icons.fullscreen,
+                                            color: Colors.white),
+                                      ),
+                                      IconButton(
+                                        onPressed: () async {
+                                          // Assuming _floating is initialized elsewhere, e.g., final _floating = Floating();
+                                          // and 'package:floating/floating.dart' is imported.
+                                          // This change only adds the button as per the instruction.
+                                          // The actual PiP logic and UI adaptation would be a separate step.
+                                          await _floating.enable(ImmediatePiP(
+                                              aspectRatio: Rational.landscape()));
+                                        },
+                                        icon: const Icon(
+                                            Icons.picture_in_picture_alt,
+                                            color: Colors.white),
                                       ),
                                     ],
                                   ),
                                 ),
-                              ),
-                              // controls bar below video
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 8),
-                                child: Row(
-                                  children: [
-                                    IconButton(
-                                      onPressed: () async {
-                                        if (!_inlineInitialized ||
-                                            _inlineController == null) return;
-                                        final current =
-                                            _inlineController!.value.position;
-                                        final target = current -
-                                            const Duration(seconds: 10);
-                                        final seekTo = target > Duration.zero
-                                            ? target
-                                            : Duration.zero;
-                                        await _inlineController!.seekTo(seekTo);
-                                        setState(() {});
-                                      },
-                                      icon: const Icon(Icons.replay_10,
-                                          color: Colors.white),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      _inlineInitialized &&
-                                              _inlineController != null
-                                          ? _formatDuration(_inlineController!
-                                                  .value.position) +
-                                              '/' +
-                                              (_inlineController!
-                                                          .value.duration >
-                                                      Duration.zero
-                                                  ? _formatDuration(
-                                                      _inlineController!
-                                                          .value.duration)
-                                                  : '--:--')
-                                          : '--:--/--:--',
-                                      style: const TextStyle(
-                                          color: Colors.white, fontSize: 12),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: _inlineInitialized &&
-                                              _inlineController != null
-                                          ? SliderTheme(
-                                              data: SliderTheme.of(context)
-                                                  .copyWith(
-                                                trackHeight: 4,
-                                                thumbShape:
-                                                    const RoundSliderThumbShape(
-                                                        enabledThumbRadius: 6),
-                                                overlayShape:
-                                                    const RoundSliderOverlayShape(
-                                                        overlayRadius: 14),
-                                                activeTrackColor: Colors.blueAccent,
-                                                inactiveTrackColor:
-                                                    Colors.white24,
-                                                thumbColor: Colors.blueAccent,
-                                                overlayColor: Colors.blueAccent
-                                                    .withOpacity(0.2),
-                                                trackShape:
-                                                    const RectangularSliderTrackShape(),
-                                              ),
-                                              child: Slider(
-                                                value: (_isVideoDragging
-                                                        ? _videoDragValue
-                                                        : _inlineController!
-                                                            .value
-                                                            .position
-                                                            .inMilliseconds
-                                                            .toDouble())
-                                                    .clamp(
-                                                        0.0,
-                                                        _inlineController!.value
-                                                                    .duration
-                                                                    .inMilliseconds >
-                                                                0
-                                                            ? _inlineController!
-                                                                .value
-                                                                .duration
-                                                                .inMilliseconds
-                                                                .toDouble()
-                                                            : 1.0),
-                                                min: 0.0,
-                                                max: _inlineController!.value
-                                                            .duration.inMilliseconds >
-                                                        0
-                                                    ? _inlineController!.value
-                                                        .duration.inMilliseconds
-                                                        .toDouble()
-                                                    : 1.0,
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    _videoDragValue = value;
-                                                  });
-                                                },
-                                                onChangeStart: (value) {
-                                                  setState(() {
-                                                    _isVideoDragging = true;
-                                                    _videoDragValue = value;
-                                                  });
-                                                },
-                                                onChangeEnd: (value) async {
-                                                  await _inlineController!.seekTo(
-                                                      Duration(
-                                                          milliseconds:
-                                                              value.toInt()));
-                                                  setState(() {
-                                                    _isVideoDragging = false;
-                                                  });
-                                                },
-                                              ),
-                                            )
-                                          : Container(
-                                              height: 4,
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white
-                                                      .withOpacity(0.2),
-                                                  borderRadius:
-                                                      BorderRadius.circular(2)),
-                                              child: FractionallySizedBox(
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  widthFactor: 0.25,
-                                                  child: Container(
-                                                      decoration: BoxDecoration(
-                                                          color: Colors.white,
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                  2))))),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    IconButton(
-                                      onPressed: () async {
-                                        if (!_inlineInitialized ||
-                                            _inlineController == null) return;
-                                        final wasPlaying =
-                                            _inlineController!.value.isPlaying;
-                                        final currentPos =
-                                            _inlineController!.value.position;
-                                        // Hide inline player to avoid two active surfaces
-                                        if (mounted)
-                                          setState(() => _inlineHidden = true);
-                                        await _inlineController!.pause();
-                                        final result =
-                                            await Navigator.of(context)
-                                                .push<Duration?>(
-                                          MaterialPageRoute(
-                                            builder: (_) =>
-                                                FullscreenVideoScreen(
-                                                    url: chapter.videoFile,
-                                                    startPosition: currentPos,
-                                                    controller:
-                                                        _inlineController),
-                                          ),
-                                        );
-                                        if (result != null) {
-                                          await _inlineController!
-                                              .seekTo(result);
-                                        }
-                                        if (wasPlaying)
-                                          _inlineController!.play();
-                                        if (mounted)
-                                          setState(() => _inlineHidden = false);
-                                        setState(() {});
-                                      },
-                                      icon: const Icon(Icons.fullscreen,
-                                          color: Colors.white),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          )
-                        : Container(
-                            height: 180,
-                            padding: const EdgeInsets.all(16),
-                            alignment: Alignment.center,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 56,
-                                  height: 56,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white24,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(Icons.videocam_off,
-                                      size: 32, color: Colors.white70),
-                                ),
-                                const SizedBox(height: 12),
-                                Text('No video available',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700)),
-                                const SizedBox(height: 6),
-                                Text(
-                                  'This chapter does not contain a video yet.',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      color: Colors.white70, fontSize: 13),
-                                ),
                               ],
-                            ),
-                          ),
-                  ),
-                  // audio and quiz cards follow (existing UI)
-                  Container(
-                    decoration: BoxDecoration(
-                      color: cardBg,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    margin: const EdgeInsets.only(bottom: 18),
-                    padding: const EdgeInsets.all(16),
-                            child: chapter.audioFile.isNotEmpty
-                        ? Row(
-                            children: [
-                              GestureDetector(
-                                onTap: _toggleAudio,
-                                child: Container(
-                                  width: 56,
-                                  height: 56,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF135bec),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(
-                                      _isAudioPlaying
-                                          ? Icons.pause
-                                          : Icons.play_arrow,
-                                      color: Colors.white,
-                                      size: 32),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      chapter.heading,
-                                      style: TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w600,
-                                          color: titleColor),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 8),
-                                    SliderTheme(
-                                      data: SliderTheme.of(context).copyWith(
-                                        trackHeight: 4,
-                                        thumbShape: const RoundSliderThumbShape(
-                                            enabledThumbRadius: 6),
-                                        overlayShape:
-                                            const RoundSliderOverlayShape(
-                                                overlayRadius: 14),
-                                        activeTrackColor:
-                                            const Color(0xFF135bec),
-                                        inactiveTrackColor: isLight
-                                            ? const Color(0xFFE5E7EB)
-                                            : const Color(0xFF374151),
-                                        thumbColor: const Color(0xFF135bec),
-                                        overlayColor: const Color(0xFF135bec)
-                                            .withOpacity(0.2),
-                                        trackShape:
-                                            const RectangularSliderTrackShape(),
-                                      ),
-                                      child: Slider(
-                                        value: (_audioPosition.inMilliseconds >
-                                                    0 &&
-                                                _audioPosition.inMilliseconds <=
-                                                    _audioDuration
-                                                        .inMilliseconds)
-                                            ? _audioPosition.inMilliseconds
-                                                .toDouble()
-                                            : 0.0,
-                                        min: 0.0,
-                                        max: _audioDuration.inMilliseconds > 0
-                                            ? _audioDuration.inMilliseconds
-                                                .toDouble()
-                                            : 1.0,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            _audioPosition = Duration(
-                                                milliseconds: value.toInt());
-                                          });
-                                        },
-                                        onChangeStart: (_) {
-                                          setState(() {
-                                            _isDragging = true;
-                                          });
-                                        },
-                                        onChangeEnd: (value) async {
-                                          await _audioPlayer.seek(Duration(
-                                              milliseconds: value.toInt()));
-                                          setState(() {
-                                            _isDragging = false;
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(_formatDuration(_audioPosition),
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                color: subtitleColor)),
-                                        Text(_formatDuration(_audioDuration),
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                color: subtitleColor)),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          )
-                        : Container(
-                            height: 180,
-                            padding: const EdgeInsets.all(16),
-                            alignment: Alignment.center,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 56,
-                                  height: 56,
-                                  decoration: BoxDecoration(
-                                    color: isLight
-                                        ? const Color(0xFFF1F5F9)
-                                        : const Color(0xFF1B2936),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(Icons.music_off,
-                                      size: 32, color: titleColor),
-                                ),
-                                const SizedBox(height: 12),
-                                Text('No audio available',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700,
-                                        color: titleColor)),
-                                const SizedBox(height: 6),
-                                Text(
-                                  'There is no audio for this chapter yet.',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      color: subtitleColor, fontSize: 13),
-                                ),
-                              ],
-                            ),
-                          ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 0, vertical: 0), // Adjusted margin to fit ListView padding
-                    padding: EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                        color: surfaceColor,
-                        borderRadius: BorderRadius.circular(16), // Adjusted to 16 for consistency
-                        border: Border.all(color: borderColor),
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 10,
-                              offset: Offset(0, 4))
-                        ]),
-                    child: _isLoadingQuizResult
-                        ? Center(child: CircularProgressIndicator())
-                        : !_hasQuestions
-                            ? Container(
-                                height: 180,
-                                alignment: Alignment.center,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      width: 56,
-                                      height: 56,
-                                      decoration: BoxDecoration(
-                                        color: isLight
-                                            ? const Color(0xFFF1F5F9)
-                                            : const Color(0xFF1B2936),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(Icons.quiz_outlined,
-                                          size: 32, color: titleColor),
-                                    ),
-                                    const SizedBox(height: 12),
-                                    Text('No Quiz Available',
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w700,
-                                            color: titleColor)),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      'Check back later for this chapter\'s quiz.',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          color: subtitleColor, fontSize: 13),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : Row(
+                            )
+                          : Container(
+                              height: 180,
+                              padding: const EdgeInsets.all(16),
+                              alignment: Alignment.center,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  if (_quizResult != null) ...[
-                                    // Last Score View
-                                    Icon(Icons.emoji_events,
-                                        color: Colors.amber, size: 32),
-                                    SizedBox(width: 12),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text('Last Score',
-                                            style: TextStyle(
-                                                fontSize: 13,
-                                                color: subtitleColor)),
-                                        Text(
-                                            '${((_quizResult!['correct_answer'] / _quizResult!['total_questions']) * 100).round()}%', // Show percentage
-                                            style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w700,
-                                                color: titleColor))
-                                      ],
+                                  Container(
+                                    width: 56,
+                                    height: 56,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white24,
+                                      shape: BoxShape.circle,
                                     ),
-                                  ] else ...[
-                                    // Fresh Start View
-                                    Container(
-                                      padding: EdgeInsets.all(10),
-                                      decoration: BoxDecoration(
-                                        color:
-                                            Color(0xFFE0E7FF), // Light blue bg
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(Icons.quiz,
-                                          color: Color(0xFF135bec), size: 24),
-                                    ),
-                                    SizedBox(width: 12),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text('Test your knowledge',
-                                            style: TextStyle(
-                                                fontSize: 13,
-                                                color: subtitleColor)),
-                                        Text('Take the Quiz',
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w700,
-                                                color: titleColor))
-                                      ],
-                                    ),
-                                  ],
-                                  Spacer(),
-                                  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                        backgroundColor: Color(0xFF135bec),
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(32)),
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 24, vertical: 12)),
-                                    onPressed: () async {
-                                      await showModalBottomSheet(
-                                        context: context,
-                                        isScrollControlled: true,
-                                        backgroundColor: Colors.transparent,
-                                        builder: (context) => QuizScreen(
-                                            chapterId: widget.chapter.id),
-                                      );
-                                      // Refresh result after quiz
-                                      _fetchQuizResult();
-                                    },
-                                    child: Text(
-                                        _quizResult != null
-                                            ? 'Try Again'
-                                            : 'Start Quiz',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
+                                    child: Icon(Icons.videocam_off,
+                                        size: 32, color: Colors.white70),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text('No video available',
+                                      style: TextStyle(
                                           color: Colors.white,
-                                        )),
-                                  )
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700)),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    'This chapter does not contain a video yet.',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        color: Colors.white70, fontSize: 13),
+                                  ),
                                 ],
                               ),
-                  ),
-                ],
+                            ),
+                    ),
+                    // audio and quiz cards follow (existing UI)
+                    Container(
+                      decoration: BoxDecoration(
+                        color: cardBg,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      margin: const EdgeInsets.only(bottom: 18),
+                      padding: const EdgeInsets.all(16),
+                              child: chapter.audioFile.isNotEmpty
+                          ? Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: _toggleAudio,
+                                  child: Container(
+                                    width: 56,
+                                    height: 56,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF135bec),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                        _isAudioPlaying
+                                            ? Icons.pause
+                                            : Icons.play_arrow,
+                                        color: Colors.white,
+                                        size: 32),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        chapter.heading,
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w600,
+                                            color: titleColor),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      SliderTheme(
+                                        data: SliderTheme.of(context).copyWith(
+                                          trackHeight: 4,
+                                          thumbShape: const RoundSliderThumbShape(
+                                              enabledThumbRadius: 6),
+                                          overlayShape:
+                                              const RoundSliderOverlayShape(
+                                                  overlayRadius: 14),
+                                          activeTrackColor:
+                                              const Color(0xFF135bec),
+                                          inactiveTrackColor: isLight
+                                              ? const Color(0xFFE5E7EB)
+                                              : const Color(0xFF374151),
+                                          thumbColor: const Color(0xFF135bec),
+                                          overlayColor: const Color(0xFF135bec)
+                                              .withOpacity(0.2),
+                                          trackShape:
+                                              const RectangularSliderTrackShape(),
+                                        ),
+                                        child: Slider(
+                                          value: (_audioPosition.inMilliseconds >
+                                                      0 &&
+                                                  _audioPosition.inMilliseconds <=
+                                                      _audioDuration
+                                                          .inMilliseconds)
+                                              ? _audioPosition.inMilliseconds
+                                                  .toDouble()
+                                              : 0.0,
+                                          min: 0.0,
+                                          max: _audioDuration.inMilliseconds > 0
+                                              ? _audioDuration.inMilliseconds
+                                                  .toDouble()
+                                              : 1.0,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              _audioPosition = Duration(
+                                                  milliseconds: value.toInt());
+                                            });
+                                          },
+                                          onChangeStart: (_) {
+                                            setState(() {
+                                              _isDragging = true;
+                                            });
+                                          },
+                                          onChangeEnd: (value) async {
+                                            await _audioPlayer.seek(Duration(
+                                                milliseconds: value.toInt()));
+                                            setState(() {
+                                              _isDragging = false;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(_formatDuration(_audioPosition),
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: subtitleColor)),
+                                          Text(_formatDuration(_audioDuration),
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: subtitleColor)),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Container(
+                              height: 180,
+                              padding: const EdgeInsets.all(16),
+                              alignment: Alignment.center,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    width: 56,
+                                    height: 56,
+                                    decoration: BoxDecoration(
+                                      color: isLight
+                                          ? const Color(0xFFF1F5F9)
+                                          : const Color(0xFF1B2936),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(Icons.music_off,
+                                        size: 32, color: titleColor),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text('No audio available',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700,
+                                          color: titleColor)),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    'There is no audio for this chapter yet.',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        color: subtitleColor, fontSize: 13),
+                                  ),
+                                ],
+                              ),
+                            ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.symmetric(horizontal: 0, vertical: 0), // Adjusted margin to fit ListView padding
+                      padding: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                          color: surfaceColor,
+                          borderRadius: BorderRadius.circular(16), // Adjusted to 16 for consistency
+                          border: Border.all(color: borderColor),
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 10,
+                                offset: Offset(0, 4))
+                          ]),
+                      child: _isLoadingQuizResult
+                          ? Center(child: CircularProgressIndicator())
+                          : !_hasQuestions
+                              ? Container(
+                                  height: 180,
+                                  alignment: Alignment.center,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        width: 56,
+                                        height: 56,
+                                        decoration: BoxDecoration(
+                                          color: isLight
+                                              ? const Color(0xFFF1F5F9)
+                                              : const Color(0xFF1B2936),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(Icons.quiz_outlined,
+                                            size: 32, color: titleColor),
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Text('No Quiz Available',
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w700,
+                                              color: titleColor)),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        'Check back later for this chapter\'s quiz.',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            color: subtitleColor, fontSize: 13),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : Row(
+                                  children: [
+                                    if (_quizResult != null) ...[
+                                      // Last Score View
+                                      Icon(Icons.emoji_events,
+                                          color: Colors.amber, size: 32),
+                                      SizedBox(width: 12),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text('Last Score',
+                                              style: TextStyle(
+                                                  fontSize: 13,
+                                                  color: subtitleColor)),
+                                          Text(
+                                              '${((_quizResult!['correct_answer'] / _quizResult!['total_questions']) * 100).round()}%', // Show percentage
+                                              style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: titleColor))
+                                        ],
+                                      ),
+                                    ] else ...[
+                                      // Fresh Start View
+                                      Container(
+                                        padding: EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                          color:
+                                              Color(0xFFE0E7FF), // Light blue bg
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(Icons.quiz,
+                                            color: Color(0xFF135bec), size: 24),
+                                      ),
+                                      SizedBox(width: 12),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text('Test your knowledge',
+                                              style: TextStyle(
+                                                  fontSize: 13,
+                                                  color: subtitleColor)),
+                                          Text('Take the Quiz',
+                                              style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: titleColor))
+                                        ],
+                                      ),
+                                    ],
+                                    Spacer(),
+                                    ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                          backgroundColor: Color(0xFF135bec),
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(32)),
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 24, vertical: 12)),
+                                      onPressed: () async {
+                                        await showModalBottomSheet(
+                                          context: context,
+                                          isScrollControlled: true,
+                                          backgroundColor: Colors.transparent,
+                                          builder: (context) => QuizScreen(
+                                              chapterId: widget.chapter.id),
+                                        );
+                                        // Refresh result after quiz
+                                        _fetchQuizResult();
+                                      },
+                                      child: Text(
+                                          _quizResult != null
+                                              ? 'Try Again'
+                                              : 'Start Quiz',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          )),
+                                    )
+                                  ],
+                                ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+        bottomNavigationBar: NavBar(
+            activeIndex: 1,
+            onTap: (idx) {
+              if (idx == 2) {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const UserProfileScreen()));
+              }
+            }),
       ),
-      bottomNavigationBar: NavBar(
-          activeIndex: 1,
-          onTap: (idx) {
-            if (idx == 2) {
-              Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const UserProfileScreen()));
-            }
-          }),
     );
   }
 }
