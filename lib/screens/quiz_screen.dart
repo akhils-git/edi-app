@@ -1,14 +1,61 @@
 import 'package:flutter/material.dart';
 
+import '../services/quiz_service.dart';
+import '../services/session.dart';
+
 class QuizScreen extends StatefulWidget {
-  const QuizScreen({super.key});
+  final String chapterId;
+  const QuizScreen({super.key, required this.chapterId});
 
   @override
   State<QuizScreen> createState() => _QuizScreenState();
 }
 
 class _QuizScreenState extends State<QuizScreen> {
-  int _selectedOption = 2; // Default selected for demo (0-indexed)
+  List<Question> _questions = [];
+  bool _isLoading = true;
+  String? _error;
+  int _currentQuestionIndex = 0;
+  String? _selectedAnswer; // 'option_a', 'option_b', etc.
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchQuestions();
+  }
+
+  Future<void> _fetchQuestions() async {
+    try {
+      final token = UserSession.token;
+      final questions =
+          await QuizService.fetchQuestions(widget.chapterId, token);
+      if (mounted) {
+        setState(() {
+          _questions = questions;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  void _handleNext() {
+    if (_currentQuestionIndex < _questions.length - 1) {
+      setState(() {
+        _currentQuestionIndex++;
+        _selectedAnswer = null;
+      });
+    } else {
+      // Quiz finished logic here
+      Navigator.of(context).pop();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +70,49 @@ class _QuizScreenState extends State<QuizScreen> {
         isLight ? const Color(0xFFE5E7EB) : const Color(0xFF374151);
     final successColor = const Color(0xFF34D399);
 
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Align(
+          alignment: Alignment.bottomCenter,
+          child: Container(
+            height: MediaQuery.of(context).size.height * 0.95,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: surfaceColor,
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: const Center(child: CircularProgressIndicator()),
+          ),
+        ),
+      );
+    }
+
+    if (_error != null || _questions.isEmpty) {
+      return Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Align(
+          alignment: Alignment.bottomCenter,
+          child: Container(
+            height: MediaQuery.of(context).size.height * 0.95,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: surfaceColor,
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: Center(
+                child: Text(_error ?? 'No questions found',
+                    style: TextStyle(color: textColor))),
+          ),
+        ),
+      );
+    }
+
+    final question = _questions[_currentQuestionIndex];
+    final progress = (_currentQuestionIndex + 1) / _questions.length;
+
     return Scaffold(
       backgroundColor: Colors.transparent, // Transparent for modal effect
       body: Align(
@@ -30,7 +120,8 @@ class _QuizScreenState extends State<QuizScreen> {
         child: Container(
           height: MediaQuery.of(context).size.height * 0.95,
           width: double.infinity,
-          constraints: const BoxConstraints(maxWidth: 480), // Max width for tablet/desktop
+          constraints:
+              const BoxConstraints(maxWidth: 480), // Max width for tablet/desktop
           decoration: BoxDecoration(
             color: surfaceColor,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
@@ -60,7 +151,7 @@ class _QuizScreenState extends State<QuizScreen> {
                           constraints: const BoxConstraints(),
                         ),
                         Text(
-                          '3/10',
+                          '${_currentQuestionIndex + 1}/${_questions.length}',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -68,7 +159,7 @@ class _QuizScreenState extends State<QuizScreen> {
                           ),
                         ),
                         TextButton(
-                          onPressed: () {},
+                          onPressed: () => Navigator.of(context).pop(),
                           style: TextButton.styleFrom(
                             padding: EdgeInsets.zero,
                             minimumSize: Size.zero,
@@ -90,7 +181,7 @@ class _QuizScreenState extends State<QuizScreen> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(999),
                       child: LinearProgressIndicator(
-                        value: 0.3,
+                        value: progress,
                         minHeight: 6,
                         backgroundColor: borderColor,
                         valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
@@ -109,7 +200,7 @@ class _QuizScreenState extends State<QuizScreen> {
                     children: [
                       const SizedBox(height: 20),
                       Text(
-                        'Which of the following sentences uses the correct verb tense?',
+                        question.questionText,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 24, // Approx 3xl
@@ -120,10 +211,10 @@ class _QuizScreenState extends State<QuizScreen> {
                       ),
                       const SizedBox(height: 32),
                       _buildOption(
-                        index: 0,
-                        text: 'She will go to the store yesterday.',
-                        isSelected: _selectedOption == 0,
-                        isCorrect: false, // For demo logic
+                        optionKey: 'option_a',
+                        text: question.optionA,
+                        isSelected: _selectedAnswer == 'option_a',
+                        isCorrect: question.correctAnswer == 'option_a',
                         borderColor: borderColor,
                         surfaceColor: surfaceColor,
                         textColor: textColor,
@@ -132,10 +223,10 @@ class _QuizScreenState extends State<QuizScreen> {
                       ),
                       const SizedBox(height: 16),
                       _buildOption(
-                        index: 1,
-                        text: 'She is goes to the store now.',
-                        isSelected: _selectedOption == 1,
-                        isCorrect: false,
+                        optionKey: 'option_b',
+                        text: question.optionB,
+                        isSelected: _selectedAnswer == 'option_b',
+                        isCorrect: question.correctAnswer == 'option_b',
                         borderColor: borderColor,
                         surfaceColor: surfaceColor,
                         textColor: textColor,
@@ -144,10 +235,10 @@ class _QuizScreenState extends State<QuizScreen> {
                       ),
                       const SizedBox(height: 16),
                       _buildOption(
-                        index: 2,
-                        text: 'She went to the store yesterday.',
-                        isSelected: _selectedOption == 2,
-                        isCorrect: true, // This is the correct one in the design
+                        optionKey: 'option_c',
+                        text: question.optionC,
+                        isSelected: _selectedAnswer == 'option_c',
+                        isCorrect: question.correctAnswer == 'option_c',
                         borderColor: borderColor,
                         surfaceColor: surfaceColor,
                         textColor: textColor,
@@ -156,10 +247,10 @@ class _QuizScreenState extends State<QuizScreen> {
                       ),
                       const SizedBox(height: 16),
                       _buildOption(
-                        index: 3,
-                        text: 'She go to the store tomorrow.',
-                        isSelected: _selectedOption == 3,
-                        isCorrect: false,
+                        optionKey: 'option_d',
+                        text: question.optionD,
+                        isSelected: _selectedAnswer == 'option_d',
+                        isCorrect: question.correctAnswer == 'option_d',
                         borderColor: borderColor,
                         surfaceColor: surfaceColor,
                         textColor: textColor,
@@ -178,9 +269,10 @@ class _QuizScreenState extends State<QuizScreen> {
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: _selectedAnswer != null ? _handleNext : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryColor,
+                      disabledBackgroundColor: primaryColor.withOpacity(0.5),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
@@ -189,9 +281,11 @@ class _QuizScreenState extends State<QuizScreen> {
                       elevation: 4,
                       shadowColor: primaryColor.withOpacity(0.4),
                     ),
-                    child: const Text(
-                      'Next Question',
-                      style: TextStyle(
+                    child: Text(
+                      _currentQuestionIndex < _questions.length - 1
+                          ? 'Next Question'
+                          : 'Finish Quiz',
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -207,7 +301,7 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   Widget _buildOption({
-    required int index,
+    required String optionKey,
     required String text,
     required bool isSelected,
     required bool isCorrect,
@@ -217,24 +311,31 @@ class _QuizScreenState extends State<QuizScreen> {
     required Color successColor,
     required bool isLight,
   }) {
-    // Logic for styling based on selection (mimicking the HTML design)
-    // The design shows the correct answer highlighted in green with a checkmark style radio.
-    // Unselected items have a grey border.
+    // Logic for styling based on selection
+    // If selected, we show if it's correct or not (for immediate feedback)
+    // OR we just show it as selected.
+    // Based on the user request, we'll just show selection state for now.
+    // If we want to show correct/incorrect immediately:
+    // Color currentBorderColor = isSelected ? (isCorrect ? successColor : Colors.red) : borderColor;
+
+    // For now, let's just highlight selection.
+    // If the user wants immediate feedback (green for correct), we can use isCorrect.
+    // The design implies "correct" answer is green. Let's assume we show the green style if selected.
 
     Color currentBorderColor = borderColor;
     Color currentBgColor = surfaceColor;
-    
+
     if (isSelected) {
-        // In the design, the selected item (which is correct) has a green border and light green bg
-        // We will assume for this dummy UI that the selected item is the "correct" one being shown
-        currentBorderColor = successColor;
-        currentBgColor = isLight ? const Color(0xFFECFDF5) : const Color(0xFF064E3B).withOpacity(0.3); // green-50 / green-900/30
+      currentBorderColor = successColor;
+      currentBgColor = isLight
+          ? const Color(0xFFECFDF5)
+          : const Color(0xFF064E3B).withOpacity(0.3);
     }
 
     return GestureDetector(
       onTap: () {
         setState(() {
-          _selectedOption = index;
+          _selectedAnswer = optionKey;
         });
       },
       child: Container(
@@ -245,7 +346,7 @@ class _QuizScreenState extends State<QuizScreen> {
             color: currentBorderColor,
             width: isSelected ? 2 : 1,
           ),
-          borderRadius: BorderRadius.circular(16), // Rounded-lg approx
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
           children: [
@@ -257,7 +358,7 @@ class _QuizScreenState extends State<QuizScreen> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isSelected ? successColor : const Color(0xFFD1D5DB), // gray-300
+                  color: isSelected ? successColor : const Color(0xFFD1D5DB),
                   width: 2,
                 ),
               ),

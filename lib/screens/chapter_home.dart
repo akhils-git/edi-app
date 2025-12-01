@@ -682,7 +682,8 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                               context: context,
                               isScrollControlled: true,
                               backgroundColor: Colors.transparent,
-                              builder: (context) => const QuizScreen(),
+                              builder: (context) =>
+                                  QuizScreen(chapterId: widget.chapter.id),
                             );
                           },
                           child: Text('Start Quiz',
