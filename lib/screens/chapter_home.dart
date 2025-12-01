@@ -186,6 +186,19 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
     final chapter = widget.chapter;
     final bookThumbnail = widget.bookThumbnail;
 
+    // Check for landscape orientation to trigger embedded fullscreen
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
+    if (isLandscape && _inlineInitialized && _inlineController != null) {
+      return FullscreenVideoScreen(
+        url: chapter.videoFile,
+        startPosition: _inlineController!.value.position,
+        controller: _inlineController,
+        isEmbedded: true,
+      );
+    }
+
     return PiPSwitcher(
       childWhenEnabled: _inlineInitialized && _inlineController != null
           ? AspectRatio(

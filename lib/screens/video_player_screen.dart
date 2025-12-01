@@ -17,11 +17,14 @@ class FullscreenVideoScreen extends StatefulWidget {
   final VideoPlayerController?
       controller; // optional existing controller to reuse
 
+  final bool isEmbedded;
+
   const FullscreenVideoScreen(
       {Key? key,
       required this.url,
       required this.startPosition,
-      this.controller})
+      this.controller,
+      this.isEmbedded = false})
       : super(key: key);
 
   @override
@@ -63,11 +66,14 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
   void initState() {
     super.initState();
     // Force landscape and immersive fullscreen
+    // Force landscape and immersive fullscreen
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
+    if (!widget.isEmbedded) {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+    }
 
     // Initialize controller async (don't mark initState async)
     _initializeFullscreen();
@@ -283,19 +289,30 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
     // Do not dispose the controller here — let the framework call dispose()
     // to avoid accessing a disposed controller from lifecycle callbacks.
     // Restore portrait mode and UI
+    // Restore portrait mode and UI
     await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    // If we don't own the controller (shared), we don't need to return the position
-    // because the shared controller is already at the correct position.
-    // Returning null prevents the caller from seeking (which causes stutter).
-    if (mounted) Navigator.of(context).pop(_ownsController ? pos : null);
+
+    if (widget.isEmbedded) {
+      // If embedded (tilt mode), forcing portrait will cause the parent to rebuild in portrait
+      await SystemChrome.setPreferredOrientations(
+          [DeviceOrientation.portraitUp]);
+      // We don't pop here because the orientation change will handle the UI switch
+    } else {
+      // If pushed, allow all orientations so the previous screen can rotate if needed
+      await SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+      // If we don't own the controller (shared), we don't need to return the position
+      // because the shared controller is already at the correct position.
+      // Returning null prevents the caller from seeking (which causes stutter).
+      if (mounted) Navigator.of(context).pop(_ownsController ? pos : null);
+    }
   }
 
   @override
   void dispose() {
     // In case dispose is called directly, try restoring orientations
+    // In case dispose is called directly, try restoring orientations
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     // Guard controller accesses — it may already be disposed if pop logic
     // disposed it earlier. Use try/catch to avoid throwing during teardown.
     try {
