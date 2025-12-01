@@ -186,7 +186,7 @@ class UserProfileScreen extends StatelessWidget {
 
                 const SizedBox(height: 28),
                 Center(
-                    child: Text('Beta 1.0.1',
+                    child: Text('Beta 1.0.2',
                         style: TextStyle(
                             color: isLight
                                 ? const Color(0xFF6B7280)

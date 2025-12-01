@@ -209,7 +209,9 @@ class _BookChaptersScreenState extends State<BookChaptersScreen> {
                                   height: 44,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: Colors.blue.shade50,
+                                    color: isLight
+                                        ? Colors.blue.shade50
+                                        : const Color(0xFF1F2937),
                                   ),
                                   child: Icon(
                                     Icons.play_circle,
