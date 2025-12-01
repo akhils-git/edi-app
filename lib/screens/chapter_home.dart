@@ -29,6 +29,8 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
   VideoPlayerController? _inlineController;
   bool _inlineInitialized = false;
   bool _inlineHidden = false;
+  bool _isVideoDragging = false;
+  double _videoDragValue = 0.0;
 
   late AudioPlayer _audioPlayer;
   bool _isAudioPlaying = false;
@@ -326,13 +328,75 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                     Expanded(
                                       child: _inlineInitialized &&
                                               _inlineController != null
-                                          ? VideoProgressIndicator(_inlineController!,
-                                              allowScrubbing: true,
-                                              colors: VideoProgressColors(
-                                                  playedColor: Colors.white,
-                                                  bufferedColor: Colors.white54,
-                                                  backgroundColor:
-                                                      Colors.white24))
+                                          ? SliderTheme(
+                                              data: SliderTheme.of(context)
+                                                  .copyWith(
+                                                trackHeight: 4,
+                                                thumbShape:
+                                                    const RoundSliderThumbShape(
+                                                        enabledThumbRadius: 6),
+                                                overlayShape:
+                                                    const RoundSliderOverlayShape(
+                                                        overlayRadius: 14),
+                                                activeTrackColor: Colors.white,
+                                                inactiveTrackColor:
+                                                    Colors.white24,
+                                                thumbColor: Colors.white,
+                                                overlayColor: Colors.white
+                                                    .withOpacity(0.2),
+                                                trackShape:
+                                                    const RectangularSliderTrackShape(),
+                                              ),
+                                              child: Slider(
+                                                value: (_isVideoDragging
+                                                        ? _videoDragValue
+                                                        : _inlineController!
+                                                            .value
+                                                            .position
+                                                            .inMilliseconds
+                                                            .toDouble())
+                                                    .clamp(
+                                                        0.0,
+                                                        _inlineController!.value
+                                                                    .duration
+                                                                    .inMilliseconds >
+                                                                0
+                                                            ? _inlineController!
+                                                                .value
+                                                                .duration
+                                                                .inMilliseconds
+                                                                .toDouble()
+                                                            : 1.0),
+                                                min: 0.0,
+                                                max: _inlineController!.value
+                                                            .duration.inMilliseconds >
+                                                        0
+                                                    ? _inlineController!.value
+                                                        .duration.inMilliseconds
+                                                        .toDouble()
+                                                    : 1.0,
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    _videoDragValue = value;
+                                                  });
+                                                },
+                                                onChangeStart: (value) {
+                                                  setState(() {
+                                                    _isVideoDragging = true;
+                                                    _videoDragValue = value;
+                                                  });
+                                                },
+                                                onChangeEnd: (value) async {
+                                                  await _inlineController!.seekTo(
+                                                      Duration(
+                                                          milliseconds:
+                                                              value.toInt()));
+                                                  setState(() {
+                                                    _isVideoDragging = false;
+                                                  });
+                                                },
+                                              ),
+                                            )
                                           : Container(
                                               height: 4,
                                               decoration: BoxDecoration(
