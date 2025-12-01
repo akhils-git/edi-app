@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../services/quiz_service.dart';
 import '../services/session.dart';
+import '../components/loading_box.dart';
 
 class QuizScreen extends StatefulWidget {
   final String chapterId;
@@ -83,7 +84,7 @@ class _QuizScreenState extends State<QuizScreen> {
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(24)),
             ),
-            child: const Center(child: CircularProgressIndicator()),
+            child: const LoadingBox(message: 'Loading Quiz...'),
           ),
         ),
       );
