@@ -5,6 +5,8 @@ import '../services/chapter_service.dart';
 import '../components/nav_bar.dart';
 import 'user_profile_screen.dart';
 import 'video_player_screen.dart';
+import '../services/quiz_service.dart';
+import '../services/session.dart';
 import 'quiz_screen.dart';
 
 // Helper to format duration as MM:SS
@@ -41,6 +43,10 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
   bool _audioInitialized = false;
   bool _isDragging = false;
 
+  // Quiz State
+  bool _isLoadingQuizResult = true;
+  Map<String, dynamic>? _quizResult;
+
   @override
   void initState() {
     super.initState();
@@ -69,6 +75,31 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
         });
       }
     });
+
+    _fetchQuizResult();
+  }
+
+  Future<void> _fetchQuizResult() async {
+    final currentUser = UserSession.currentUser;
+    if (currentUser != null) {
+      final result = await QuizService.getQuizResult(
+        userId: currentUser.id,
+        chapterId: widget.chapter.id,
+        authToken: UserSession.token,
+      );
+      if (mounted) {
+        setState(() {
+          _quizResult = result;
+          _isLoadingQuizResult = false;
+        });
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          _isLoadingQuizResult = false;
+        });
+      }
+    }
   }
 
   @override
@@ -121,6 +152,8 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
     final titleColor = isLight ? const Color(0xFF0F1724) : Colors.white;
     final subtitleColor =
         isLight ? const Color(0xFF6B7280) : const Color(0xFFBFC9DA);
+    final surfaceColor = isLight ? Colors.white : const Color(0xFF23272F);
+    final borderColor = isLight ? const Color(0xFFE5E7EB) : const Color(0xFF374151);
 
     final chapter = widget.chapter;
     final bookThumbnail = widget.bookThumbnail;
@@ -649,51 +682,102 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                           ),
                   ),
                   Container(
+                    margin: EdgeInsets.symmetric(horizontal: 0, vertical: 0), // Adjusted margin to fit ListView padding
+                    padding: EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                        color: cardBg, borderRadius: BorderRadius.circular(16)),
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        Icon(Icons.emoji_events, color: Colors.amber, size: 32),
-                        SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Last Score',
-                                style: TextStyle(
-                                    fontSize: 13, color: subtitleColor)),
-                            Text('85%',
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w700,
-                                    color: titleColor))
-                          ],
-                        ),
-                        Spacer(),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF135bec),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(32)),
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 24, vertical: 12)),
-                          onPressed: () {
-                            showModalBottomSheet(
-                              context: context,
-                              isScrollControlled: true,
-                              backgroundColor: Colors.transparent,
-                              builder: (context) =>
-                                  QuizScreen(chapterId: widget.chapter.id),
-                            );
-                          },
-                          child: Text('Start Quiz',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              )),
-                        )
-                      ],
-                    ),
+                        color: surfaceColor,
+                        borderRadius: BorderRadius.circular(16), // Adjusted to 16 for consistency
+                        border: Border.all(color: borderColor),
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: Offset(0, 4))
+                        ]),
+                    child: _isLoadingQuizResult
+                        ? Center(child: CircularProgressIndicator())
+                        : Row(
+                            children: [
+                              if (_quizResult != null) ...[
+                                // Last Score View
+                                Icon(Icons.emoji_events,
+                                    color: Colors.amber, size: 32),
+                                SizedBox(width: 12),
+                                Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Last Score',
+                                        style: TextStyle(
+                                            fontSize: 13,
+                                            color: subtitleColor)),
+                                    Text(
+                                        '${((_quizResult!['correct_answer'] / _quizResult!['total_questions']) * 100).round()}%', // Show percentage
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w700,
+                                            color: titleColor))
+                                  ],
+                                ),
+                              ] else ...[
+                                // Fresh Start View
+                                Container(
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFFE0E7FF), // Light blue bg
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(Icons.quiz,
+                                      color: Color(0xFF135bec), size: 24),
+                                ),
+                                SizedBox(width: 12),
+                                Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Test your knowledge',
+                                        style: TextStyle(
+                                            fontSize: 13,
+                                            color: subtitleColor)),
+                                    Text('Take the Quiz',
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w700,
+                                            color: titleColor))
+                                  ],
+                                ),
+                              ],
+                              Spacer(),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(0xFF135bec),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(32)),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 24, vertical: 12)),
+                                onPressed: () async {
+                                  await showModalBottomSheet(
+                                    context: context,
+                                    isScrollControlled: true,
+                                    backgroundColor: Colors.transparent,
+                                    builder: (context) => QuizScreen(
+                                        chapterId: widget.chapter.id),
+                                  );
+                                  // Refresh result after quiz
+                                  _fetchQuizResult();
+                                },
+                                child: Text(
+                                    _quizResult != null
+                                        ? 'Try Again'
+                                        : 'Start Quiz',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    )),
+                              )
+                            ],
+                          ),
                   ),
                 ],
               ),

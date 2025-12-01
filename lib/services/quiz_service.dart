@@ -109,4 +109,44 @@ class QuizService {
       throw Exception('Error submitting quiz result: $e');
     }
   }
+
+
+  static Future<Map<String, dynamic>?> getQuizResult({
+    required String userId,
+    required String chapterId,
+    String? authToken,
+  }) async {
+    final url = Uri.parse('${apiBaseUrl}api/v1/quiz-results/get-result');
+    final headers = <String, String>{'Content-Type': 'application/json'};
+    if (authToken != null) {
+      headers['Authorization'] = 'Bearer $authToken';
+    }
+
+    final body = json.encode({
+      'user_id': userId,
+      'chapter_id': chapterId,
+    });
+
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse['success'] == true) {
+          return jsonResponse['data'];
+        } else {
+          // Quiz result not found or other logical failure
+          return null;
+        }
+      } else {
+        // Handle 404 or other errors as "not found" or throw
+        // The user request says "responce body fail" implies success: false
+        // We can treat non-200 or success: false as null result
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching quiz result: $e');
+      return null;
+    }
+  }
 }
