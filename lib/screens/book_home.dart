@@ -72,8 +72,41 @@ class _BookHomeScreenState extends State<BookHomeScreen> {
                     }
                     final books = snap.data ?? [];
                     if (books.isEmpty) {
-                      return const Center(
-                          child: Text('No books in this category'));
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 80,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                color: isLight
+                                    ? const Color(0xFFF1F5F9)
+                                    : const Color(0xFF1B2936),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.menu_book_rounded,
+                                  size: 40, color: titleColor),
+                            ),
+                            const SizedBox(height: 16),
+                            Text('No books found',
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                    color: titleColor)),
+                            const SizedBox(height: 8),
+                            Text(
+                              'No books in this category',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  color: isLight
+                                      ? const Color(0xFF6B7280)
+                                      : const Color(0xFF9CA3AF),
+                                  fontSize: 14),
+                            ),
+                          ],
+                        ),
+                      );
                     }
                     return GridView.builder(
                       padding: const EdgeInsets.only(bottom: 8, top: 8),
