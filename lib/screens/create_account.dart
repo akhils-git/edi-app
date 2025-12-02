@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../components/warning_popup.dart';
+import '../components/success_popup.dart';
 
 class CreateAccountScreen extends StatefulWidget {
   const CreateAccountScreen({super.key});
@@ -69,15 +70,23 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
         email.isEmpty ||
         password.isEmpty ||
         confirmPassword.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill in all fields')),
+      showDialog(
+        context: context,
+        builder: (context) => const WarningPopup(
+          title: 'Missing Information',
+          message: 'Please fill in all fields to continue.',
+        ),
       );
       return;
     }
 
     if (password != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Passwords do not match')),
+      showDialog(
+        context: context,
+        builder: (context) => const WarningPopup(
+          title: 'Password Mismatch',
+          message: 'The passwords you entered do not match.',
+        ),
       );
       return;
     }
@@ -144,49 +153,17 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     }
   }
 
+
+
   void _showSuccessDialog(UserData user) {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (user.avatar != null && user.avatar!.isNotEmpty)
-              CircleAvatar(
-                radius: 40,
-                backgroundImage: NetworkImage(user.avatar!),
-                backgroundColor: Colors.grey[200],
-              )
-            else
-              const CircleAvatar(
-                radius: 40,
-                child: Icon(Icons.person, size: 40),
-              ),
-            const SizedBox(height: 16),
-            const Text(
-              'Registration Successful!',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Welcome, ${user.name}',
-              style: const TextStyle(fontSize: 16),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close dialog
-              Navigator.of(context).pop(); // Go back to login
-            },
-            child: const Text('Login Now'),
-          ),
-        ],
+      builder: (context) => SuccessPopup(
+        user: user,
+        onLoginPressed: () {
+          Navigator.of(context).pop(); // Go back to login
+        },
       ),
     );
   }

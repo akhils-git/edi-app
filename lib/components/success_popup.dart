@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
+import '../services/auth_service.dart';
 
-class WarningPopup extends StatelessWidget {
-  final String title;
-  final String message;
-  final VoidCallback? onOkPressed;
+class SuccessPopup extends StatelessWidget {
+  final UserData user;
+  final VoidCallback? onLoginPressed;
 
-  const WarningPopup({
+  const SuccessPopup({
     super.key,
-    required this.title,
-    required this.message,
-    this.onOkPressed,
+    required this.user,
+    this.onLoginPressed,
   });
 
   @override
@@ -40,34 +39,43 @@ class WarningPopup extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
+                shape: BoxShape.circle,
                 gradient: LinearGradient(
                   colors: [
-                    Colors.orange.shade400,
-                    Colors.deepOrange.shade500,
+                    Colors.blue.shade400,
+                    Colors.blueAccent.shade700,
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.orange.withOpacity(0.3),
+                    color: Colors.blue.withOpacity(0.3),
                     blurRadius: 12,
                     offset: const Offset(0, 6),
                   ),
                 ],
               ),
-              child: const Icon(
-                Icons.priority_high_rounded,
-                color: Colors.white,
-                size: 32,
+              child: CircleAvatar(
+                radius: 44,
+                backgroundColor: Colors.white,
+                child: CircleAvatar(
+                  radius: 42,
+                  backgroundColor: Colors.grey[200],
+                  backgroundImage: user.avatar != null && user.avatar!.isNotEmpty
+                      ? NetworkImage(user.avatar!)
+                      : null,
+                  child: user.avatar == null || user.avatar!.isEmpty
+                      ? const Icon(Icons.person, size: 40, color: Colors.grey)
+                      : null,
+                ),
               ),
             ),
             const SizedBox(height: 24),
             Text(
-              title,
+              'Welcome Aboard!',
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -77,14 +85,27 @@ class WarningPopup extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
-            Text(
-              message,
-              style: TextStyle(
-                fontSize: 16,
-                color: secondaryTextColor,
-                height: 1.5,
-              ),
+            RichText(
               textAlign: TextAlign.center,
+              text: TextSpan(
+                style: TextStyle(
+                  fontSize: 16,
+                  color: secondaryTextColor,
+                  height: 1.5,
+                  fontFamily: Theme.of(context).textTheme.bodyMedium?.fontFamily,
+                ),
+                children: [
+                  const TextSpan(text: 'Your account '),
+                  TextSpan(
+                    text: user.name,
+                    style: TextStyle(
+                      color: textColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const TextSpan(text: ' has been successfully created.'),
+                ],
+              ),
             ),
             const SizedBox(height: 32),
             SizedBox(
@@ -92,30 +113,21 @@ class WarningPopup extends StatelessWidget {
               height: 56,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1E293B),
+                  backgroundColor: const Color(0xFF135BEC),
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
-                ).copyWith(
-                  backgroundColor: MaterialStateProperty.resolveWith((states) {
-                    if (isDark) return Colors.white;
-                    return const Color(0xFF1E293B);
-                  }),
-                  foregroundColor: MaterialStateProperty.resolveWith((states) {
-                    if (isDark) return Colors.black;
-                    return Colors.white;
-                  }),
                 ),
                 onPressed: () {
                   Navigator.of(context).pop();
-                  if (onOkPressed != null) {
-                    onOkPressed!();
+                  if (onLoginPressed != null) {
+                    onLoginPressed!();
                   }
                 },
                 child: const Text(
-                  'Understood',
+                  'Login Now',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
