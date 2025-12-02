@@ -275,7 +275,13 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                           ? Column(
                               children: [
                                 AspectRatio(
-                                  aspectRatio: 16 / 9,
+                                  aspectRatio: _inlineInitialized &&
+                                          _inlineController != null &&
+                                          _inlineController!
+                                                  .value.aspectRatio >
+                                              0
+                                      ? _inlineController!.value.aspectRatio
+                                      : 16 / 9,
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(8),
                                     child: Stack(
