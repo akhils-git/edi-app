@@ -1,5 +1,9 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import '../services/auth_service.dart';
+import '../components/warning_popup.dart';
 
 class CreateAccountScreen extends StatefulWidget {
   const CreateAccountScreen({super.key});
@@ -9,8 +13,22 @@ class CreateAccountScreen extends StatefulWidget {
 }
 
 class _CreateAccountScreenState extends State<CreateAccountScreen> {
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+
+  File? _selectedImage;
+  bool _isLoading = false;
+
   @override
   void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -26,9 +44,157 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
         : const Color(0xFFFFFFFF);
   }
 
+  Future<void> _pickImage() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      allowMultiple: false,
+    );
+
+    if (result != null && result.files.single.path != null) {
+      setState(() {
+        _selectedImage = File(result.files.single.path!);
+      });
+    }
+  }
+
+  Future<void> _handleRegister() async {
+    final name = _nameController.text.trim();
+    final phone = _phoneController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+
+    if (name.isEmpty ||
+        phone.isEmpty ||
+        email.isEmpty ||
+        password.isEmpty ||
+        confirmPassword.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields')),
+      );
+      return;
+    }
+
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+
+
+    try {
+      final response = await AuthService.register(
+        name: name,
+        email: email,
+        password: password,
+        phoneNumber: phone,
+        avatarFile: _selectedImage,
+      );
+
+      if (mounted && response.success) {
+        _showSuccessDialog(response.data);
+      }
+    } catch (e) {
+      if (mounted) {
+        String errorMessage = e.toString();
+        // Check for duplicate key error
+        if (errorMessage.contains('duplicate key') &&
+            errorMessage.contains('email')) {
+          errorMessage = 'This email address is already registered.';
+        } else if (errorMessage.startsWith('ApiException')) {
+           // Clean up ApiException message if possible, or just show the inner message
+           // The toString of ApiException is 'ApiException(statusCode: ..., message: ...)'
+           // We might want to extract just the message part if it's user friendly.
+           // For now, let's rely on the fact that AuthService throws the message.
+           // However, AuthService throws ApiException(message, code).
+           // Let's try to parse it or just show it.
+           // Actually, let's just show the message.
+           // But wait, e.toString() includes the class name.
+           // Let's cast if possible or just use regex.
+        }
+        
+        // Better parsing:
+        if (e is ApiException) {
+           errorMessage = e.message;
+           if (errorMessage.contains('duplicate key') && errorMessage.contains('email')) {
+             errorMessage = 'This email address is already registered.';
+           }
+        }
+
+        showDialog(
+          context: context,
+          builder: (context) => WarningPopup(
+            title: 'Registration Failed',
+            message: errorMessage,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  void _showSuccessDialog(UserData user) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (user.avatar != null && user.avatar!.isNotEmpty)
+              CircleAvatar(
+                radius: 40,
+                backgroundImage: NetworkImage(user.avatar!),
+                backgroundColor: Colors.grey[200],
+              )
+            else
+              const CircleAvatar(
+                radius: 40,
+                child: Icon(Icons.person, size: 40),
+              ),
+            const SizedBox(height: 16),
+            const Text(
+              'Registration Successful!',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Welcome, ${user.name}',
+              style: const TextStyle(fontSize: 16),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close dialog
+              Navigator.of(context).pop(); // Go back to login
+            },
+            child: const Text('Login Now'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildField(
     BuildContext context,
     String hint,
+    TextEditingController controller,
     bool obscureText, {
     TextInputType keyboardType = TextInputType.text,
   }) {
@@ -42,6 +208,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
         ? Colors.white
         : const Color(0xFF101622);
     return TextField(
+      controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
       decoration: InputDecoration(
@@ -89,16 +256,50 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
               children: [
                 const SizedBox(height: 16),
                 Center(
-                  child: Container(
-                    width: 96,
-                    height: 96,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: const DecorationImage(
-                        fit: BoxFit.cover,
-                        image: AssetImage('assets/images/login_logo.png'),
-                      ),
-                      color: Colors.transparent,
+                  child: GestureDetector(
+                    onTap: _pickImage,
+                    child: Stack(
+                      children: [
+                        Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.grey[200],
+                            image: _selectedImage != null
+                                ? DecorationImage(
+                                    image: FileImage(_selectedImage!),
+                                    fit: BoxFit.cover,
+                                  )
+                                : const DecorationImage(
+                                    image: AssetImage(
+                                        'assets/images/login_logo.png'),
+                                    fit: BoxFit.cover,
+                                  ),
+                            border: Border.all(
+                              color: primary.withOpacity(0.5),
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: primary,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                            ),
+                            child: const Icon(
+                              Icons.camera_alt,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -115,17 +316,18 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                     style: TextStyle(fontSize: 14, color: secondary)),
                 const SizedBox(height: 32),
                 // Form fields
-                _buildField(context, 'Full Name', false),
+                _buildField(context, 'Full Name', _nameController, false),
                 const SizedBox(height: 16),
-                _buildField(context, 'Phone number', false,
+                _buildField(context, 'Phone number', _phoneController, false,
                     keyboardType: TextInputType.phone),
                 const SizedBox(height: 16),
-                _buildField(context, 'Email', false,
+                _buildField(context, 'Email', _emailController, false,
                     keyboardType: TextInputType.emailAddress),
                 const SizedBox(height: 16),
-                _buildField(context, 'Password', true),
+                _buildField(context, 'Password', _passwordController, true),
                 const SizedBox(height: 16),
-                _buildField(context, 'Confirm password', true),
+                _buildField(
+                    context, 'Confirm password', _confirmPasswordController, true),
                 const SizedBox(height: 32),
                 SizedBox(
                   height: 56,
@@ -137,14 +339,15 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16)),
                     ),
-                    onPressed: () {},
-                    child: const Text('Sign Up',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w700, fontSize: 16)),
+                    onPressed: _isLoading ? null : _handleRegister,
+                    child: _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text('Sign Up',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w700, fontSize: 16)),
                   ),
                 ),
                 const SizedBox(height: 32),
-                // No social sign up
                 // Footer
                 Padding(
                   padding: const EdgeInsets.only(bottom: 18.0),

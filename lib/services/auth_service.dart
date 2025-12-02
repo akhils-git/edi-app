@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 
 import '../constants.dart';
 
@@ -113,4 +114,102 @@ class AuthService {
 
     throw ApiException(message, resp.statusCode);
   }
+  /// POST /api/v1/users
+  /// Sends multipart request with fields and optional 'avatar' file.
+  /// Returns [RegistrationResponse] on 201. Throws [ApiException] otherwise.
+  static Future<RegistrationResponse> register({
+    required String name,
+    required String email,
+    required String password,
+    required String phoneNumber,
+    String role = 'student',
+    File? avatarFile,
+  }) async {
+    final uri = Uri.parse('${apiBaseUrl}api/v1/users');
+    final request = http.MultipartRequest('POST', uri);
+
+    request.fields['name'] = name;
+    request.fields['email'] = email;
+    request.fields['password'] = password;
+    request.fields['phone_number'] = phoneNumber;
+    request.fields['role'] = role;
+
+
+
+    if (avatarFile != null) {
+      final stream = http.ByteStream(avatarFile.openRead());
+      final length = await avatarFile.length();
+      
+      final extension = avatarFile.path.split('.').last.toLowerCase();
+      MediaType contentType;
+      if (extension == 'png') {
+        contentType = MediaType('image', 'png');
+      } else if (extension == 'jpg' || extension == 'jpeg') {
+        contentType = MediaType('image', 'jpeg');
+      } else {
+        // Default fallback or let it be inferred if unknown, but backend seems strict
+        contentType = MediaType('image', 'jpeg'); 
+      }
+
+      final multipartFile = http.MultipartFile(
+        'avatar',
+        stream,
+        length,
+        filename: avatarFile.path.split('/').last,
+        contentType: contentType,
+      );
+      request.files.add(multipartFile);
+    }
+
+    http.StreamedResponse streamedResp;
+    try {
+      streamedResp = await request.send();
+    } on SocketException catch (e) {
+      throw ApiException(
+        'Network error: $e. Ensure the backend at $apiBaseUrl is running and reachable from the device.',
+        null,
+      );
+    } catch (e) {
+      throw ApiException('Request failed: $e', null);
+    }
+
+    final resp = await http.Response.fromStream(streamedResp);
+
+    if (resp.statusCode == 200 || resp.statusCode == 201) {
+      try {
+        final Map<String, dynamic> json =
+            jsonDecode(resp.body) as Map<String, dynamic>;
+        return RegistrationResponse.fromJson(json);
+      } catch (e) {
+        throw ApiException('Invalid response format: $e', resp.statusCode);
+      }
+    }
+
+    // Try to parse error message from body if present
+    String message = 'Request failed with status ${resp.statusCode}';
+    try {
+      final parsed = jsonDecode(resp.body);
+      if (parsed is Map && parsed['message'] != null) {
+        message = parsed['message'].toString();
+      }
+    } catch (_) {}
+
+    throw ApiException(message, resp.statusCode);
+  }
+}
+
+class RegistrationResponse {
+  final bool success;
+  final UserData data;
+
+  RegistrationResponse({
+    required this.success,
+    required this.data,
+  });
+
+  factory RegistrationResponse.fromJson(Map<String, dynamic> json) =>
+      RegistrationResponse(
+        success: json['success'] as bool? ?? false,
+        data: UserData.fromJson(json['data'] as Map<String, dynamic>),
+      );
 }
