@@ -417,27 +417,26 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            if (!widget.isEmbedded)
-                              IconButton(
-                                iconSize: 48,
-                                onPressed: () async {
-                                  if (mounted)
-                                    setState(() => _showControls = true);
-                                  _hideTimer?.cancel();
-                                  final current = _controller.value.position;
-                                  final target =
-                                      current - const Duration(seconds: 10);
-                                  final seekTo = target > Duration.zero
-                                      ? target
-                                      : Duration.zero;
-                                  await _controller.seekTo(seekTo);
-                                  _startHideTimerIfNeeded();
-                                  setState(() {});
-                                },
-                                icon: const Icon(Icons.replay_10,
-                                    color: Colors.white),
-                              ),
-                            if (!widget.isEmbedded) const SizedBox(width: 32),
+                            IconButton(
+                              iconSize: 48,
+                              onPressed: () async {
+                                if (mounted)
+                                  setState(() => _showControls = true);
+                                _hideTimer?.cancel();
+                                final current = _controller.value.position;
+                                final target =
+                                    current - const Duration(seconds: 10);
+                                final seekTo = target > Duration.zero
+                                    ? target
+                                    : Duration.zero;
+                                await _controller.seekTo(seekTo);
+                                _startHideTimerIfNeeded();
+                                setState(() {});
+                              },
+                              icon: const Icon(Icons.replay_10,
+                                  color: Colors.white),
+                            ),
+                            const SizedBox(width: 32),
                             IconButton(
                               iconSize: 64,
                               onPressed: () {
@@ -466,31 +465,30 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
                                       color: Colors.white,
                                     ),
                             ),
-                            if (!widget.isEmbedded) const SizedBox(width: 32),
-                            if (!widget.isEmbedded)
-                              IconButton(
-                                iconSize: 48,
-                                onPressed: () async {
-                                  if (mounted)
-                                    setState(() => _showControls = true);
-                                  _hideTimer?.cancel();
-                                  final current = _controller.value.position;
-                                  final target =
-                                      current + const Duration(seconds: 10);
-                                  final duration = _controller.value.duration;
-                                  final seekTo =
-                                      target < duration ? target : duration;
-                                  await _controller.seekTo(seekTo);
-                                  _startHideTimerIfNeeded();
-                                  setState(() {});
-                                },
-                                icon: const Icon(Icons.forward_10,
-                                    color: Colors.white),
-                              ),
+                            const SizedBox(width: 32),
+                            IconButton(
+                              iconSize: 48,
+                              onPressed: () async {
+                                if (mounted)
+                                  setState(() => _showControls = true);
+                                _hideTimer?.cancel();
+                                final current = _controller.value.position;
+                                final target =
+                                    current + const Duration(seconds: 10);
+                                final duration = _controller.value.duration;
+                                final seekTo =
+                                    target < duration ? target : duration;
+                                await _controller.seekTo(seekTo);
+                                _startHideTimerIfNeeded();
+                                setState(() {});
+                              },
+                              icon: const Icon(Icons.forward_10,
+                                  color: Colors.white),
+                            ),
                           ],
                         ),
                       ),
-                    if (_showControls && !widget.isEmbedded)
+                    if (_showControls)
                       Positioned(
                         bottom: 12,
                         left: 12,
