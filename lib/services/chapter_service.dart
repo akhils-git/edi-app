@@ -14,6 +14,8 @@ class Chapter {
   final String videoFile;
   final String audioFile;
   final String thumbnail;
+  final String videoDuration;
+  final String audioDuration;
 
   Chapter({
     required this.id,
@@ -24,6 +26,8 @@ class Chapter {
     required this.videoFile,
     required this.audioFile,
     required this.thumbnail,
+    required this.videoDuration,
+    required this.audioDuration,
   });
 
   factory Chapter.fromJson(Map<String, dynamic> json) => Chapter(
@@ -35,6 +39,8 @@ class Chapter {
         videoFile: json['video_file'] as String? ?? '',
         audioFile: json['audio_file'] as String? ?? '',
         thumbnail: json['thumbnail'] as String? ?? '',
+        videoDuration: json['video_duration'] as String? ?? '00:00:00',
+        audioDuration: json['audio_duration'] as String? ?? '00:00:00',
       );
 }
 

@@ -31,6 +31,27 @@ class _BookChaptersScreenState extends State<BookChaptersScreen> {
         ChapterService.getChaptersForBook(widget.book.id, widget.authToken);
   }
 
+  String _calculateTotalDuration(String videoDuration, String audioDuration) {
+    Duration parseDuration(String s) {
+      final parts = s.split(':');
+      if (parts.length != 3) return Duration.zero;
+      return Duration(
+        hours: int.tryParse(parts[0]) ?? 0,
+        minutes: int.tryParse(parts[1]) ?? 0,
+        seconds: int.tryParse(parts[2]) ?? 0,
+      );
+    }
+
+    final v = parseDuration(videoDuration);
+    final a = parseDuration(audioDuration);
+    final total = v + a;
+
+    if (total.inMinutes == 0 && total.inSeconds > 0) {
+      return '< 1 min lesson';
+    }
+    return '${total.inMinutes} min lesson';
+  }
+
   @override
   Widget build(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
@@ -234,7 +255,8 @@ class _BookChaptersScreenState extends State<BookChaptersScreen> {
                                           )),
                                       const SizedBox(height: 4),
                                       Text(
-                                        '0 min lesson',
+                                        _calculateTotalDuration(
+                                            ch.videoDuration, ch.audioDuration),
                                         style: TextStyle(
                                           fontSize: 13,
                                           color: isLight
