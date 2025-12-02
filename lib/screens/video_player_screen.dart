@@ -319,7 +319,7 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
     // to avoid accessing a disposed controller from lifecycle callbacks.
     // Restore portrait mode and UI
     // Restore portrait mode and UI
-    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
     if (widget.isEmbedded) {
       // If embedded (tilt mode), forcing portrait will cause the parent to rebuild in portrait
@@ -340,7 +340,7 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
   void dispose() {
     // In case dispose is called directly, try restoring orientations
     // In case dispose is called directly, try restoring orientations
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     // Guard controller accesses — it may already be disposed if pop logic
     // disposed it earlier. Use try/catch to avoid throwing during teardown.
