@@ -32,6 +32,9 @@ class UserData {
   final String role;
   final String? avatar;
   final bool isActive;
+  final String? phoneNumber;
+  final String? subscriptionStart;
+  final String? subscriptionEnd;
 
   UserData({
     required this.id,
@@ -40,6 +43,9 @@ class UserData {
     required this.role,
     this.avatar,
     required this.isActive,
+    this.phoneNumber,
+    this.subscriptionStart,
+    this.subscriptionEnd,
   });
 
   factory UserData.fromJson(Map<String, dynamic> json) => UserData(
@@ -49,6 +55,9 @@ class UserData {
         role: json['role'] as String,
         avatar: json['avatar'] as String?,
         isActive: json['isActive'] as bool? ?? true,
+        phoneNumber: json['phone_number'] as String?,
+        subscriptionStart: json['subscription_start'] as String?,
+        subscriptionEnd: json['subscription_end'] as String?,
       );
 }
 
@@ -180,6 +189,50 @@ class AuthService {
         final Map<String, dynamic> json =
             jsonDecode(resp.body) as Map<String, dynamic>;
         return RegistrationResponse.fromJson(json);
+      } catch (e) {
+        throw ApiException('Invalid response format: $e', resp.statusCode);
+      }
+    }
+
+    // Try to parse error message from body if present
+    String message = 'Request failed with status ${resp.statusCode}';
+    try {
+      final parsed = jsonDecode(resp.body);
+      if (parsed is Map && parsed['message'] != null) {
+        message = parsed['message'].toString();
+      }
+    } catch (_) {}
+
+    throw ApiException(message, resp.statusCode);
+  }
+
+  /// GET /api/v1/users/:id/details
+  /// Returns [UserData] on 200. Throws [ApiException] otherwise.
+  static Future<UserData> getUserDetails(String userId) async {
+    final uri = Uri.parse('${apiBaseUrl}api/v1/users/$userId/details');
+    final headers = {'Content-Type': 'application/json'};
+
+    http.Response resp;
+    try {
+      resp = await http.get(uri, headers: headers);
+    } on SocketException catch (e) {
+      throw ApiException(
+        'Network error: $e. Ensure the backend at $apiBaseUrl is running and reachable from the device.',
+        null,
+      );
+    } catch (e) {
+      throw ApiException('Request failed: $e', null);
+    }
+
+    if (resp.statusCode == 200) {
+      try {
+        final Map<String, dynamic> json =
+            jsonDecode(resp.body) as Map<String, dynamic>;
+        if (json['success'] == true && json['data'] != null) {
+          return UserData.fromJson(json['data'] as Map<String, dynamic>);
+        } else {
+          throw ApiException('API returned success=false', resp.statusCode);
+        }
       } catch (e) {
         throw ApiException('Invalid response format: $e', resp.statusCode);
       }

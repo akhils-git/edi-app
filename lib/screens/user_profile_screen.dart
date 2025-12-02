@@ -1,13 +1,66 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../services/auth_service.dart';
 import '../services/session.dart';
 import 'login_screen.dart';
 
-class UserProfileScreen extends StatelessWidget {
+class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
 
   @override
+  State<UserProfileScreen> createState() => _UserProfileScreenState();
+}
+
+class _UserProfileScreenState extends State<UserProfileScreen> {
+  UserData? _user;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _user = UserSession.currentUser;
+    _fetchUserDetails();
+  }
+
+  Future<void> _fetchUserDetails() async {
+    if (_user == null) return;
+
+    setState(() => _isLoading = true);
+    try {
+      final updatedUser = await AuthService.getUserDetails(_user!.id);
+      if (mounted) {
+        setState(() {
+          _user = updatedUser;
+          // Update session as well so other screens get the latest data
+          UserSession.currentUser = updatedUser;
+        });
+      }
+    } catch (e) {
+      debugPrint('Failed to fetch user details: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to refresh profile: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  String _formatDate(String? isoString) {
+    if (isoString == null) return '-';
+    try {
+      final date = DateTime.parse(isoString);
+      return DateFormat('MMMM d, y').format(date);
+    } catch (e) {
+      return isoString;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final user = UserSession.currentUser;
     final isLight = Theme.of(context).brightness == Brightness.light;
     final titleColor = isLight ? const Color(0xFF0F1724) : Colors.white;
     final titleStyle =
@@ -37,7 +90,13 @@ class UserProfileScreen extends StatelessWidget {
                         child: Text('My Profile',
                             style: titleStyle,
                             overflow: TextOverflow.ellipsis)),
-                    const SizedBox(width: 8), // Adjusted to maintain layout
+                    if (_isLoading)
+                      const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    const SizedBox(width: 8),
                   ],
                 ),
 
@@ -47,10 +106,48 @@ class UserProfileScreen extends StatelessWidget {
                 Center(
                   child: Column(
                     children: [
-                      if (user?.avatar != null && user!.avatar!.isNotEmpty)
+                      if (_user?.avatar != null && _user!.avatar!.isNotEmpty)
                         CircleAvatar(
-                            radius: 48,
-                            backgroundImage: NetworkImage(user.avatar!))
+                          radius: 48,
+                          backgroundColor: isLight
+                              ? const Color(0xFFE6E9F8)
+                              : const Color(0xFF1B2936),
+                          child: ClipOval(
+                            child: SizedBox(
+                              width: 96,
+                              height: 96,
+                              child: Image.network(
+                                _user!.avatar!,
+                                fit: BoxFit.cover,
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                      value: loadingProgress
+                                                  .expectedTotalBytes !=
+                                              null
+                                          ? loadingProgress
+                                                  .cumulativeBytesLoaded /
+                                              loadingProgress
+                                                  .expectedTotalBytes!
+                                          : null,
+                                    ),
+                                  );
+                                },
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Icon(
+                                    Icons.person,
+                                    size: 48,
+                                    color: isLight
+                                        ? const Color(0xFF0F1724)
+                                        : Colors.white,
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        )
                       else
                         CircleAvatar(
                           radius: 48,
@@ -58,8 +155,8 @@ class UserProfileScreen extends StatelessWidget {
                               ? const Color(0xFFE6E9F8)
                               : const Color(0xFF1B2936),
                           child: Text(
-                            user != null && user.name.isNotEmpty
-                                ? user.name
+                            _user != null && _user!.name.isNotEmpty
+                                ? _user!.name
                                     .split(' ')
                                     .map((s) => s.isNotEmpty ? s[0] : '')
                                     .take(2)
@@ -74,13 +171,13 @@ class UserProfileScreen extends StatelessWidget {
                           ),
                         ),
                       const SizedBox(height: 16),
-                      Text(user?.name ?? 'Unknown User',
+                      Text(_user?.name ?? 'Unknown User',
                           style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w700,
                               color: titleColor)),
                       const SizedBox(height: 6),
-                      Text(user?.email ?? '-',
+                      Text(_user?.email ?? '-',
                           style: TextStyle(
                               color: isLight
                                   ? const Color(0xFF6B7280)
@@ -106,19 +203,20 @@ class UserProfileScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16)),
                   clipBehavior: Clip.hardEdge,
                   child: Column(children: [
-                    _buildInfoRow('Full Name', user?.name ?? '-', isLight),
+                    _buildInfoRow('Full Name', _user?.name ?? '-', isLight),
                     Divider(
                         height: 1,
                         color: isLight
                             ? const Color(0xFFF1F5F9)
                             : const Color(0xFF2A2A2A)),
-                    _buildInfoRow('Email', user?.email ?? '-', isLight),
+                    _buildInfoRow('Email', _user?.email ?? '-', isLight),
                     Divider(
                         height: 1,
                         color: isLight
                             ? const Color(0xFFF1F5F9)
                             : const Color(0xFF2A2A2A)),
-                    _buildInfoRow('Phone Number', 'Not available !', isLight),
+                    _buildInfoRow('Phone Number',
+                        _user?.phoneNumber ?? 'Not available', isLight),
                   ]),
                 ),
 
@@ -139,14 +237,26 @@ class UserProfileScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16)),
                   clipBehavior: Clip.hardEdge,
                   child: Column(children: [
-                    _buildInfoRow('Current Plan', 'Selected Annually', isLight,
+                    _buildInfoRow('Current Plan', 'Platinum X', isLight,
                         highlightRight: true),
                     Divider(
                         height: 1,
                         color: isLight
                             ? const Color(0xFFF1F5F9)
                             : const Color(0xFF2A2A2A)),
-                    _buildInfoRow('Renewal Date', 'December 24, 2024', isLight),
+                    _buildInfoRow(
+                        'Start Date',
+                        _formatDate(_user?.subscriptionStart),
+                        isLight),
+                    Divider(
+                        height: 1,
+                        color: isLight
+                            ? const Color(0xFFF1F5F9)
+                            : const Color(0xFF2A2A2A)),
+                    _buildInfoRow(
+                        'Renewal Date',
+                        _formatDate(_user?.subscriptionEnd),
+                        isLight),
                   ]),
                 ),
 
@@ -206,7 +316,7 @@ class UserProfileScreen extends StatelessWidget {
           ? const Color(0xFF136DEC)
           : (isLight
               ? const Color(0xFF6B7280)
-              : const Color.fromARGB(255, 21, 30, 46)),
+              : const Color(0xFF9CA3AF)),
       fontWeight: highlightRight ? FontWeight.w600 : FontWeight.normal,
     );
     return InkWell(
