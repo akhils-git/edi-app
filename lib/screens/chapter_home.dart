@@ -10,6 +10,8 @@ import '../services/session.dart';
 import 'quiz_screen.dart';
 import 'package:floating/floating.dart';
 
+import 'package:flutter/services.dart';
+
 // Helper to format duration as MM:SS
 String _formatDuration(Duration d) {
   final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
@@ -120,6 +122,7 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
 
   @override
   void dispose() {
+    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     _audioPlayer.dispose();
     _inlineController?.pause();
     _inlineController?.dispose();
@@ -131,6 +134,16 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
     if (url.isEmpty) return;
     _inlineController = VideoPlayerController.network(url);
     await _inlineController!.initialize();
+
+    if (_inlineController!.value.aspectRatio < 1.0) {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+    } else {
+      SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+    }
+
     _inlineController!.addListener(() {
       if (!mounted) return;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -547,6 +560,16 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                           WidgetsBinding.instance.addPostFrameCallback((_) {
                                             _inlineController!.play();
                                           });
+
+                                          if (_inlineController != null &&
+                                              _inlineController!.value.aspectRatio <
+                                                  1.0) {
+                                            SystemChrome.setPreferredOrientations([
+                                              DeviceOrientation.portraitUp,
+                                              DeviceOrientation.portraitDown,
+                                            ]);
+                                          }
+
                                           if (mounted)
                                             setState(() => _inlineHidden = false);
                                           setState(() {});
