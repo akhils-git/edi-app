@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../services/auth_service.dart';
@@ -363,77 +364,80 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       onTap: () async {
         final confirmed = await showDialog<bool>(
           context: context,
-          builder: (ctx) => Dialog(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            insetPadding:
-                const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      color: isLight
-                          ? Colors.red.shade50
-                          : Colors.red.shade900.withOpacity(0.12),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(Icons.logout,
-                        size: 36,
+          builder: (ctx) => BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+            child: Dialog(
+              shape:
+                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              insetPadding:
+                  const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 72,
+                      height: 72,
+                      decoration: BoxDecoration(
                         color: isLight
-                            ? Colors.red.shade700
-                            : Colors.red.shade200),
-                  ),
-                  const SizedBox(height: 14),
-                  Text('Log out',
-                      style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: titleColor)),
-                  const SizedBox(height: 8),
-                  Text('Are you sure you want to log out?',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 14,
+                            ? Colors.red.shade50
+                            : Colors.red.shade900.withOpacity(0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.logout,
+                          size: 36,
                           color: isLight
-                              ? const Color(0xFF6B7280)
-                              : const Color(0xFF9CA3AF))),
-                  const SizedBox(height: 18),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(
-                                color: isLight
-                                    ? const Color(0xFFE5E7EB)
-                                    : const Color(0xFF2A2A2A)),
+                              ? Colors.red.shade700
+                              : Colors.red.shade200),
+                    ),
+                    const SizedBox(height: 14),
+                    Text('Log out',
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: titleColor)),
+                    const SizedBox(height: 8),
+                    Text('Are you sure you want to log out?',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 14,
+                            color: isLight
+                                ? const Color(0xFF6B7280)
+                                : const Color(0xFF9CA3AF))),
+                    const SizedBox(height: 18),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(
+                                  color: isLight
+                                      ? const Color(0xFFE5E7EB)
+                                      : const Color(0xFF2A2A2A)),
+                            ),
+                            onPressed: () => Navigator.of(ctx).pop(false),
+                            child: const Text('Cancel'),
                           ),
-                          onPressed: () => Navigator.of(ctx).pop(false),
-                          child: const Text('Cancel'),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: isLight
-                                ? Colors.red.shade700
-                                : Colors.red.shade200,
-                            foregroundColor:
-                                isLight ? Colors.white : Colors.black,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: isLight
+                                  ? Colors.red.shade700
+                                  : Colors.red.shade200,
+                              foregroundColor:
+                                  isLight ? Colors.white : Colors.black,
+                            ),
+                            onPressed: () => Navigator.of(ctx).pop(true),
+                            child: const Text('Log out'),
                           ),
-                          onPressed: () => Navigator.of(ctx).pop(true),
-                          child: const Text('Log out'),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
