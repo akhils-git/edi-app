@@ -65,15 +65,8 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
   @override
   void initState() {
     super.initState();
-    // Force landscape and immersive fullscreen
-    // Force landscape and immersive fullscreen
+    // Force immersive fullscreen
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-    if (!widget.isEmbedded) {
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight,
-      ]);
-    }
 
     // Initialize controller async (don't mark initState async)
     _initializeFullscreen();
@@ -89,6 +82,24 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
       if (!_controller.value.isInitialized) {
         await _controller.initialize();
       }
+      
+      // Set orientation based on video aspect ratio
+      if (!widget.isEmbedded) {
+        if (_controller.value.aspectRatio < 1.0) {
+          // Portrait video
+          await SystemChrome.setPreferredOrientations([
+            DeviceOrientation.portraitUp,
+            DeviceOrientation.portraitDown,
+          ]);
+        } else {
+          // Landscape video
+          await SystemChrome.setPreferredOrientations([
+            DeviceOrientation.landscapeLeft,
+            DeviceOrientation.landscapeRight,
+          ]);
+        }
+      }
+
       // seek to desired start position
       await _controller.seekTo(widget.startPosition);
       // attach listener below and start playing
@@ -184,6 +195,24 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
     _controller = VideoPlayerController.network(widget.url);
     try {
       await _controller.initialize();
+      
+      // Set orientation based on video aspect ratio
+      if (!widget.isEmbedded) {
+        if (_controller.value.aspectRatio < 1.0) {
+          // Portrait video
+          await SystemChrome.setPreferredOrientations([
+            DeviceOrientation.portraitUp,
+            DeviceOrientation.portraitDown,
+          ]);
+        } else {
+          // Landscape video
+          await SystemChrome.setPreferredOrientations([
+            DeviceOrientation.landscapeLeft,
+            DeviceOrientation.landscapeRight,
+          ]);
+        }
+      }
+
       await _controller.seekTo(widget.startPosition);
       _fullscreenListener = () {
         try {
