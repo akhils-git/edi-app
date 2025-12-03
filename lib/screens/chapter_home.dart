@@ -55,6 +55,17 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
   bool _hasQuestions = true;
 
   Timer? _playbackTimer;
+  Duration _initialVideoPosition = Duration.zero;
+  Duration _initialAudioPosition = Duration.zero;
+
+  Duration _parseDuration(String s) {
+    final parts = s.split(':');
+    if (parts.length != 3) return Duration.zero;
+    final hours = int.tryParse(parts[0]) ?? 0;
+    final minutes = int.tryParse(parts[1]) ?? 0;
+    final seconds = int.tryParse(parts[2]) ?? 0;
+    return Duration(hours: hours, minutes: minutes, seconds: seconds);
+  }
 
   String _formatDurationForApi(Duration d) {
     String twoDigits(int n) => n.toString().padLeft(2, "0");
@@ -115,7 +126,7 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
   @override
   void initState() {
     super.initState();
-    _initAndPlayInline();
+    _fetchPlaybackStatus();
     _audioPlayer = AudioPlayer();
 
     _audioPlayer.onPlayerStateChanged.listen((state) {
@@ -144,6 +155,37 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
     });
 
     _fetchQuizResult();
+  }
+
+  Future<void> _fetchPlaybackStatus() async {
+    final currentUser = UserSession.currentUser;
+    if (currentUser == null) {
+      _initAndPlayInline();
+      return;
+    }
+
+    final status = await ChapterService.getPlaybackStatus(
+      userId: currentUser.id,
+      chapterId: widget.chapter.id,
+      authToken: UserSession.token,
+    );
+
+    if (status != null) {
+      if (status['video_current_duration'] != null) {
+        _initialVideoPosition =
+            _parseDuration(status['video_current_duration'].toString());
+      }
+      if (status['audio_current_duration'] != null) {
+        _initialAudioPosition =
+            _parseDuration(status['audio_current_duration'].toString());
+        if (mounted) {
+          setState(() {
+            _audioPosition = _initialAudioPosition;
+          });
+        }
+      }
+    }
+    _initAndPlayInline();
   }
 
   Future<void> _fetchQuizResult() async {
@@ -195,6 +237,9 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
     if (url.isEmpty) return;
     _inlineController = VideoPlayerController.network(url);
     await _inlineController!.initialize();
+    if (_initialVideoPosition > Duration.zero) {
+      await _inlineController!.seekTo(_initialVideoPosition);
+    }
 
     if (_inlineController!.value.aspectRatio < 1.0) {
       SystemChrome.setPreferredOrientations([
@@ -230,6 +275,9 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
     try {
       if (!_audioInitialized) {
         await _audioPlayer.setSourceUrl(widget.chapter.audioFile);
+        if (_initialAudioPosition > Duration.zero) {
+          await _audioPlayer.seek(_initialAudioPosition);
+        }
         setState(() {
           _audioInitialized = true;
         });

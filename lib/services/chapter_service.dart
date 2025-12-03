@@ -131,4 +131,31 @@ class ChapterService {
       print('Error updating playback progress: $e');
     }
   }
+  static Future<Map<String, dynamic>?> getPlaybackStatus({
+    required String userId,
+    required String chapterId,
+    String? authToken,
+  }) async {
+    final uri = Uri.parse(
+        '${apiBaseUrl}api/v1/playback?user_id=$userId&chapter_id=$chapterId');
+    final headers = <String, String>{
+      'Accept': 'application/json',
+    };
+    if (authToken != null && authToken.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $authToken';
+    }
+
+    try {
+      final resp = await http.get(uri, headers: headers);
+      if (resp.statusCode == 200) {
+        final decoded = jsonDecode(resp.body);
+        if (decoded['success'] == true && decoded['data'] != null) {
+          return decoded['data'];
+        }
+      }
+    } catch (e) {
+      print('Error fetching playback status: $e');
+    }
+    return null;
+  }
 }
