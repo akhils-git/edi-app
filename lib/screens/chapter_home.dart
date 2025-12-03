@@ -178,11 +178,20 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
       if (status['audio_current_duration'] != null) {
         _initialAudioPosition =
             _parseDuration(status['audio_current_duration'].toString());
+      }
+      if (status['audio_total_duration'] != null) {
+        final totalAudio =
+            _parseDuration(status['audio_total_duration'].toString());
         if (mounted) {
           setState(() {
             _audioPosition = _initialAudioPosition;
+            _audioDuration = totalAudio;
           });
         }
+      } else if (mounted) {
+        setState(() {
+          _audioPosition = _initialAudioPosition;
+        });
       }
     }
     _initAndPlayInline();
