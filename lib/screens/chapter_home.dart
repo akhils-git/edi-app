@@ -332,6 +332,8 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
         isEmbedded: true,
         chapterId: chapter.id,
         bookId: chapter.bookId,
+        audioPosition: _audioPosition,
+        audioDuration: _audioDuration,
       );
     }
 
@@ -675,7 +677,11 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                                       controller:
                                                           _inlineController,
                                                       chapterId: chapter.id,
-                                                      bookId: chapter.bookId),
+                                                      bookId: chapter.bookId,
+                                                      audioPosition:
+                                                          _audioPosition,
+                                                      audioDuration:
+                                                          _audioDuration),
                                             ),
                                           );
                                           if (result != null) {

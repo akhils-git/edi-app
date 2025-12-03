@@ -23,6 +23,8 @@ class FullscreenVideoScreen extends StatefulWidget {
 
   final String? chapterId;
   final String? bookId;
+  final Duration? audioPosition;
+  final Duration? audioDuration;
 
   const FullscreenVideoScreen(
       {Key? key,
@@ -31,7 +33,9 @@ class FullscreenVideoScreen extends StatefulWidget {
       this.controller,
       this.isEmbedded = false,
       this.chapterId,
-      this.bookId})
+      this.bookId,
+      this.audioPosition,
+      this.audioDuration})
       : super(key: key);
 
   @override
@@ -109,8 +113,12 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
       bookId: widget.bookId!,
       videoTotalDuration: _formatDurationForApi(videoDuration),
       videoCurrentDuration: _formatDurationForApi(videoPosition),
-      audioTotalDuration: "00:00:00",
-      audioCurrentDuration: "00:00:00",
+      audioTotalDuration: widget.audioDuration != null
+          ? _formatDurationForApi(widget.audioDuration!)
+          : "00:00:00",
+      audioCurrentDuration: widget.audioPosition != null
+          ? _formatDurationForApi(widget.audioPosition!)
+          : "00:00:00",
       authToken: UserSession.token,
     );
   }
