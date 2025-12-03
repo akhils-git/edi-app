@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -53,6 +54,64 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
   Map<String, dynamic>? _quizResult;
   bool _hasQuestions = true;
 
+  Timer? _playbackTimer;
+
+  String _formatDurationForApi(Duration d) {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String twoDigitMinutes = twoDigits(d.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(d.inSeconds.remainder(60));
+    return "${twoDigits(d.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
+  }
+
+  void _startPlaybackTimer() {
+    if (_playbackTimer != null) return;
+    _playbackTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      _reportPlaybackProgress();
+    });
+  }
+
+  void _stopPlaybackTimer() {
+    _playbackTimer?.cancel();
+    _playbackTimer = null;
+  }
+
+  void _updatePlaybackTimerState() {
+    final isVideoPlaying = _inlineController != null &&
+        _inlineController!.value.isInitialized &&
+        _inlineController!.value.isPlaying;
+    final isAudioPlaying = _isAudioPlaying;
+
+    if (isVideoPlaying || isAudioPlaying) {
+      _startPlaybackTimer();
+    } else {
+      _stopPlaybackTimer();
+    }
+  }
+
+  Future<void> _reportPlaybackProgress() async {
+    final currentUser = UserSession.currentUser;
+    if (currentUser == null) return;
+
+    Duration videoDuration = Duration.zero;
+    Duration videoPosition = Duration.zero;
+
+    if (_inlineController != null && _inlineController!.value.isInitialized) {
+      videoDuration = _inlineController!.value.duration;
+      videoPosition = _inlineController!.value.position;
+    }
+
+    await ChapterService.updatePlaybackProgress(
+      userId: currentUser.id,
+      chapterId: widget.chapter.id,
+      bookId: widget.chapter.bookId,
+      videoTotalDuration: _formatDurationForApi(videoDuration),
+      videoCurrentDuration: _formatDurationForApi(videoPosition),
+      audioTotalDuration: _formatDurationForApi(_audioDuration),
+      audioCurrentDuration: _formatDurationForApi(_audioPosition),
+      authToken: UserSession.token,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -64,6 +123,7 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
         setState(() {
           _isAudioPlaying = state == PlayerState.playing;
         });
+        _updatePlaybackTimerState();
       }
     });
 
@@ -124,6 +184,7 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
   void dispose() {
     SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     _audioPlayer.dispose();
+    _stopPlaybackTimer();
     _inlineController?.pause();
     _inlineController?.dispose();
     super.dispose();
@@ -147,7 +208,10 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
     _inlineController!.addListener(() {
       if (!mounted) return;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) setState(() {});
+          if (mounted) {
+            setState(() {});
+            _updatePlaybackTimerState();
+          }
       });
     });
     setState(() {

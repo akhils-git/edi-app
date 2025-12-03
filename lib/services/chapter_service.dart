@@ -93,4 +93,42 @@ class ChapterService {
     print('ChapterService.getChaptersForBook: body=${resp.body}');
     throw Exception('Failed to load chapters: ${resp.statusCode} ${resp.body}');
   }
+  static Future<void> updatePlaybackProgress({
+    required String userId,
+    required String chapterId,
+    required String bookId,
+    required String videoTotalDuration,
+    required String videoCurrentDuration,
+    required String audioTotalDuration,
+    required String audioCurrentDuration,
+    String? authToken,
+  }) async {
+    final uri = Uri.parse('${apiBaseUrl}api/v1/playback');
+    final headers = <String, String>{
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    };
+    if (authToken != null && authToken.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $authToken';
+    }
+
+    final body = jsonEncode({
+      "user_id": userId,
+      "chapter_id": chapterId,
+      "book_id": bookId,
+      "video_total_duration": videoTotalDuration,
+      "video_current_duration": videoCurrentDuration,
+      "audio_total_duration": audioTotalDuration,
+      "audio_current_duration": audioCurrentDuration,
+    });
+
+    try {
+      final resp = await http.post(uri, headers: headers, body: body);
+      if (resp.statusCode != 200 && resp.statusCode != 201) {
+        print('Failed to update playback progress: ${resp.statusCode} ${resp.body}');
+      }
+    } catch (e) {
+      print('Error updating playback progress: $e');
+    }
+  }
 }
