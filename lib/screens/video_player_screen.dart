@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
+import '../services/chapter_service.dart';
+import '../services/session.dart';
 
 class VideoPlayerScreen extends StatefulWidget {
   final String url;
@@ -19,12 +21,17 @@ class FullscreenVideoScreen extends StatefulWidget {
 
   final bool isEmbedded;
 
+  final String? chapterId;
+  final String? bookId;
+
   const FullscreenVideoScreen(
       {Key? key,
       required this.url,
       required this.startPosition,
       this.controller,
-      this.isEmbedded = false})
+      this.isEmbedded = false,
+      this.chapterId,
+      this.bookId})
       : super(key: key);
 
   @override
@@ -60,7 +67,53 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
   bool _isVideoDragging = false;
 
   double _videoDragValue = 0.0;
+
   BoxFit _fit = BoxFit.contain;
+
+  Timer? _playbackTimer;
+
+  String _formatDurationForApi(Duration d) {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String twoDigitMinutes = twoDigits(d.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(d.inSeconds.remainder(60));
+    return "${twoDigits(d.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
+  }
+
+  void _startPlaybackTimer() {
+    if (_playbackTimer != null) return;
+    if (widget.chapterId == null || widget.bookId == null) return;
+    
+    _playbackTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      _reportPlaybackProgress();
+    });
+  }
+
+  void _stopPlaybackTimer() {
+    _playbackTimer?.cancel();
+    _playbackTimer = null;
+  }
+
+  Future<void> _reportPlaybackProgress() async {
+    if (!_controller.value.isInitialized) return;
+    if (widget.chapterId == null || widget.bookId == null) return;
+
+    final currentUser = UserSession.currentUser;
+    if (currentUser == null) return;
+
+    final videoDuration = _controller.value.duration;
+    final videoPosition = _controller.value.position;
+
+    await ChapterService.updatePlaybackProgress(
+      userId: currentUser.id,
+      chapterId: widget.chapterId!,
+      bookId: widget.bookId!,
+      videoTotalDuration: _formatDurationForApi(videoDuration),
+      videoCurrentDuration: _formatDurationForApi(videoPosition),
+      audioTotalDuration: "00:00:00",
+      audioCurrentDuration: "00:00:00",
+      authToken: UserSession.token,
+    );
+  }
 
   @override
   void initState() {
@@ -151,6 +204,13 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
             _hideTimer?.cancel();
             if (!_showControls && mounted) setState(() => _showControls = true);
           }
+          
+          if (_controller.value.isPlaying && !_controller.value.isBuffering) {
+            _startPlaybackTimer();
+          } else {
+            _stopPlaybackTimer();
+          }
+
           if (mounted) setState(() {});
         } catch (e, st) {
           debugPrint('Fullscreen listener error: $e\n$st');
@@ -260,6 +320,13 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
             _hideTimer?.cancel();
             if (!_showControls && mounted) setState(() => _showControls = true);
           }
+          
+          if (_controller.value.isPlaying && !_controller.value.isBuffering) {
+            _startPlaybackTimer();
+          } else {
+            _stopPlaybackTimer();
+          }
+
           setState(() {});
         } catch (e, st) {
           debugPrint('Fullscreen listener error: $e\n$st');
@@ -272,6 +339,7 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
         });
       try {
         await _controller.play();
+        _startPlaybackTimer();
       } catch (e) {
         debugPrint(
             'Error starting playback in fullscreen (owned controller): $e');
@@ -350,6 +418,7 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
       }
     } catch (_) {}
     _hideTimer?.cancel();
+    _stopPlaybackTimer();
     try {
       if (_controller.value.isInitialized && _controller.value.isPlaying) {
         _controller.pause();

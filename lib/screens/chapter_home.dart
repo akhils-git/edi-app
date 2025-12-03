@@ -330,6 +330,8 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
         startPosition: _inlineController!.value.position,
         controller: _inlineController,
         isEmbedded: true,
+        chapterId: chapter.id,
+        bookId: chapter.bookId,
       );
     }
 
@@ -669,8 +671,11 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                                                   FullscreenVideoScreen(
                                                       url: chapter.videoFile,
                                                       startPosition: currentPos,
+
                                                       controller:
-                                                          _inlineController),
+                                                          _inlineController,
+                                                      chapterId: chapter.id,
+                                                      bookId: chapter.bookId),
                                             ),
                                           );
                                           if (result != null) {
