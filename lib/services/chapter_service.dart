@@ -158,4 +158,31 @@ class ChapterService {
     }
     return null;
   }
+  static Future<List<Map<String, dynamic>>> getChapterPlaybackStatusForBook({
+    required String userId,
+    required String bookId,
+    String? authToken,
+  }) async {
+    final uri = Uri.parse(
+        '${apiBaseUrl}api/v1/playback/status?user_id=$userId&book_id=$bookId');
+    final headers = <String, String>{
+      'Accept': 'application/json',
+    };
+    if (authToken != null && authToken.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $authToken';
+    }
+
+    try {
+      final resp = await http.get(uri, headers: headers);
+      if (resp.statusCode == 200) {
+        final decoded = jsonDecode(resp.body);
+        if (decoded['success'] == true && decoded['data'] is List) {
+          return List<Map<String, dynamic>>.from(decoded['data']);
+        }
+      }
+    } catch (e) {
+      print('Error fetching chapter playback status: $e');
+    }
+    return [];
+  }
 }

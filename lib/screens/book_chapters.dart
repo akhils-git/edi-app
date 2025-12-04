@@ -6,6 +6,7 @@ import 'user_profile_screen.dart';
 import '../services/book_service.dart';
 import '../services/chapter_service.dart';
 import 'chapter_home.dart';
+import '../services/session.dart';
 
 class BookChaptersScreen extends StatefulWidget {
   final Book book;
@@ -23,12 +24,33 @@ class BookChaptersScreen extends StatefulWidget {
 
 class _BookChaptersScreenState extends State<BookChaptersScreen> {
   late Future<List<Chapter>> _future;
+  Map<String, Map<String, dynamic>> _chapterStatus = {};
 
   @override
   void initState() {
     super.initState();
     _future =
         ChapterService.getChaptersForBook(widget.book.id, widget.authToken);
+    _fetchPlaybackStatus();
+  }
+
+  Future<void> _fetchPlaybackStatus() async {
+    final currentUser = UserSession.currentUser;
+    if (currentUser == null) return;
+
+    final statusList = await ChapterService.getChapterPlaybackStatusForBook(
+      userId: currentUser.id,
+      bookId: widget.book.id,
+      authToken: widget.authToken,
+    );
+
+    if (mounted) {
+      setState(() {
+        _chapterStatus = {
+          for (var item in statusList) item['chapter_id'] as String: item
+        };
+      });
+    }
   }
 
   String _calculateTotalDuration(String videoDuration, String audioDuration) {
@@ -234,10 +256,19 @@ class _BookChaptersScreenState extends State<BookChaptersScreen> {
                                         ? Colors.blue.shade50
                                         : const Color(0xFF1F2937),
                                   ),
-                                  child: Icon(
-                                    Icons.play_circle,
-                                    color: const Color(0xFF135bec),
-                                  ),
+                                  child: Builder(builder: (context) {
+                                    final status = _chapterStatus[ch.id];
+                                    final isCompleted = status != null &&
+                                        status['chapter_completed'] == true;
+                                    return Icon(
+                                      isCompleted
+                                          ? Icons.check_circle
+                                          : Icons.play_circle,
+                                      color: isCompleted
+                                          ? Colors.green
+                                          : const Color(0xFF135bec),
+                                    );
+                                  }),
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(
@@ -254,16 +285,40 @@ class _BookChaptersScreenState extends State<BookChaptersScreen> {
                                             color: titleColor,
                                           )),
                                       const SizedBox(height: 4),
-                                      Text(
-                                        _calculateTotalDuration(
-                                            ch.videoDuration, ch.audioDuration),
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: isLight
-                                              ? const Color(0xFF6B7280)
-                                              : const Color(0xFF9CA3AF),
-                                        ),
-                                      ),
+                                      const SizedBox(height: 4),
+                                      Builder(builder: (context) {
+                                        final status = _chapterStatus[ch.id];
+                                        final isCompleted = status != null &&
+                                            status['chapter_completed'] == true;
+                                        final percentage = status != null
+                                            ? (status['chapter_percentage']
+                                                    as num)
+                                                .toInt()
+                                            : 0;
+
+                                        String durationText =
+                                            _calculateTotalDuration(
+                                                ch.videoDuration,
+                                                ch.audioDuration);
+                                        String statusText;
+                                        if (isCompleted || percentage == 100) {
+                                          statusText = 'Chapter Completed';
+                                        } else if (percentage == 0) {
+                                          statusText = "Let's begin";
+                                        } else {
+                                          statusText = '$percentage% Completed';
+                                        }
+
+                                        return Text(
+                                          '$durationText | $statusText',
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: isLight
+                                                ? const Color(0xFF6B7280)
+                                                : const Color(0xFF9CA3AF),
+                                          ),
+                                        );
+                                      }),
                                     ],
                                   ),
                                 ),
