@@ -233,6 +233,7 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
 
   @override
   void dispose() {
+    _reportPlaybackProgress();
     SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     _audioPlayer.dispose();
     _stopPlaybackTimer();
@@ -265,6 +266,11 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
           if (mounted) {
             setState(() {});
             _updatePlaybackTimerState();
+            if (_inlineController!.value.position >=
+                    _inlineController!.value.duration &&
+                _inlineController!.value.duration > Duration.zero) {
+              _reportPlaybackProgress();
+            }
           }
       });
     });

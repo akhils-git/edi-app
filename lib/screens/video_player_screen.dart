@@ -335,6 +335,11 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
             _stopPlaybackTimer();
           }
 
+          if (_controller.value.position >= _controller.value.duration &&
+              _controller.value.duration > Duration.zero) {
+            _reportPlaybackProgress();
+          }
+
           setState(() {});
         } catch (e, st) {
           debugPrint('Fullscreen listener error: $e\n$st');
@@ -440,6 +445,8 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
         _controller.dispose();
       } catch (_) {}
     }
+
+    _reportPlaybackProgress();
     super.dispose();
   }
 
