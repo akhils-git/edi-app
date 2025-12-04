@@ -158,43 +158,63 @@ class _BookChaptersScreenState extends State<BookChaptersScreen> {
                     ),
                   ),
                 ),
-                // Dummy Progress bar
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Progress',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                            color: titleColor,
-                          )),
-                      const SizedBox(height: 8),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: LinearProgressIndicator(
-                          value: 0.2, // 2 of 10
-                          minHeight: 7,
-                          backgroundColor: isLight
-                              ? const Color(0xFFE5E7EB)
-                              : const Color(0xFF374151),
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                              const Color(0xFF135bec)),
-                        ),
+                // Dynamic Progress bar
+                FutureBuilder<List<Chapter>>(
+                  future: _future,
+                  builder: (context, snap) {
+                    if (!snap.hasData) return const SizedBox.shrink();
+                    final chapters = snap.data!;
+                    if (chapters.isEmpty) return const SizedBox.shrink();
+
+                    int completedCount = 0;
+                    for (var ch in chapters) {
+                      final status = _chapterStatus[ch.id];
+                      if (status != null &&
+                          status['chapter_completed'] == true) {
+                        completedCount++;
+                      }
+                    }
+                    final total = chapters.length;
+                    final progress = total > 0 ? completedCount / total : 0.0;
+
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Progress',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500,
+                                color: titleColor,
+                              )),
+                          const SizedBox(height: 8),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: LinearProgressIndicator(
+                              value: progress,
+                              minHeight: 7,
+                              backgroundColor: isLight
+                                  ? const Color(0xFFE5E7EB)
+                                  : const Color(0xFF374151),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  const Color(0xFF135bec)),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'You have completed $completedCount of $total chapters.',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: isLight
+                                  ? const Color(0xFF6B7280)
+                                  : const Color(0xFF9CA3AF),
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'You have completed 2 of 10 chapters.',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: isLight
-                              ? const Color(0xFF6B7280)
-                              : const Color(0xFF9CA3AF),
-                        ),
-                      ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
               ],
             ),
