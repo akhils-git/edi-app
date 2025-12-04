@@ -7,6 +7,7 @@ import '../services/book_service.dart';
 import '../services/chapter_service.dart';
 import 'chapter_home.dart';
 import '../services/session.dart';
+import '../components/star_animation.dart';
 
 class BookChaptersScreen extends StatefulWidget {
   final Book book;
@@ -237,92 +238,111 @@ class _BookChaptersScreenState extends State<BookChaptersScreen> {
                           },
                           borderRadius: BorderRadius.circular(12),
                           child: Container(
-                            padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               color: isLight
                                   ? Colors.white
                                   : const Color(0xFF111827),
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: Row(
+                            clipBehavior: Clip.hardEdge,
+                            child: Stack(
                               children: [
-                                Container(
-                                  width: 44,
-                                  height: 44,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: isLight
-                                        ? Colors.blue.shade50
-                                        : const Color(0xFF1F2937),
-                                  ),
+                                Positioned.fill(
                                   child: Builder(builder: (context) {
                                     final status = _chapterStatus[ch.id];
                                     final isCompleted = status != null &&
                                         status['chapter_completed'] == true;
-                                    return Icon(
-                                      isCompleted
-                                          ? Icons.check_circle
-                                          : Icons.play_circle,
-                                      color: isCompleted
-                                          ? Colors.green
-                                          : const Color(0xFF135bec),
-                                    );
+                                    return StarAnimation(enabled: isCompleted);
                                   }),
                                 ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Row(
                                     children: [
-                                      Text(ch.heading,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                            color: titleColor,
-                                          )),
-                                      const SizedBox(height: 4),
-                                      const SizedBox(height: 4),
-                                      Builder(builder: (context) {
+                                    Container(
+                                      width: 44,
+                                      height: 44,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: isLight
+                                            ? Colors.blue.shade50
+                                            : const Color(0xFF1F2937),
+                                      ),
+                                      child: Builder(builder: (context) {
                                         final status = _chapterStatus[ch.id];
                                         final isCompleted = status != null &&
                                             status['chapter_completed'] == true;
-                                        final percentage = status != null
-                                            ? (status['chapter_percentage']
-                                                    as num)
-                                                .toInt()
-                                            : 0;
-
-                                        String durationText =
-                                            _calculateTotalDuration(
-                                                ch.videoDuration);
-                                        String statusText;
-                                        if (isCompleted || percentage == 100) {
-                                          statusText = 'Chapter Completed';
-                                        } else if (percentage == 0) {
-                                          statusText = "Let's begin";
-                                        } else {
-                                          statusText = '$percentage% Completed';
-                                        }
-
-                                        return Text(
-                                          '$durationText | $statusText',
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            color: isLight
-                                                ? const Color(0xFF6B7280)
-                                                : const Color(0xFF9CA3AF),
-                                          ),
+                                        return Icon(
+                                          isCompleted
+                                              ? Icons.check_circle
+                                              : Icons.play_circle,
+                                          color: isCompleted
+                                              ? Colors.green
+                                              : const Color(0xFF135bec),
                                         );
                                       }),
-                                    ],
-                                  ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(ch.heading,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                                color: titleColor,
+                                              )),
+                                          const SizedBox(height: 4),
+                                          const SizedBox(height: 4),
+                                          Builder(builder: (context) {
+                                            final status =
+                                                _chapterStatus[ch.id];
+                                            final isCompleted = status != null &&
+                                                status['chapter_completed'] ==
+                                                    true;
+                                            final percentage = status != null
+                                                ? (status['chapter_percentage']
+                                                        as num)
+                                                    .toInt()
+                                                : 0;
+
+                                            String durationText =
+                                                _calculateTotalDuration(
+                                                    ch.videoDuration);
+                                            String statusText;
+                                            if (isCompleted ||
+                                                percentage == 100) {
+                                              statusText = 'Chapter Completed';
+                                            } else if (percentage == 0) {
+                                              statusText = "Let's begin";
+                                            } else {
+                                              statusText =
+                                                  '$percentage% Completed';
+                                            }
+
+                                            return Text(
+                                              '$durationText | $statusText',
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                color: isLight
+                                                    ? const Color(0xFF6B7280)
+                                                    : const Color(0xFF9CA3AF),
+                                              ),
+                                            );
+                                          }),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    const Icon(Icons.arrow_forward_ios,
+                                        size: 16, color: Color(0xFF135bec)),
+                                  ],
                                 ),
-                                const SizedBox(width: 8),
-                                const Icon(Icons.arrow_forward_ios,
-                                    size: 16, color: Color(0xFF135bec)),
+                                ),
                               ],
                             ),
                           ),
