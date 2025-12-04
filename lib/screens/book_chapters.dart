@@ -8,6 +8,7 @@ import '../services/chapter_service.dart';
 import 'chapter_home.dart';
 import '../services/session.dart';
 import '../components/star_animation.dart';
+import 'my_handbook.dart';
 
 class BookChaptersScreen extends StatefulWidget {
   final Book book;
@@ -378,7 +379,14 @@ class _BookChaptersScreenState extends State<BookChaptersScreen> {
             NavBar(
                 activeIndex: 1,
                 onTap: (idx) {
-                  if (idx == 2) {
+                  if (idx == 0) {
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                          builder: (_) =>
+                              MyHandbookScreen(authToken: widget.authToken)),
+                      (route) => false,
+                    );
+                  } else if (idx == 2) {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (_) => const UserProfileScreen()));
                   }

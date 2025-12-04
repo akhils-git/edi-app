@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/start_screen_one.dart';
 import 'screens/start_screen_two.dart';
 import 'screens/start_screen_three.dart';
 import 'screens/login_screen.dart';
 
-void main() {
+Future<void> main() async {
   // Make the app immersive (hide status and navigation bars) globally.
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-  runApp(const MyApp());
+
+  final prefs = await SharedPreferences.getInstance();
+  final hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
+
+  runApp(MyApp(showOnboarding: !hasSeenOnboarding));
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  final bool showOnboarding;
+  const MyApp({super.key, required this.showOnboarding});
   @override
   State<MyApp> createState() => _MyAppState();
 }
@@ -55,6 +61,15 @@ class _OnboardingPageState extends State<OnboardingPage> {
     super.dispose();
   }
 
+  Future<void> _completeOnboarding() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('hasSeenOnboarding', true);
+    if (mounted) {
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const LoginScreen()));
+    }
+  }
+
   void _next() {
     if (_controller.page != null && _controller.page! < 2) {
       _controller.nextPage(
@@ -62,10 +77,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
       return;
     }
     // if we're on last page, navigate to login
-    if (mounted) {
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const LoginScreen()));
-    }
+    _completeOnboarding();
   }
 
   void _prev() {
@@ -135,8 +147,10 @@ class _MyAppState extends State<MyApp> {
         useMaterial3: true,
         brightness: Brightness.dark,
       ),
-      home:
-          OnboardingPage(themeMode: _themeMode, onThemeChanged: _setThemeMode),
+      home: widget.showOnboarding
+          ? OnboardingPage(
+              themeMode: _themeMode, onThemeChanged: _setThemeMode)
+          : const LoginScreen(),
       routes: {
         '/login': (context) => const LoginScreen(),
       },

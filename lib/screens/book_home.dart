@@ -6,6 +6,7 @@ import '../components/book_card.dart';
 import 'book_chapters.dart';
 import '../components/loading_box.dart';
 import '../services/book_service.dart';
+import 'my_handbook.dart';
 
 class BookHomeScreen extends StatefulWidget {
   final Category category;
@@ -140,7 +141,14 @@ class _BookHomeScreenState extends State<BookHomeScreen> {
             NavBar(
                 activeIndex: 1,
                 onTap: (idx) {
-                  if (idx == 2) {
+                  if (idx == 0) {
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                          builder: (_) =>
+                              MyHandbookScreen(authToken: widget.authToken)),
+                      (route) => false,
+                    );
+                  } else if (idx == 2) {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (_) => const UserProfileScreen()));
                   }

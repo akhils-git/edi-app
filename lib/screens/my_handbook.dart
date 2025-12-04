@@ -93,9 +93,11 @@ class _MyHandbookScreenState extends State<MyHandbookScreen> {
               ),
             ),
             NavBar(
-                activeIndex: 1,
+                activeIndex: 0,
                 onTap: (idx) {
-                  if (idx == 2) {
+                  if (idx == 0) {
+                    // Already on Home
+                  } else if (idx == 2) {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (_) => const UserProfileScreen()));
                   }
