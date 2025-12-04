@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'services/session.dart';
 import 'screens/start_screen_one.dart';
 import 'screens/start_screen_two.dart';
 import 'screens/start_screen_three.dart';
 import 'screens/login_screen.dart';
+import 'screens/my_handbook.dart';
 
 Future<void> main() async {
   // Make the app immersive (hide status and navigation bars) globally.
@@ -13,6 +15,11 @@ Future<void> main() async {
 
   final prefs = await SharedPreferences.getInstance();
   final hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
+  final authToken = prefs.getString('authToken');
+
+  if (authToken != null) {
+    await UserSession.loadFromToken(authToken);
+  }
 
   runApp(MyApp(showOnboarding: !hasSeenOnboarding));
 }
@@ -150,7 +157,9 @@ class _MyAppState extends State<MyApp> {
       home: widget.showOnboarding
           ? OnboardingPage(
               themeMode: _themeMode, onThemeChanged: _setThemeMode)
-          : const LoginScreen(),
+          : (UserSession.isLoggedIn
+              ? MyHandbookScreen(authToken: UserSession.token)
+              : const LoginScreen()),
       routes: {
         '/login': (context) => const LoginScreen(),
       },

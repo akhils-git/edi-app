@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'create_account.dart';
 import '../services/auth_service.dart';
 import '../services/session.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'my_handbook.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -314,6 +315,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                 if (resp.success) {
                                   // store session info globally
                                   UserSession.setFromAuthResponse(resp);
+                                  
+                                  // Persist token
+                                  final prefs = await SharedPreferences.getInstance();
+                                  if (resp.token != null) {
+                                    await prefs.setString('authToken', resp.token!);
+                                  }
+
                                   setState(() {
                                     _alertType = 'success';
                                     _alertMessage =
