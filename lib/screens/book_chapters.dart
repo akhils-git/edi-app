@@ -53,7 +53,7 @@ class _BookChaptersScreenState extends State<BookChaptersScreen> {
     }
   }
 
-  String _calculateTotalDuration(String videoDuration, String audioDuration) {
+  String _calculateTotalDuration(String videoDuration) {
     Duration parseDuration(String s) {
       final parts = s.split(':');
       if (parts.length != 3) return Duration.zero;
@@ -64,9 +64,7 @@ class _BookChaptersScreenState extends State<BookChaptersScreen> {
       );
     }
 
-    final v = parseDuration(videoDuration);
-    final a = parseDuration(audioDuration);
-    final total = v + a;
+    final total = parseDuration(videoDuration);
 
     if (total.inMinutes == 0 && total.inSeconds > 0) {
       return '< 1 min lesson';
@@ -225,8 +223,8 @@ class _BookChaptersScreenState extends State<BookChaptersScreen> {
                       itemBuilder: (context, index) {
                         final ch = chapters[index];
                         return InkWell(
-                          onTap: () {
-                            Navigator.of(context).push(
+                          onTap: () async {
+                            await Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (_) => ChapterHomeScreen(
                                   chapter: ch,
@@ -235,6 +233,7 @@ class _BookChaptersScreenState extends State<BookChaptersScreen> {
                                 ),
                               ),
                             );
+                            _fetchPlaybackStatus();
                           },
                           borderRadius: BorderRadius.circular(12),
                           child: Container(
@@ -298,8 +297,7 @@ class _BookChaptersScreenState extends State<BookChaptersScreen> {
 
                                         String durationText =
                                             _calculateTotalDuration(
-                                                ch.videoDuration,
-                                                ch.audioDuration);
+                                                ch.videoDuration);
                                         String statusText;
                                         if (isCompleted || percentage == 100) {
                                           statusText = 'Chapter Completed';
