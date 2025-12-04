@@ -76,7 +76,7 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
 
   void _startPlaybackTimer() {
     if (_playbackTimer != null) return;
-    _playbackTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+    _playbackTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
       _reportPlaybackProgress();
     });
   }

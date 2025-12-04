@@ -87,7 +87,7 @@ class _FullscreenVideoScreenState extends State<FullscreenVideoScreen> {
     if (_playbackTimer != null) return;
     if (widget.chapterId == null || widget.bookId == null) return;
     
-    _playbackTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+    _playbackTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
       _reportPlaybackProgress();
     });
   }
