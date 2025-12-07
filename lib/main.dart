@@ -8,9 +8,12 @@ import 'screens/start_screen_three.dart';
 import 'screens/login_screen.dart';
 import 'screens/my_handbook.dart';
 
+import 'package:wakelock_plus/wakelock_plus.dart';
+
 Future<void> main() async {
   // Make the app immersive (hide status and navigation bars) globally.
   WidgetsFlutterBinding.ensureInitialized();
+  WakelockPlus.enable();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
   final prefs = await SharedPreferences.getInstance();
