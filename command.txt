@@ -9,3 +9,6 @@ shibu.rex@edu.com
 akhilraj@Akhils-Laptop edu-app % ifconfig | grep "inet " | g
 rep -v 127.0.0.1
         inet 192.168.1.199 netmask 0xffffff00 broadcast 192.168.1.255
+
+
+        /Users/akhilraj/Workspace/edu-app
