@@ -4,6 +4,7 @@ import '../components/nav_bar.dart';
 import 'user_profile_screen.dart';
 import '../components/loading_box.dart';
 import 'book_home.dart';
+import 'login_screen.dart';
 
 class MyHandbookScreen extends StatefulWidget {
   final String? authToken;
@@ -64,6 +65,17 @@ class _MyHandbookScreenState extends State<MyHandbookScreen> {
                     return const LoadingBox(message: 'Loading your handbooks');
                   }
                   if (snap.hasError) {
+                    final errorStr = '${snap.error}';
+                    if (errorStr.contains('401')) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                              builder: (_) => const LoginScreen()),
+                          (route) => false,
+                        );
+                      });
+                      return const SizedBox.shrink();
+                    }
                     return Center(child: Text('Error: ${snap.error}'));
                   }
                   final cats = snap.data ?? [];
