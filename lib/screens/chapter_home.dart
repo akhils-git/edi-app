@@ -930,18 +930,12 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
                             ),
                     ),
                     Container(
-                      margin: EdgeInsets.symmetric(horizontal: 0, vertical: 0), // Adjusted margin to fit ListView padding
-                      padding: EdgeInsets.all(20),
+                      margin: const EdgeInsets.only(bottom: 18),
+                      padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                          color: surfaceColor,
-                          borderRadius: BorderRadius.circular(16), // Adjusted to 16 for consistency
-                          border: Border.all(color: borderColor),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 10,
-                                offset: Offset(0, 4))
-                          ]),
+                        color: cardBg,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                       child: _isLoadingQuizResult
                           ? Center(child: CircularProgressIndicator())
                           : !_hasQuestions
