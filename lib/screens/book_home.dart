@@ -139,7 +139,7 @@ class _BookHomeScreenState extends State<BookHomeScreen> {
             ),
             // Reuse the NavBar; place Library active index as 1
             NavBar(
-                activeIndex: 1,
+                activeIndex: 0,
                 onTap: (idx) {
                   if (idx == 0) {
                     Navigator.of(context).pushAndRemoveUntil(
@@ -148,7 +148,7 @@ class _BookHomeScreenState extends State<BookHomeScreen> {
                               MyHandbookScreen(authToken: widget.authToken)),
                       (route) => false,
                     );
-                  } else if (idx == 2) {
+                  } else if (idx == 1) {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (_) => const UserProfileScreen()));
                   }

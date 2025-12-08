@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import '../services/auth_service.dart';
 import '../services/session.dart';
 import 'login_screen.dart';
+import '../components/nav_bar.dart';
+import 'my_handbook.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -63,248 +65,265 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
+    final bg = isLight ? const Color(0xFFF6F6F8) : const Color(0xFF0D1116);
     final titleColor = isLight ? const Color(0xFF0F1724) : Colors.white;
-    final titleStyle =
-        TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: titleColor);
 
     return Scaffold(
-      backgroundColor:
-          isLight ? const Color(0xFFF6F6F8) : const Color(0xFF0D1116),
+      backgroundColor: bg,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // header: back + title + settings
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back),
-                      color: titleColor,
-                      onPressed: () => Navigator.of(context).pop(),
+        child: Column(
+          children: [
+            // Header similar to MyHandbook
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+              child: Column(
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('My Profile',
+                        style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w800,
+                            color: titleColor)),
+                  ),
+                  if (_isLoading)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4.0),
+                      child: const LinearProgressIndicator(minHeight: 2),
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                        child: Text('My Profile',
-                            style: titleStyle,
-                            overflow: TextOverflow.ellipsis)),
-                    if (_isLoading)
-                      const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    const SizedBox(width: 8),
-                  ],
-                ),
+                ],
+              ),
+            ),
 
-                const SizedBox(height: 24),
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 24),
 
-                // profile avatar + name + email
-                Center(
-                  child: Column(
-                    children: [
-                      if (_user?.avatar != null && _user!.avatar!.isNotEmpty)
-                        CircleAvatar(
-                          radius: 48,
-                          backgroundColor: isLight
-                              ? const Color(0xFFE6E9F8)
-                              : const Color(0xFF1B2936),
-                          child: ClipOval(
-                            child: SizedBox(
-                              width: 96,
-                              height: 96,
-                              child: Image.network(
-                                _user!.avatar!,
-                                fit: BoxFit.cover,
-                                loadingBuilder:
-                                    (context, child, loadingProgress) {
-                                  if (loadingProgress == null) return child;
-                                  return Center(
-                                    child: CircularProgressIndicator(
-                                      value: loadingProgress
-                                                  .expectedTotalBytes !=
-                                              null
-                                          ? loadingProgress
-                                                  .cumulativeBytesLoaded /
-                                              loadingProgress
-                                                  .expectedTotalBytes!
-                                          : null,
-                                    ),
-                                  );
-                                },
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Icon(
-                                    Icons.person,
-                                    size: 48,
+                    // profile avatar + name + email
+                    Center(
+                      child: Column(
+                        children: [
+                          if (_user?.avatar != null && _user!.avatar!.isNotEmpty)
+                            CircleAvatar(
+                              radius: 48,
+                              backgroundColor: isLight
+                                  ? const Color(0xFFE6E9F8)
+                                  : const Color(0xFF1B2936),
+                              child: ClipOval(
+                                child: SizedBox(
+                                  width: 96,
+                                  height: 96,
+                                  child: Image.network(
+                                    _user!.avatar!,
+                                    fit: BoxFit.cover,
+                                    loadingBuilder:
+                                        (context, child, loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return Center(
+                                        child: CircularProgressIndicator(
+                                          value: loadingProgress
+                                                      .expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                              : null,
+                                        ),
+                                      );
+                                    },
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Icon(
+                                        Icons.person,
+                                        size: 48,
+                                        color: isLight
+                                            ? const Color(0xFF0F1724)
+                                            : Colors.white,
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            )
+                          else
+                            CircleAvatar(
+                              radius: 48,
+                              backgroundColor: isLight
+                                  ? const Color(0xFFE6E9F8)
+                                  : const Color(0xFF1B2936),
+                              child: Text(
+                                _user != null && _user!.name.isNotEmpty
+                                    ? _user!.name
+                                        .split(' ')
+                                        .map((s) => s.isNotEmpty ? s[0] : '')
+                                        .take(2)
+                                        .join()
+                                    : 'U',
+                                style: TextStyle(
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.w700,
                                     color: isLight
                                         ? const Color(0xFF0F1724)
-                                        : Colors.white,
-                                  );
-                                },
+                                        : Colors.white),
                               ),
                             ),
-                          ),
-                        )
-                      else
-                        CircleAvatar(
-                          radius: 48,
-                          backgroundColor: isLight
-                              ? const Color(0xFFE6E9F8)
-                              : const Color(0xFF1B2936),
-                          child: Text(
-                            _user != null && _user!.name.isNotEmpty
-                                ? _user!.name
-                                    .split(' ')
-                                    .map((s) => s.isNotEmpty ? s[0] : '')
-                                    .take(2)
-                                    .join()
-                                : 'U',
-                            style: TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.w700,
-                                color: isLight
-                                    ? const Color(0xFF0F1724)
-                                    : Colors.white),
-                          ),
-                        ),
-                      const SizedBox(height: 16),
-                      Text(_user?.name ?? 'Unknown User',
-                          style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w700,
-                              color: titleColor)),
-                      const SizedBox(height: 6),
-                      Text(_user?.email ?? '-',
-                          style: TextStyle(
-                              color: isLight
-                                  ? const Color(0xFF6B7280)
-                                  : const Color(0xFF9CA3AF))),
-                    ],
-                  ),
-                ),
+                          const SizedBox(height: 16),
+                          Text(_user?.name ?? 'Unknown User',
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                  color: titleColor)),
+                          const SizedBox(height: 6),
+                          Text(_user?.email ?? '-',
+                              style: TextStyle(
+                                  color: isLight
+                                      ? const Color(0xFF6B7280)
+                                      : const Color(0xFF9CA3AF))),
+                        ],
+                      ),
+                    ),
 
-                const SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
-                // Account Information
-                Text('Account Information',
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: isLight
-                            ? const Color(0xFF6B7280)
-                            : const Color(0xFF9CA3AF))),
-                const SizedBox(height: 8),
-                Container(
-                  decoration: BoxDecoration(
-                      color: isLight ? Colors.white : const Color(0xFF1E1E1E),
-                      borderRadius: BorderRadius.circular(16)),
-                  clipBehavior: Clip.hardEdge,
-                  child: Column(children: [
-                    _buildInfoRow('Full Name', _user?.name ?? '-', isLight),
-                    Divider(
-                        height: 1,
-                        color: isLight
-                            ? const Color(0xFFF1F5F9)
-                            : const Color(0xFF2A2A2A)),
-                    _buildInfoRow('Email', _user?.email ?? '-', isLight),
-                    Divider(
-                        height: 1,
-                        color: isLight
-                            ? const Color(0xFFF1F5F9)
-                            : const Color(0xFF2A2A2A)),
-                    _buildInfoRow('Phone Number',
-                        _user?.phoneNumber ?? 'Not available', isLight),
-                  ]),
-                ),
-
-                const SizedBox(height: 18),
-
-                // Subscription
-                Text('Subscription',
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: isLight
-                            ? const Color(0xFF6B7280)
-                            : const Color(0xFF9CA3AF))),
-                const SizedBox(height: 8),
-                Container(
-                  decoration: BoxDecoration(
-                      color: isLight ? Colors.white : const Color(0xFF1E1E1E),
-                      borderRadius: BorderRadius.circular(16)),
-                  clipBehavior: Clip.hardEdge,
-                  child: Column(children: [
-                    _buildInfoRow('Current Plan', 'Platinum X', isLight,
-                        highlightRight: true),
-                    Divider(
-                        height: 1,
-                        color: isLight
-                            ? const Color(0xFFF1F5F9)
-                            : const Color(0xFF2A2A2A)),
-                    _buildInfoRow(
-                        'Start Date',
-                        _formatDate(_user?.subscriptionStart),
-                        isLight),
-                    Divider(
-                        height: 1,
-                        color: isLight
-                            ? const Color(0xFFF1F5F9)
-                            : const Color(0xFF2A2A2A)),
-                    _buildInfoRow(
-                        'Renewal Date',
-                        _formatDate(_user?.subscriptionEnd),
-                        isLight),
-                  ]),
-                ),
-
-                const SizedBox(height: 18),
-
-                // About
-                Text('About',
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: isLight
-                            ? const Color(0xFF6B7280)
-                            : const Color(0xFF9CA3AF))),
-                const SizedBox(height: 8),
-                Container(
-                  decoration: BoxDecoration(
-                      color: isLight ? Colors.white : const Color(0xFF1E1E1E),
-                      borderRadius: BorderRadius.circular(16)),
-                  clipBehavior: Clip.hardEdge,
-                  child: Column(children: [
-                    _buildActionRow('Privacy Policy', isLight),
-                    Divider(
-                        height: 1,
-                        color: isLight
-                            ? const Color(0xFFF1F5F9)
-                            : const Color(0xFF2A2A2A)),
-                    _buildActionRow('Terms and Conditions', isLight),
-                    Divider(
-                        height: 1,
-                        color: isLight
-                            ? const Color(0xFFF1F5F9)
-                            : const Color(0xFF2A2A2A)),
-                    // Logout row
-                    _buildLogoutRow(context, isLight),
-                  ]),
-                ),
-
-                const SizedBox(height: 28),
-                Center(
-                    child: Text('Beta 1.0.2',
+                    // Account Information
+                    Text('Account Information',
                         style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
                             color: isLight
                                 ? const Color(0xFF6B7280)
-                                : const Color(0xFF9CA3AF)))),
-              ],
+                                : const Color(0xFF9CA3AF))),
+                    const SizedBox(height: 8),
+                    Container(
+                      decoration: BoxDecoration(
+                          color: isLight ? Colors.white : const Color(0xFF1E1E1E),
+                          borderRadius: BorderRadius.circular(16)),
+                      clipBehavior: Clip.hardEdge,
+                      child: Column(children: [
+                        _buildInfoRow('Full Name', _user?.name ?? '-', isLight),
+                        Divider(
+                            height: 1,
+                            color: isLight
+                                ? const Color(0xFFF1F5F9)
+                                : const Color(0xFF2A2A2A)),
+                        _buildInfoRow('Email', _user?.email ?? '-', isLight),
+                        Divider(
+                            height: 1,
+                            color: isLight
+                                ? const Color(0xFFF1F5F9)
+                                : const Color(0xFF2A2A2A)),
+                        _buildInfoRow('Phone Number',
+                            _user?.phoneNumber ?? 'Not available', isLight),
+                      ]),
+                    ),
+
+                    const SizedBox(height: 18),
+
+                    // Subscription
+                    Text('Subscription',
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: isLight
+                                ? const Color(0xFF6B7280)
+                                : const Color(0xFF9CA3AF))),
+                    const SizedBox(height: 8),
+                    Container(
+                      decoration: BoxDecoration(
+                          color: isLight ? Colors.white : const Color(0xFF1E1E1E),
+                          borderRadius: BorderRadius.circular(16)),
+                      clipBehavior: Clip.hardEdge,
+                      child: Column(children: [
+                        _buildInfoRow('Current Plan', 'Platinum X', isLight,
+                            highlightRight: true),
+                        Divider(
+                            height: 1,
+                            color: isLight
+                                ? const Color(0xFFF1F5F9)
+                                : const Color(0xFF2A2A2A)),
+                        _buildInfoRow(
+                            'Start Date',
+                            _formatDate(_user?.subscriptionStart),
+                            isLight),
+                        Divider(
+                            height: 1,
+                            color: isLight
+                                ? const Color(0xFFF1F5F9)
+                                : const Color(0xFF2A2A2A)),
+                        _buildInfoRow(
+                            'Renewal Date',
+                            _formatDate(_user?.subscriptionEnd),
+                            isLight),
+                      ]),
+                    ),
+
+                    const SizedBox(height: 18),
+
+                    // About
+                    Text('About',
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: isLight
+                                ? const Color(0xFF6B7280)
+                                : const Color(0xFF9CA3AF))),
+                    const SizedBox(height: 8),
+                    Container(
+                      decoration: BoxDecoration(
+                          color: isLight ? Colors.white : const Color(0xFF1E1E1E),
+                          borderRadius: BorderRadius.circular(16)),
+                      clipBehavior: Clip.hardEdge,
+                      child: Column(children: [
+                        _buildActionRow('Privacy Policy', isLight),
+                        Divider(
+                            height: 1,
+                            color: isLight
+                                ? const Color(0xFFF1F5F9)
+                                : const Color(0xFF2A2A2A)),
+                        _buildActionRow('Terms and Conditions', isLight),
+                        Divider(
+                            height: 1,
+                            color: isLight
+                                ? const Color(0xFFF1F5F9)
+                                : const Color(0xFF2A2A2A)),
+                        // Logout row
+                        _buildLogoutRow(context, isLight),
+                      ]),
+                    ),
+
+                    const SizedBox(height: 28),
+                    Center(
+                        child: Text('RC 1.0.1',
+                            style: TextStyle(
+                                color: isLight
+                                    ? const Color(0xFF6B7280)
+                                    : const Color(0xFF9CA3AF)))),
+                  ],
+                ),
+              ),
             ),
-          ),
+            
+            NavBar(
+              activeIndex: 1,
+              onTap: (idx) {
+                if (idx == 0) {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                        builder: (_) =>
+                            MyHandbookScreen(authToken: UserSession.token)),
+                    (route) => false,
+                  );
+                } else if (idx == 1) {
+                  // Already on Profile
+                }
+              },
+            ),
+          ],
         ),
       ),
     );

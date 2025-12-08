@@ -22,7 +22,6 @@ class NavBar extends StatelessWidget {
   })  : items = items ??
             const [
               _NavItemData(icon: Icons.home, label: 'Home'),
-              _NavItemData(icon: Icons.library_books, label: 'Library'),
               _NavItemData(icon: Icons.person, label: 'Profile'),
             ],
         super(key: key);

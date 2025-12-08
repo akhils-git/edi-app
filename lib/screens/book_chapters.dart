@@ -377,7 +377,7 @@ class _BookChaptersScreenState extends State<BookChaptersScreen> {
 
             // reuse nav bar
             NavBar(
-                activeIndex: 1,
+                activeIndex: 0,
                 onTap: (idx) {
                   if (idx == 0) {
                     Navigator.of(context).pushAndRemoveUntil(
@@ -386,7 +386,7 @@ class _BookChaptersScreenState extends State<BookChaptersScreen> {
                               MyHandbookScreen(authToken: widget.authToken)),
                       (route) => false,
                     );
-                  } else if (idx == 2) {
+                  } else if (idx == 1) {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (_) => const UserProfileScreen()));
                   }

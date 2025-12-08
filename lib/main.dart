@@ -145,7 +145,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'edu-app',
+      title: 'REX Academy',
       themeMode: _themeMode,
       theme: ThemeData(
         colorSchemeSeed: Colors.blue,

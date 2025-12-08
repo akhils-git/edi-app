@@ -1058,9 +1058,9 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
           ),
         ),
         bottomNavigationBar: NavBar(
-            activeIndex: 1,
+            activeIndex: 0,
             onTap: (idx) {
-              if (idx == 2) {
+              if (idx == 1) {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => const UserProfileScreen()));
               }

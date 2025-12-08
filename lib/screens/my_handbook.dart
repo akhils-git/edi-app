@@ -109,7 +109,7 @@ class _MyHandbookScreenState extends State<MyHandbookScreen> {
                 onTap: (idx) {
                   if (idx == 0) {
                     // Already on Home
-                  } else if (idx == 2) {
+                  } else if (idx == 1) {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (_) => const UserProfileScreen()));
                   }
