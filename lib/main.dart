@@ -7,6 +7,7 @@ import 'screens/start_screen_two.dart';
 import 'screens/start_screen_three.dart';
 import 'screens/login_screen.dart';
 import 'screens/my_handbook.dart';
+import 'components/connectivity_wrapper.dart';
 
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -146,6 +147,9 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'REX Academy',
+      builder: (context, child) {
+        return ConnectivityWrapper(child: child ?? const SizedBox());
+      },
       themeMode: _themeMode,
       theme: ThemeData(
         colorSchemeSeed: Colors.blue,
