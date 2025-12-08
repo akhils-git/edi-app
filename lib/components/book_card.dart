@@ -59,7 +59,7 @@ class BookCard extends StatelessWidget {
             // Text area (~20%)
             Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                    const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 8.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
