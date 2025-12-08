@@ -146,6 +146,20 @@ class _ChapterHomeScreenState extends State<ChapterHomeScreen> {
       }
     });
 
+    // Preload source to get duration even if not playing immediately - creates a temporary player or we can just set source but not resume?
+    // Actually, setSourceUrl only prepares it. We should do this once to fetch metadata if needed.
+    // However, onDurationChanged should fire once metadata is loaded.
+    if (widget.chapter.audioFile.isNotEmpty) {
+       _audioPlayer.setSourceUrl(widget.chapter.audioFile).then((_) async {
+         final d = await _audioPlayer.getDuration();
+         if (mounted && d != null) {
+           setState(() {
+             _audioDuration = d;
+           });
+         }
+       });
+    }
+
     _audioPlayer.onPositionChanged.listen((newPosition) {
       if (mounted && !_isDragging) {
         setState(() {
