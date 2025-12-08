@@ -24,7 +24,6 @@ class BookCard extends StatelessWidget {
           children: [
             // Image area (~80%)
             Expanded(
-              flex: 8,
               child: ClipRRect(
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(18),
@@ -58,9 +57,7 @@ class BookCard extends StatelessWidget {
             ),
 
             // Text area (~20%)
-            Expanded(
-              flex: 2,
-              child: Padding(
+            Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                 child: Column(
@@ -121,7 +118,6 @@ class BookCard extends StatelessWidget {
                         ],
                       ),
                   ],
-                ),
               ),
             ),
           ],
