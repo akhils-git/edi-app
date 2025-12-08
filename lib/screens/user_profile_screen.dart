@@ -199,10 +199,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                 ? const Color(0xFF6B7280)
                                 : const Color(0xFF9CA3AF))),
                     const SizedBox(height: 8),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: isLight ? Colors.white : const Color(0xFF1E1E1E),
-                          borderRadius: BorderRadius.circular(16)),
+                    Material(
+                      color: isLight ? Colors.white : const Color(0xFF1E1E1E),
+                      borderRadius: BorderRadius.circular(16),
                       clipBehavior: Clip.hardEdge,
                       child: Column(children: [
                         _buildInfoRow('Full Name', _user?.name ?? '-', isLight),
@@ -233,10 +232,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                 ? const Color(0xFF6B7280)
                                 : const Color(0xFF9CA3AF))),
                     const SizedBox(height: 8),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: isLight ? Colors.white : const Color(0xFF1E1E1E),
-                          borderRadius: BorderRadius.circular(16)),
+                    Material(
+                      color: isLight ? Colors.white : const Color(0xFF1E1E1E),
+                      borderRadius: BorderRadius.circular(16),
                       clipBehavior: Clip.hardEdge,
                       child: Column(children: [
                         _buildInfoRow('Current Plan', 'Platinum X', isLight,
@@ -273,10 +271,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                 ? const Color(0xFF6B7280)
                                 : const Color(0xFF9CA3AF))),
                     const SizedBox(height: 8),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: isLight ? Colors.white : const Color(0xFF1E1E1E),
-                          borderRadius: BorderRadius.circular(16)),
+                    Material(
+                      color: isLight ? Colors.white : const Color(0xFF1E1E1E),
+                      borderRadius: BorderRadius.circular(16),
                       clipBehavior: Clip.hardEdge,
                       child: Column(children: [
                         _buildActionRow('Privacy Policy', isLight),
